@@ -3,6 +3,9 @@ name: Deploy magazine to PRE and PRO
 on:
   workflow_dispatch:
 
+env: 
+  SITE_PUBLIC_PATH: ./public
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,7 +20,7 @@ jobs:
       uses: actions/upload-artifacts@v1.0.0.
       with: 
         name: site
-        path: ./public
+        path: ${{ env.SITE_PUBLIC_PATH }}
   
   deploypre:
     runs-on: ubuntu-latest
@@ -37,7 +40,7 @@ jobs:
     - name: Publish new version at dev
       uses: Azure/cli@1.0.4
       with: 
-        inlineScript: az storage blob upload-batch -d '$web' -s './public' --account-name ${{ secrets.ACCOUNT_NAME }} --account-key ${{ secrets.ACCOUNT_KEY }}
+        inlineScript: az storage blob upload-batch -d '$web' -s ${{ env.SITE_PUBLIC_PATH }} --account-name ${{ secrets.ACCOUNT_NAME }} --account-key ${{ secrets.ACCOUNT_KEY }}
 
   deploypro:
     runs-on: ubuntu-latest
@@ -57,4 +60,4 @@ jobs:
     - name: Publish new version at pro
       uses: Azure/cli@1.0.4
       with: 
-        inlineScript: az storage blob upload-batch -d '$web' -s './public' --account-name ${{ secrets.ACCOUNT_NAME }} --account-key ${{ secrets.ACCOUNT_KEY }}
+        inlineScript: az storage blob upload-batch -d '$web' -s ${{ env.SITE_PUBLIC_PATH }} --account-name ${{ secrets.ACCOUNT_NAME }} --account-key ${{ secrets.ACCOUNT_KEY }}
