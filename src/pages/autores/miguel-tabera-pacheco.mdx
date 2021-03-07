@@ -1,0 +1,22 @@
+---
+id: miguel-tabera-pacheco
+title: Miguel Tabera Pacheco
+jobTitle: SharePoint Lead
+slug: /autores/miguel-tabera-pacheco
+photo: ../../../images/Autores/Miguel_Tabera.jpg
+twitter: https://twitter.com/migueltabera
+blog: http://www.sinsharepointnohayparaiso.com
+type: author
+content: >-
+    ​Miguel Tabera Pacheco es MVP de Microsoft en el área de Office Servers and Services (antiguamente MVP de SharePoint). Trabaja como SharePoint Lead en Plain Concepts, empresa tecnológica que desarrolla soluciones basadas en tecnologías de Microsoft. Ha sido nombrado como uno de los "Top 25 Europe Office 365 Influencers" por la organización de la European SharePoint Conference. Es fundador de la Comunidad Técnica de SharePoint & Office 365 de Madrid (www.MadPoint.net), una comunidad de ayuda que reúne a todos los profesionales y amantes de Office 365 de Madrid, en la que se organiza eventos presenciales, webcasts y se proporciona noticias, artículos, libros, material, etc. También colabora activamente con revistas y grupos de usuarios del mundo Microsoft y participa activamente en eventos de la comunidad. Puedes seguirle en Docs.com (http://docs.com/migueltabera), en su blog (www.sinsharepointnohayparaiso.com) y en Twitter (@migueltabera ).
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "miguel-tabera-pacheco"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

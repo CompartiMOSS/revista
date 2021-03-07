@@ -1,0 +1,23 @@
+---
+id: fernando-chiquiza
+title: Fernando Chiquiza
+jobTitle: Consultor SharePoint
+slug: /autores/fernando-chiquiza
+photo: ../../../images/Autores/FernandoChiquiza.jpg
+twitter: https://twitter.com/fchiquiza
+blog: http://fernando-chiquiza.blogspot.com/
+type: author
+content: >-
+    Bogotano que desde el año 2010 trabaja en Tecnologías basadas en Microsoft SharePoint, amplia experiencia diseñando y desarrollando soluciones para SharePoint y Office 365. Co-fundador de la comunidad SharePoint de Colombia - @sharecol. Fernando es Office Servers and Services MVP, además cuenta con las siguientes certificaciones: MCSE SharePoint, MCSA Office 365, MCTS, MSOS, MCPS, MCNPS.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "fernando-chiquiza"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

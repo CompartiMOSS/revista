@@ -1,0 +1,44 @@
+---
+title: Depurar código en Visual Studio Code, Wamp Server y Chrome
+slug: /revistas/numero-32/depurar-codigo-en-visual-studio-code-wamp-server-y-chrome
+date: 31/05/2017
+magazine: 32
+author: María Abrego
+authorId: maría-abrego
+keywords: ['Visual Studio Code']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+Para poder depurar nuestro código y visualizarlo en un navegador debemos tener instalada la extensión Debugger for Chrome mostrada en la Imagen 1.
+
+![Imagen 1.- Extension Debugger for Chrome.](../../../images/numero32/depurar-codigo-en-visual-studio-code-wamp-server-y-chrome/image1.png)
+
+Una vez que tenemos listo nuestro código y queremos depurarlo, damos clic en el icono de depuración y vemos como en la parte superior nos marca como No hay configuraciones y al dar clic en el icono de play, nos despliega opciones de entorno (Imagen 2).
+
+![Imagen 2.- Sección depuración - opciones para depurar.](../../../images/numero32/depurar-codigo-en-visual-studio-code-wamp-server-y-chrome/image2.png)
+
+Seleccionamos Chrome en este caso y nos abre un archivo llamado launch.json en el cual podemos ver la configuración que trae por default Visual Studio Code.
+
+![Imagen 3.- Archivo de configuración – depuración.](../../../images/numero32/depurar-codigo-en-visual-studio-code-wamp-server-y-chrome/image3.png)
+
+Wamp Server por default nos genera una carpeta en la ruta C:\wamp64 en la cual debemos crear una carpeta para cada proyecto.
+
+Una vez que tengamos la carpeta creada y dentro de ella, el archivo que queremos depurar nos vamos al archivo launch.json y en la línea 8 cambiamos: "url": "http://localhost:8080", por "url": "http://localhost:8080/CARPETA\_PROYECTO, guardamos y vemos que nos cambia en la sección depurar de No hay configuraciones a Launch Chrome against localhost como se muestra en la Ilustración 3. Da clic nuevamente en el icono de play y se abrirá Chrome automáticamente
+
+![Imagen 4.- Configuración terminada.](../../../images/numero32/depurar-codigo-en-visual-studio-code-wamp-server-y-chrome/image4.png)
+
+
+
+**Maria Abrego**
+
+MVP Windows Platform
+
+Maleny1292@gmail.com
+
+@maleny\_abrego ​
+

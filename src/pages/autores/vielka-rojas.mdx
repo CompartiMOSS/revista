@@ -1,0 +1,23 @@
+---
+id: vielka-rojas
+title: Vielka Rojas
+jobTitle: Desarrolladora Web
+slug: /autores/vielka-rojas
+photo: ../../../images/Autores/VielkaRojas.JPG
+twitter: https://twitter.com/vkrojas
+blog: https://vkrojas.wordpress.com/
+type: author
+content: >-
+    ​Soy Ingeniera en Computación del Instituto Tecnológico de Costa Rica e inicié mi vida laboral como desarrolladora Web. Desde el año 2001 estoy trabajando con los productos y tecnologías SharePoint, en todas sus versiones.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "vielka-rojas"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

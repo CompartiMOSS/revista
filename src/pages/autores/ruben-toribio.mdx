@@ -1,0 +1,23 @@
+---
+id: ruben-toribio
+title: Rubén Toribio
+jobTitle: Arquitecto de Sharepoint y Office 365
+slug: /autores/ruben-toribio
+photo: ../../../images/Autores/RubenToribio.png
+twitter: https://twitter.com/Rtoribiog
+blog: 
+type: author
+content: >-
+    Arquitecto en Beezy , MCPD/MCSD Sharepoint & Web applications .Diseñando y aplicando buenas practicas a los desarrollos y al ciclo de vida de los proyectos
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "ruben-toribio"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

@@ -1,0 +1,49 @@
+---
+title: Número 22 - Diciembre 2014
+slug: /revistas/numero-22/
+date: 2020-03-29
+magazine: 22
+type: number
+content: >-
+    Con 2014 a punto de concluir, desde CompartiMOSS nos complace presentarles una nueva edición (y ya son 22) de la revista de referencia en castellano sobre SharePoint y Office 365. En este nuevo número, contamos de nuevo con excelentes artículos en los que no sólo se abordan los componentes más técnicos de SharePoint y Office 365, sino también las enormes posibilidades que ambas plataformas brindan a organizaciones de todo tipo como demuestra la adición continua de nuevos servicios, capacidades y APIs a Office 365, tales como Delve, Grupos de Office 365 o el reciente Office 365 Video. Junto con estos nuevos servicios, cada vez está más claro que los escenarios y arquitecturas híbridas OnPremieses-Online son una alternativa muy atractiva para organizaciones en las que una transición rápida a la nube es posible, aunque necesiten cierto tiempo de adaptación.
+    <br /><br />
+    De nuevo, nuestro agradecimiento tanto a los autores que habitualmente colaboran con nosotros como a toda la base de lectores que impulsan CompartiMOSS y que hacen posible que número a número la revista siga creciendo y reinventándose. Y no queríamos despedirnos sin desear a todos nuestros autores y lectores una Feliz Navidad y un Feliz Año nuevo. Nos vemos en 2015 con nuevos números llenos de contenido y de calidad.
+    <br /><br />
+    <b>El Equipo Editorial de CompartiMOSS​​​​​​​​</b>
+---
+
+import LayoutNumber from '../../../components/layout-number'
+import { graphql } from 'gatsby';
+import ViewArticles from '../../../components/view-articles'
+import DownloadPDF from '../../../components/download-pdf'
+import ViewPartners from '../../../components/view-partners'
+import NumberHeader from '../../../components/number-header'
+
+<NumberHeader frontmatter={props.pageContext.frontmatter} />
+
+<ViewArticles articles={props.data.allMdx} title="Índice" />
+
+<ViewPartners />
+
+export const pageQuery = graphql`
+    query {
+        allMdx(    
+            sort: {
+                fields: frontmatter___title
+            }
+            filter: {
+                frontmatter: {magazine: {eq: 22}, type: {ne: "number"}}
+            }) 
+            {
+                edges {
+                    node {
+                        frontmatter {
+                            title, author, slug, authorId
+                        }      
+                    }
+                }
+            }
+    }
+`
+
+export default LayoutNumber

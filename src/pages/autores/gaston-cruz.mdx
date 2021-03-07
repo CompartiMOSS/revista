@@ -1,0 +1,23 @@
+---
+id: gaston-cruz
+title: Gastón Cruz
+jobTitle: Business Development
+slug: /autores/gaston-cruz
+photo: ../../../images/Autores/Gaston_Cruz.png
+twitter: https://twitter.com/GastonFCruz
+blog: 
+type: author
+content: >-
+    ​Egresado como Contador Público de la Universidad de la República  así como también de la Carrera Analista de Sistemas de la Escuela de Sistemas y Tecnologías del Instituto BIOS.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "gaston-cruz"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

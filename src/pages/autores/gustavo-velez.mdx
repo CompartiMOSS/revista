@@ -1,0 +1,24 @@
+---
+id: gustavo-velez
+title: Gustavo Velez
+jobTitle: MVP SharePoint Server
+slug: /autores/gustavo-velez
+photo: ../../../images/Autores/GustavoVelez.jpg
+twitter: 
+blog: http://www.gavd.net/
+type: author
+director: true
+content: >-
+    Gustavo Velez es Ingeniero Mecánico y Electrónico; trabaja en el diseño e implementación de sistemas de IT basados en tecnologías de Microsoft, especialmente SharePoint, Office 365 y Azure. Propietario del sitio especializado en información sobre SharePoint en español http://www.gavd.net y autor de ocho libros sobre SharePoint y sus tecnologías.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "gustavo-velez"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

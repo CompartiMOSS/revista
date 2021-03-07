@@ -1,0 +1,82 @@
+---
+title: Activación de las opciones de guardado de plantilla en SharePoint Online
+slug: /revistas/numero-31/activacion-opciones-guardado-plantilla-sharepoint-online
+date: 07/02/2017
+magazine: 31
+author: Alberto Escola Fiz
+authorId: alberto-escola-fiz
+keywords: ['SharePoint Online']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+En SharePoint desde la versión 2007 existe la posibilidad de guardar Sitios, listas o bibliotecas de documentos como plantillas para su posterior reutilización.
+
+Esto nos permite crear rápidamente nuevos sitios o listas con la misma estructura e incluso el mismo contenido que el sitio original que se guardó como plantilla y es una buena opción para crear rápidamente funcionalidad nueva con la misma estructura que la existente lo que nos permite guardar la homogeneidad.
+
+En SharePoint Online, sin embargo, os podéis encontrar con que estas opciones no estén disponibles por defecto.
+
+![Imagen 1.- Ejemplo de sitio de SharePoint Online en el que no aparece la opción de guardar sitio como plantilla.](../../../images/numero31/activacion-opciones-guardado-plantilla-sharepoint-online/image1.png)
+
+Para conseguir que la opción de guardar como plantilla aparezca hay que realizar los siguientes pasos:
+
+·          En la colección de sitios donde queremos activar el guardado como plantilla ir a Configuración de sitio.
+
+·          En la sección administración de la colección de sitios Ir a administrar las características del sitio.
+
+![Imagen 2.- Acceso a la sección de Características de la colección de sitios.](../../../images/numero31/activacion-opciones-guardado-plantilla-sharepoint-online/image2.png)
+
+·          Ir a Características de la colección de sitios y desactivar la característica: Infraestructura de publicación de SharePoint Server. Si nuestro sitio debe utilizar esta característica, no podremos guardarlo como plantilla
+
+![Imagen 3.- Característica de Infraestructura de publicación de SharePoint Server.](../../../images/numero31/activacion-opciones-guardado-plantilla-sharepoint-online/image3.png)
+
+·          A continuación, ir a Configuración de sitio. En la sección Acciones de sitio ir a Administrar las características del sitio.
+
+![Imagen 4.- Acceso a Administrar las características del sitio.](../../../images/numero31/activacion-opciones-guardado-plantilla-sharepoint-online/image4.png)
+
+·          Desactivar si están activadas las características:
+
+o      Característica de sitio de la comunidad.
+
+o      Publicación de SharePoint Server.
+
+![Imagen 5.- Características a desactivar.](../../../images/numero31/activacion-opciones-guardado-plantilla-sharepoint-online/image5.png)
+
+![Imagen 6.- Acceso a la administración central de SharePoint Online.](../../../images/numero31/activacion-opciones-guardado-plantilla-sharepoint-online/image6.png)
+
+·          De nuevo, si nuestro sitio necesita estas características no podremos guardarlo como plantilla.
+
+·          A continuación, abrir la web de administración central de SharePoint Online (https://midominio-admin.sharepoint.com), ir a Configuración.
+
+![Imagen 6.- Acceso a la administración central de SharePoint Online.](../../../images/numero31/activacion-opciones-guardado-plantilla-sharepoint-online/image7.png)
+
+
+
+·          Dentro de todas las configuraciones globales a nuestro tenant, buscar la sección Script personalizado   que contiene dos opciones deshabilitadas por defecto:
+
+o      Permitir que los usuarios ejecuten scripts personalizados en sitios personales.
+
+o      Permitir que los usuarios ejecuten scripts personalizados en sitios creados por los mismos usuarios.
+
+·          Activamos las dos opciones. IMPORTANTE: Esta configuración tarda 24 horas en ser efectiva.
+
+![Imagen 7.- Opciones a activar en la administración de SharePoint Online.](../../../images/numero31/activacion-opciones-guardado-plantilla-sharepoint-online/image8.png)
+
+·          Después de seguir estos pasos y esperar las 24 horas, tendremos disponibles las opciones en la configuración de sitio. ​
+
+![Imagen 8.- Opción de “Guardar sitio como plantilla” disponible.](../../../images/numero31/activacion-opciones-guardado-plantilla-sharepoint-online/image9.png)
+
+·          Y en la configuración de una lista o biblioteca:
+
+![Imagen 9.- Opción de guardar biblioteca como plantilla disponible.](../../../images/numero31/activacion-opciones-guardado-plantilla-sharepoint-online/image10.png)
+
+
+
+**Alberto Escola Fiz**
+
+Ingeniero de Sistemas
+

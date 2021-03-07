@@ -1,0 +1,178 @@
+---
+title: Búsqueda de datos empresariales en SharePoint 2013 – Parte II
+slug: /revistas/numero-24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii
+date: 28/05/2015
+magazine: 24
+author: Martin Luis Lopez Requena
+authorId: martin-luis-lopez-requena
+keywords: ['SharePoint 2013','Búsqueda']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+​En muchas ocasiones necesitamos presentar en nuestro sitio de búsqueda datos empresariales de otros orígenes (fuera de SharePoint) como pueden ser base de datos (SQL Server, Oracle, MySQL),  ERP (Dynamics, SAP, ECI, NetSuite), ECi's M1ECi's M1  CRM( Dinamics, SAP, Sugar), etc.
+
+![Imagen 1.- Muestra un gráfico ilustrativo para presentar datos de orígenes externos en SharePoint.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image1.png)
+
+Esto es posible mediante la búsqueda de datos externos utilizando los servicios de conectividad empresarial, a continuación vamos a ver paso a paso como realizar dicha integración utilizado como conector un servicio web.
+
+**Paso 5 - Creación del origen de datos para su rastreo.**
+
+Para indexar el contenido externo es necesario crear un nuevo origen de contenido, para ello seguimos los siguientes puntos:
+
+- Abrimos el formulario principal del servicio de aplicaciones de búsqueda. En el caso de no estar en la página inicial de la administración central pulsamos sobre la imagen de SharePoint, seleccionamos la opción de gestión de servicios de aplicaciones (Manage services applications), posteriormente seleccionar nuestra aplicación de servicio de búsqueda (Search Service Application).
+
+
+![Imagen 2.- Muestra la página de las aplicaciones del servicio en el la administración central.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image2.png)
+
+- Introducimos los datos solicitados. En la caja de texto de name (Name) introducimos "Proveedores", en el tipo de origen de contenido seleccionamos (Line of Business Data"), en el origen de datos externo (External Data Source) seleccionamos "ServiciosProveedores".
+
+
+![Imagen 4.- Muestra el formulario de nuevo origen de contenido.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image4.png)
+
+- Realizamos<br />un rastreo completo. Para indexar y recoger las propiedades rastreadas es<br />necesario realizar un rastreo completo, para ello pulsamos sobre el botón<br />derecho del ratón sobre el nuevo origen de datos “Proveedores” y seleccionamos<br />inicializar un rastreo completo (Start Full Crawl).
+
+
+![Imagen 5.- Muestra el menú de opciones del origen de contenido.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image5.png)
+
+- Comprobamos el resultado de rastreo.  Comprobamos el resultado rastreo para ello pulsando sobre el botón derecho del ratón sobre el nuevo origen de datos "Proveedores" y seleccionamos ve el log de rastreo "View Crawl Log".
+
+
+![Imagen 6.- Imagen P5-5&#58; Muestra el log del rastreo del contenido.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image6.png)
+
+
+
+
+
+Es necesario incluir las propiedades administrada para posteriormente su utilización en las búsquedas, por ejemplo en el panel de refinamiento, plantillas de visualización de elementos, panel activable, etc. para ello seguimos los siguientes puntos:
+
+- Visualizamos las propiedades rastreada de nuestro tipo de contenido externo. Seleccionamos en el menú vertical derecho la opción de esquema de búsqueda (Search Schema) en el apartado de consultas y resultados (Queries and Results), posteriormente pulsamos sobre la opción propiedades rastreada (Crawled Properties), seleccionamos en categoría (Category) "Business Data" y pulsamos sobre el botón buscar para presentar dichas propiedades.
+
+
+![Imagen 7.- Muestra la página de propiedades rastreada de nuestra aplicación servicio de búsqueda.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image7.png)
+
+Añadimos nuestras propiedades administradas. Seleccionamos la opción de "Managed Properties" y pulsamos sobre "New Managed Property"
+
+![Imagen 8.- Muestra la página de propiedades administrada de nuestras aplicaciones de servicio de búsqueda.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image8.png)
+
+- Introducimos los datos solicitados. En nuestro caso en el nombre de la propiedad (PropertyName) introducimos "ProveedoresContry", en el tipo (Type) seleccionamos "Text", dependiendo la propiedad podemos indicar si deseamos que deseamos permitir realizar consultas contra el contenido de la propiedad administrada mediante índice de texto completo (Searchable),  también si deseamos que se pueda incluir en la consulta activamos la opción (Query), también  si deseamos que sea devuelto en el resultado de búsqueda activamos la opción (Retrievable), también si deseamos que se pueda refinar por dicha propiedad seleccionamos la opción correspondiente en (Refinable), introducimos el mapeo entre la propiedad rastreada y nuestra propiedad administrada, para ver los paso a seguir ver el siguiente punto antes de aceptar.
+
+
+![Imagen 9.- Muestra el formulario para crear una propiedad administrada.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image9.png)
+
+- Añadimos el mapeo con la propiedad rastreada. Pulsamos sobre el botón de un añadir mapeo (Add a Mapping), en el formulario realizamos un filtro por la categoría de datos de negocio (Business Data) para ello pulsamos sobre el botón de buscar (Find) después de indicar el valor correspondiente, en la lista de resultados de las propiedades rastreada (Select a crawled property) seleccionamos la propiedad deseada y pulsamos el botón de aceptar (OK).
+
+
+![Imagen 10.- Muestra el formulario para realizar el mapeo con la propiedad administrada.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image10.png)
+
+- Añadimos todas las propiedades. Repetimos los puntos anteriores hasta incluir todas las propiedades deseadas en nuestro caso.
+
+
+![Imagen 11.- Muestra todas las propiedades administradas de nuestro origen de datos externo.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image11.png)
+
+**Paso 7 - Creación de un origen de resultado.**
+
+Para realizar un aislamiento del contenido externo de proveedores para posteriormente su utilización de un modo cómodo es necesario crear un origen de resultado, para ello seguimos los siguientes puntos.
+
+- Abrimos el formulario de nuevo origen de resultado. Seleccionamos en el menú vertical derecho la opción de orígenes de resultado (Result Sources) en el apartado de consultas y resultados (Queries and Results) y posteriormente pulsamos sobre la opción de nuevo origen de resultado (New Result Source).
+
+
+![Imagen 12.- Muestra la página de gestión de orígenes de resultado de nuestro servicio de aplicaciones de búsqueda.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image12.png)
+
+- Introducimos los datos solicitados. En nuestro caso introducimos "Proveedores" en cuadro de texto de nombre (Name),  "{searchTerms} ContentSource:Proveedores" en la consulta a tranformar (Query Transform) y pulsamos en guardar para crear el origen.
+
+
+![Imagen 13.- Formulario para crear un nuevo origen de resultado.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image13.png)
+
+**Paso 8 - Creación de la página de resultado.**
+
+Como deseamos realizar búsquedas aislada sobre nuestro contenido externo de proveedores, será necesario la creación de una nueva página de resultado limitando a dicho ámbito, para ello seguimos los siguientes puntos:
+
+- Abrimos la página de contenido de sitio. En caso de no tener abierto nuestro sitio de búsqueda Introducimos en el navegador la URL correspondiente, en nuestro caso [http://spmartin15:39910](http&#58;//spmartin15&#58;39910/), en la parte superior derecha pulsamos sobre el icono del menú de configuración y seleccionamos la opción de contenidos del sitio (Site Contents).
+
+
+![Imagen 14.- Muestra menú de opciones de configuración de sitio en nuestro centro de búsqueda.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image14.png)
+
+- Abrimos la librería de páginas. Pulsamos sobre el icono de Paginas (Pages).
+
+
+![Imagen 15.- Muestra el contenido del sitio de nuestro centro de búsqueda.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image15.png)
+
+- Introducimos los datos solicitados. Seleccionamos ficheros (Files) dentro de la barra superior de la cinta de opciones, pulsamos sobre el icono de nuevo documento (New Document) y seleccionamos página (Page) después introducimos los datos solicitado en nuestro caso "Resultado de proveedores" como título (Title), URL "ProveedoresResult" y pulsamos el botón de crear (Create).
+
+
+![Imagen 16.- Muestra el formulario para crear una nueva página en nuestro sitio de búsqueda.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image16.png)
+
+- Modificamos elemento web de resultado de búsqueda. Seleccionamos la página que acabamos de crear "ProveedoresResult"
+
+
+![Imagen 17.- Muestra el formulario para crear una nueva página en nuestro sitio de búsqueda.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image17.png)
+
+Editamos el elemento web de resultado de búsqueda (Search Result) para ello tenemos que editar la página.
+
+![Imagen 18.- Muestra la página en modo edición.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image18.png)
+
+Cambiamos la consulta para ello seleccionar el botón de cambiar la consulta (Change query), en el formulario introducimos "Proveedores (Services)" en la selección de la búsqueda (Select a query) y guardamos pulsando sobre el botón de aceptar (OK).
+
+![Imagen 19.- Muestra la herramienta de propiedades del elemento web de resultado de búsqueda.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image19.png)
+
+Después es necesario publicar la página para que sea visible por todos los usuarios.
+
+**Paso 9 - Creación de vínculo de navegación.**
+
+Como deseamos que el usuario realice búsquedas de forma cómoda en nuestro contenido externo de proveedores, será necesario la creación de un nuevo vínculo de navegación apuntado a nuestra página de resultado de proveedores, para ello seguimos los siguientes puntos:
+
+- Abrimos la página de configuración de nuestro sitio de búsqueda. En la parte superior derecha pulsamos sobre el icono del menú de configuración y seleccionamos la opción de configuración de sitio (Site Settings).
+
+
+![Imagen 20.- Muestra menú de opciones de configuración de nuestro sitio de búsqueda.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image20.png)
+
+- Abrimos la página de configuración de búsqueda. Seleccionamos la opción de configuración de búsqueda (Search Settings) dentro de la categoría de búsqueda (Search).
+
+
+![Imagen 21.- Muestra menú de opciones en la categoría de búsqueda en nuestro sitio de búsqueda.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image21.png)
+
+- Introducimos los datos solicitados. Dentro de la caja de la configuración de navegación (Configuration Search Navigation) pulsamos sobre la opción de añadir enlace (Add Link), introducimos los datos solicitados en nuestro caso "Proveedor" como título (Title),  Url "/Pages/ProveedoresResult.aspx" y guardamos los datos.
+
+
+![Imagen 22.- Muestra la página de configuración de búsqueda en nuestro sitio de búsqueda.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image22.png)
+
+**Paso 10 - Validación del funcionamiento.**
+
+Aunque podemos realizar otras configuraciones como puede ser el panel de refinamiento, plantillas de visualización de elementos, panel activable, etc. Y para no ser más extenso de lo debido en este artículo, vamos a concluir con una comprobación del funcionamiento, para ello seguimos los siguientes puntos:
+
+- Realizamos una búsqueda. En caso de no estar en la página principal de nuestro sitio de búsqueda pulsamos sobre la imagen de SharePoint, introducimos en la caja de texto el valor que deseamos encontrar por ejemplo "Proveedor 10" y pulsamos sobre el botón de búsqueda.
+
+
+![Imagen 23.- Muestra la página principal de nuestro sitio de búsqueda.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image23.png)
+
+- Visualizamos los resultados. Comprobamos que aparecen los resultados deseado de nuestro contenido externo de proveedores.
+
+
+![Imagen 24.- Muestra la página de resultado genérico de nuestro sitio de búsqueda.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image24.png)
+
+- Visualizamos sólo en el ámbito de proveedores. Si pulsamos sobre la pestaña de proveedores podemos comprobar que sólo presentará los resultados que se encuentra en el ámbito de proveedores.
+
+
+![Imagen 55.- Muestra la página de resultado en el ámbito de proveedores en nuestro sitio de búsqueda.](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image25.png)
+
+- Visualizamos los datos del proveedor. Como podemos comprobar presenta toda la información de nuestro proveedor.
+
+
+![Imagen 26.- Muestra la página de los datos del proveedor seleccionado en nuestro sitio de búsqueda. ](../../../images/numero24/busqueda-de-datos-empresariales-en-sharepoint-2013-parte-ii/image26.png)
+
+**Conclusiones**
+
+Si combinamos el motor de búsqueda con Business Connectivity Services (BCS) nos brinda grandes posibilidades de integración con datos empresarial sin ningún tipo de desarrollo personalizado en la mayoría de los cosas además de una gran facilidad y flexibilidad en su configuración.
+
+
+
+**MARTIN LUIS LOPEZ REQUENA**
+SharePoint Solution Architect & Trainer at Everis
+
+[martinluislopez@hotmail.com](mailto&#58;martinluislopez@hotmail.com)
+

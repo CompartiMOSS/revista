@@ -1,0 +1,109 @@
+---
+title: SFPX Dynamic Data - Qué son y cómo empezar a utilizarlo en nuestros desarrollos
+slug: /revistas/numero-37/sfpx-dynamic-data
+date: 20/08/2018
+magazine: 37
+author: Adrian Diaz Cervera
+authorId: adrian-diaz-cervera
+keywords: ['SharePoint Framework','JavaScript']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+​​​​Si echamos la vista atrás, hace ya unos 6 años que empecé a colaborar con la revista. Mi primer artículo [http://www.compartimoss.com/revistas/numero-13](/revistas/numero-13) fue sobre como conectar mediante programación distintos WebParts existentes en una página de SharePoint. En aquel momento estábamos empezando a intentar automatizar todo lo posible los despliegues de SharePoint sin hacer ningún clic. De aquellos tiempos, los recuerdos que me quedan es que esta forma de conectar era cuanto menos peculiar como si no estuviera pensada para hacerlo mediante desarrollo, sino que solo se podían hacer por la interfaz.
+
+Con dicha introducción está claro que en el momento en el que se anunció esta característica iba a empezar a intentar ver si ahora sí se había aprendido de los errores del pasado y teníamos una funcionalidad pensada para desarrolladores o bien iba a ser un auténtico infierno. Se que a mucha gente (sobre todo los más noveles en el desarrollo de SharePoint) quizás le sobraba. Principalmente por el motivo que al estar el desarrollo en JavaScript existen técnicas más o menos ortodoxas para poder pasar los datos de un WebPart a otro. Sin embargo, desde mi punto de vista, es un acierto esta funcionalidad ya que abre un abanico de posibilidades para nuestros desarrollos, además de facilitar la forma en la que hacemos.
+
+**Arquitectura de la solución**
+
+Los Dynamic Data se han implementado utilizando un sistema de notificaciones. Existe un emisor que es el que expone que datos se van a comunicar.  Y como posibles receptores puede ser cualquier otro WebPart o Extension, desde dichos WebParts se han de subscribir al emisor y de esta forma cuando se producen cualquier cambio en el emisor este se notifica a todos sus subscriptores.
+
+**Términos clave**
+
+**Emisor-&gt;**El emisor es el elemento SPFX que va a exponer sus datos para que se puedan consumir desde otros elementos. Para declarar un emisor se debe de implementar la interfaz IDynamicDataController. Esta interfaz obliga a implementar a implementar dos métodos:
+
+·       getPropertyDefinitions devuelve una matriz de tipos de datos que devuelve el origen de datos dinámicos particular.
+·       getPropertyValue devuelve el valor que vamos a utilizar cuando notifiquemos un cambio.
+
+En estos dos tipos podemos definir más de una forma de devoluciones, es decir, tenemos un WebPart que tiene como datos las Empresas y los empleados de dicha empresa. Podemos indicar que dependiendo a que acción se subscriban devolvamos un dato u otro. Esto hace que podamos hacer elementos más reutilizables y no tener que crear varios Dynamic data para cada tipo de datos.
+
+Ejemplo de definición:
+
+
+
+```
+public getPropertyDefinitions(): ReadonlyArray<IDynamicDataPropertyDefinition> {    return [      {        id: "text",        title: "Text"      }    ];  }  /**   * Return the current value of the specified dynamic data set   * @param propertyId ID of the dynamic data set to retrieve the value for   */  public getPropertyValue(propertyId: string): IQuery  {    switch (propertyId) {      case "text":        return this._selectedText;    }    throw new Error("Bad property id");​
+```
+
+Ahora bien, para poder hacer que otros elementos SPFx se puedan subscribir, en el método OnInit debemos inicializar el Dynamic data agregando esta línea:
+
+​this.context.dynamicDataSourceManager.initializeSource(this);​
+
+Una vez, ya permitimos que otros artefactos se puedan subscribir, debemos definir cuándo vamos a notificar nuestros subscriptores de que se ha producido un cambio en los datos que exponemos. Para notificar a nuestros subscriptores deberemos utilizar la siguiente línea:
+
+​this.context.dynamicDataSourceManager.notifyPropertyChanged("text");​
+
+El lugar de la notificación obviamente dependerá de cada desarrollo, pero por buen uso, cada vez que la variable que hemos indicado en el GetPropertyValue se modifique, deberemos lanzar este método para que se notifique.
+
+**Receptor -&gt;**El receptor es aquel elemento que necesita de los datos de otro para empezar a realizar su trabajo. Podemos poner múltiples ejemplos de su uso:  Combos en cascada, buscador, mapas, etc.
+
+Para poder subscribirnos a un Origen de datos deberemos invocar este método
+
+Los tres parámetros son:
+
+this.context.dynamicDataProvider.registerPropertyChanged(this.properties.sourceId, this.properties.propertyId, this.render);​
+
+​·       sourceId =&gt; WebPart que lo referencia.
+
+·       propertyId =&gt; Identificador del origen de datos.
+
+·       método=&gt; Y método que se invoca cuando se actualiza los datos.
+
+Para poder obtener el sourceId y el propertyId disponemos de varios métodos en el Framework:
+
+```
+this.context.dynamicDataProvider.getAvailableSources().map(source => {        return {          key: source.id,          text: source.metadata.title        };      });        const source: IDynamicDataSource = this.context.dynamicDataProvider.tryGetSource(selectedSource);      if (source) {        propertyOptions = source.getPropertyDefinitions().map(prop => {          return {            key: prop.id,            text: prop.title          };        });​
+```
+
+Para evitar tener que poner estos valores "fijos" en nuestra WebParts se recomienda hacer uso de sus propiedades para que se puedan seleccionar y de esta forma además se queden almacenadas en la propia página y sean persistentes las subscripciones.
+
+**Consideraciones para tener en cuenta**
+
+·       Cada página puede tener múltiples orígenes de datos dinámicos y consumidores.
+·       Cada componente puede proporcionar datos dinámicos a otros componentes y consumir datos dinámicos de otros componentes.
+·       Los componentes pueden consumir datos de múltiples orígenes de datos dinámicos.
+·       Para que persistan las suscripciones a orígenes de datos dinámicos, almacene la información de suscripción en las propiedades del elemento web.
+
+**Aspectos Positivos**
+
+Una de las grandes mejoras que nos proporciona los Dynamic data es que podemos optimizar las consultas que realizamos sobre las APIS que consumimos (sean de SharePoint o no). Por ejemplo, si tenemos un WebPart que necesita una lista y esta hace falta en muchos más componentes pues optimizamos las peticiones.  Otra de las ventajas es que evitamos crear un Mega WebPart o añadir alguna técnica un tanto curiosa (acceder a la cache del navegador) para poder conectar varios desarrollos.
+
+**Aspectos Negativos**
+
+Ahora mismo en las SPFx Extensions no podemos consumir datos dinámicos. El motivo es que las subscripciones del propio elemento se pierden. Aunque es bien cierto que hay pocos casos de uso en el que desde una Extensión queramos consumir algún dato de otro componente.
+
+**Resumen**
+
+Los Dynamic Data tal y como se han implementado me parecen un gran acierto y algo necesario que estuviera incorporado en el Framework. La primera vez que supe de su incorporación, pensé para mis adentros si lo han implementado como en las WebPart clásicas, no lo van a utilizar y será una característica que caerá en desuso. Tal y como esta implementado me parece que en muchos escenarios simplifica el desarrollo y además al conectarlo hace que la carga de estos se vea de una forma natural y no con unos extraños golpes de vista (nosotros le llamamos que los componentes van saliendo como "setas").
+
+Si queréis ver los Dynamic Data en funcionamiento en el Repositorio oficial existen dos ejemplos que os pueden valer para aplicar los explicado en dicho artículo:
+
+·       [https://github.com/SharePoint/sp-dev-fx-extensions/blob/master/samples/react-application-search-dynamicdata](https&#58;//github.com/SharePoint/sp-dev-fx-extensions/blob/master/samples/react-application-search-dynamicdata) 
+·       [https://github.com/SharePoint/sp-dev-fx-webparts/tree/master/samples/react-events-dynamicdata](https&#58;//github.com/SharePoint/sp-dev-fx-webparts/tree/master/samples/react-events-dynamicdata)
+
+
+
+**Adrián Diaz Cervera -- Architect Sof​tware Lead at Encamina**
+
+MVP Office Development
+
+[http://blogs.encamina.com/desarrollandosobresharepoint](http&#58;//blogs.encamina.com/desarrollandosobresharepoint)
+
+[http://geeks.ms/blogs/adiazcervera](http&#58;//geeks.ms/blogs/adiazcervera)
+
+adiaz@encamina.com | @AdrianDiaz81​
+

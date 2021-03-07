@@ -1,0 +1,164 @@
+---
+title: Conectar Power Virtual Agents con QnA Maker
+slug: /revistas/numero-47/power-virtual-agents-qna-maker
+date: 20/02/2021
+magazine: 47
+author: Alex Rostán
+authorId: alex-rostan
+keywords: ['Power Virtual Agents','QnA Maker']
+featuredImage: ../../../images/numero47/power-virtual-agents-qna-maker/image1.png
+---
+
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+En el siguiente artículo nos focalizaremos en como conectar Power
+Virtual Agents con el servicio cognitivo de Microsoft Azure QnA Maker.
+En la edición anterior hablábamos de cómo realizar un ChatBot utilizando
+Power Virtual Agents en Microsoft Teams, en el presente artículo
+mostraremos como extender las funcionalidades de nuestro ChatBot
+utilizando servicios cognitivos de Azure. Con esto, estaremos un paso
+más cerca de nuestro objetivo de tener asistentes virtuales que hagan de
+nuestra experiencia algo verdaderamente bueno. Días atrás conversaba con
+una persona que estaba realmente decepcionada con los ChatBots donde su
+comentario se centraba en que las experiencias no eran buenas y lo único
+que lograban era que perdiera el tiempo intentando utilizarlos.
+
+Luego de haber creado nuestro Power Virtual Agent veremos cómo
+conectarlo con el servicio de QnA Maker utilizando Power Automate. Esto
+nos permitirá manejar preguntas frecuentes con un servicio cognitivo
+especializado.
+
+Como vimos anteriormente el Virtual Agent viene configurado por defecto
+con para responder a saludos, despedidas, confirmación, negación, etc.
+
+-   Una vez creado el Virtual Agent debemos dirigirnos a las opciones y
+    seleccionar "System fallback":
+
+![**Imagen 1.- Acceso a las opciones de System fallback del Virtual Agent.**](../../../images/numero47/power-virtual-agents-qna-maker/image1.png)
+
+-   Una vez allí no aparecerá la siguiente pantalla:
+
+![**Imagen 2.- Ventana de System fallback del Virtual Agent.**](../../../images/numero47/power-virtual-agents-qna-maker/image2.png)
+
+
+-   Debemos hacer Click en "Add". Aparecerá la siguiente pantalla y vamos a "Go to fallback topic".
+
+![**Imagen 3.- Acceso a "Go to fallback topic".**](../../../images/numero47/power-virtual-agents-qna-maker/image3.png)
+
+
+
+-   Nos aparecerá la siguiente pantalla donde podremos ver el flujo de
+    la conversación.
+
+![**Imagen 4.- Flujo de Conversación.**](../../../images/numero47/power-virtual-agents-qna-maker/image4.png)
+
+
+
+-   Primero eliminamos la acción "Redirect" pues no lo utilizaremos.
+
+![**Imagen 5.- Eliminando la acción "Redirect".**](../../../images/numero47/power-virtual-agents-qna-maker/image5.png)
+
+
+
+-   Luego agregamos la conexión con Power Automate quien será el
+    responsable de comunicarse con el servicio de QnA Maker. Hacemos
+    click en "Add Node" luego hacemos Click en "Call an
+    Action" y "Create a Flow"
+
+![**Imagen 6.- Agregando la conexión a Power Automate.**](../../../images/numero47/power-virtual-agents-qna-maker/image7.png)
+
+
+
+-   Se nos abrirá la pantalla de Power Automate:
+
+![**Imagen 7.- Plantilla de Power Automate para Power Virtual Agents.**](../../../images/numero47/power-virtual-agents-qna-maker/image8.png)
+
+
+
+-   Le damos un nombre a nuestro Flow y definimos la variable de entrada
+    que será donde vendrá el texto de la pregunta realizada por nuestro
+    usuario en el Power Virtual Agent.
+
+![**Imagen 8.- Configurando un nombre personalizado para el Flow.**](../../../images/numero47/power-virtual-agents-qna-maker/image9.png)
+
+
+
+-   Agregamos una acción del tipo Generate answer de QnA Maker:
+
+![**Imagen 9.- Acción de tipo "Generate answer" de QnA Maker.**](../../../images/numero47/power-virtual-agents-qna-maker/image10.png)
+
+
+
+-   Cargamos los datos requeridos que obtenemos de nuestro servicio de
+    QnA Maker y ponemos como pregunta a responder el texto de entrada
+    que guardamos en la variable "input". Definimos una variable para
+    guardar el resultado de la respuesta de tipo String.
+
+![**Imagen 10.- Variable de tipo string necesaria.**](../../../images/numero47/power-virtual-agents-qna-maker/image11.png)
+
+
+
+-   Guardamos la respuesta en la variable recién definida:
+
+![**Imagen 11.- Guardando la respuesta.**](../../../images/numero47/power-virtual-agents-qna-maker/image12.png)
+
+
+
+-   Retornamos nuestra respuesta al Virtual Agent:
+
+![**Imagen 12.- Añadiendo la respuesta al Power Virtual Agent.**](../../../images/numero47/power-virtual-agents-qna-maker/image13.png)
+
+
+
+-   Guardamos nuestro Flow y retornamos a la página de Power Virtual
+    Agents para agregarlo:
+
+![**Imagen 13.- Agregando el Flow creado al Power Virtual Agent.**](../../../images/numero47/power-virtual-agents-qna-maker/image14.png)
+
+
+
+-   Una agregado nuestro flujo seleccionamos la variable de entrada
+    "bot.UnrecognizedTriggerPhrase"
+
+![**Imagen 13.- Seleccionando la variable de entrada.**](../../../images/numero47/power-virtual-agents-qna-maker/image15.png)
+
+
+
+-   Agregamos un nuevo nodo para desplegar la respuesta seleccionando
+    "Show a message"
+
+![**Imagen 14.- Nuevo nodo "Show a message" a añadir.**](../../../images/numero47/power-virtual-agents-qna-maker/image16.png)
+
+
+
+-   Seleccionamos la variable Output:
+
+![**Imagen 15.- Selección de la variable Output.**](../../../images/numero47/power-virtual-agents-qna-maker/image17.png)
+
+
+
+-   Finalmente guardamos y tenemos disponible nuestro Virtual Agent
+    conectado con nuestra base de conocimiento de QnA Maker.
+
+![**Imagen 16.- Guardando todo.**](../../../images/numero47/power-virtual-agents-qna-maker/image18.png)
+
+
+
+**Conclusión**
+
+El conectar un Power Virtual Agent con el servicio de QnA Maker nos
+permite rápidamente brindar un servicio de preguntas frecuentes, donde
+las opciones de base de conocimientos son infinitas.
+
+
+**Alex Rostán** <br />
+Microsoft Business Applications MVP <br />
+AI & Smarts Applications Cloud Architect (Azure, O365, Power Platform) <br />
+Mail:rostanker@msn.com <br />
+Twitter: @rostanker <br />
+LinkedIn: https://www.linkedin.com/in/alexrostan/

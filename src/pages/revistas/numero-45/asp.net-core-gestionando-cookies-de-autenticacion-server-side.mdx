@@ -1,0 +1,475 @@
+---
+title: Asp.Net Core - Gestionando Cookies De Autenticacion Server Side
+slug: /revistas/numero-45/asp.net-core-gestionando-cookies-de-autenticacion-server-side
+date: 30/08/2020
+magazine: 45
+author: Sergio Parra Guerra
+authorId: sergio-parra
+keywords: ['ASP.NET Core']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+En este artículo veremos cómo gestionar las cookies de autenticación de
+Asp.Net Core en el servidor. En el ejemplo veremos cómo usar una base de
+datos vía Entity Framework Core para persistir y gestionar las cookies.
+Os indico que este método es extensible para poder usar en vez de
+nuestro motor de base de datos favorito, un servicio de caché
+distribuida externo como Redis Caché.
+
+Asp.Net Core por defecto gestiona las cookies en cliente, pero si
+necesitamos una mayor seguridad que nos permita realizar un logout
+remoto, controlar el número de sesiones abiertas que tiene un usuario,
+inclusive eliminar problemas que pueden provocarse al serializar grandes
+datos en nuestras cookies de autenticación, es necesario el gestionar
+estas cookies en el servidor.
+
+En el código de demo usaremos [Identity
+Server](https://identityserver.io/) para la gestión del login de los
+usuarios.
+
+**¿Cómo implementar esto?**
+
+Debemos crearnos una clase que implemente el interfaz
+[ITicketStore](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.authentication.cookies.iticketstore?view=aspnetcore-3.1)
+cuyos métodos a implementar son los siguientes:
+
+-   **Task RemoveAsync(string key);** Elimina la identidad asociada con
+    la clave proporcionada.
+
+-   **Task RenewAsync(string key, AuthenticationTicket ticket);**
+    Actualiza la identidad cuya clave se ha proporcionado.
+
+-   **Task\<AuthenticationTicket\> RetrieveAsync(string key);** Devuelve
+    la identidad cuya clave se proporciona.
+
+-   **Task\<string\> StoreAsync(AuthenticationTicket ticket);** Almacena
+    el ticket de autenticación y devuelve una clave asociada.
+
+Bien, una vez visto el interfaz que debemos implementar pasemos a algo
+de código. Lo primero es definir nuestra tabla de la base de datos
+
+```
+public class AuthenticationTicket
+
+{
+
+    public Guid Id { get; set; }
+
+    public string UserId { get; set; }
+
+    public byte[] Value { get; set; }
+
+    public DateTimeOffset? LastActivity { get; set; }
+
+    public DateTimeOffset? Expires { get; set; }
+
+}
+```
+
+Como vemos, guardaremos el identificador del usuario, el contenido del
+ticket de autenticación, su tiempo de expiración para controlar la
+caducidad de la cookie y generaremos un identificador que es el que
+devolveremos al cliente y con el cual gestionaremos las operaciones de
+eliminación, renovación, devolución e inserción en nuestra base de
+datos. Una vez definido nuestra tabla o nuestro objeto de base de datos,
+procederemos a implementar un
+[DbContext](https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.dbcontext?view=efcore-3.1).
+
+```
+public class DataProtectionKeysContext : DbContext, IDataProtectionKeyContext
+
+{ 
+
+    public DataProtectionKeysContext(DbContextOptions<DataProtectionKeysContext> options)
+
+        : base(options) { } 
+
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+
+    public DbSet<AuthenticationTicket> AuthenticationTickets { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+
+    {
+
+        modelBuilder.Entity<AuthenticationTicket>().ToTable("AuthenticationTicket").HasKey(t => new { t.Id });
+
+        base.OnModelCreating(modelBuilder);
+
+    }
+
+}
+```
+
+Si os fijáis, en este DbContext, implemento un interfaz denominado
+[IDataProtectionKeyContext](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.dataprotection.entityframeworkcore.idataprotectionkeycontext?view=aspnetcore-3.0)
+para poder almacenar las claves usadas por [Asp.Net Core
+DataProtection](https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/introduction?view=aspnetcore-3.1)
+(Más adelante os explicaré en otro artículo sobre cómo configurar
+nuestras aplicaciones Asp.Net Core para desplegarlas en una granja de
+servidores) para cifrar/descifrar el contenido del ticket de
+autenticación).
+
+En el método ConfigureServices de nuestra clase Startup tendrá el
+siguiente aspecto.
+
+```
+/// <summary>
+
+/// ConfigureServices
+
+/// </summary>
+
+/// <param name="services"></param>
+
+public void ConfigureServices(IServiceCollection services)
+
+{            
+
+    services.AddDbContext<DataProtectionKeysContext>(options =>
+
+        options.UseSqlite(
+
+            Configuration.GetConnectionString("DataProtectionKeysConnection")));
+
+    var encryptionSettings = new AuthenticatedEncryptorConfiguration()
+
+    {
+
+        EncryptionAlgorithm = EncryptionAlgorithm.AES_256_CBC,
+
+        ValidationAlgorithm = ValidationAlgorithm.HMACSHA256
+
+    };
+
+    services.AddDataProtection()
+
+        .PersistKeysToDbContext<DataProtectionKeysContext>()
+
+        .SetApplicationName("demo")
+
+        .UseCryptographicAlgorithms(encryptionSettings);
+
+            
+
+    services.AddAuthentication(options =>
+
+    {
+
+        options.DefaultScheme = "cookie";
+
+        options.DefaultChallengeScheme = "oidc";
+
+    })
+
+    .AddCookie("cookie", options =>
+
+    {
+
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+
+        options.SlidingExpiration = true;
+
+        options.SessionStore = new TicketStore(services, DataProtectionProvider.Create(this.GetType().FullName));
+
+    })
+
+    .AddOpenIdConnect("oidc", options =>
+
+    {
+
+        options.Authority = "https://localhost:5001";
+
+        options.ClientId = "mvc.client";
+
+        options.ClientSecret = "36F742BA-D9BF-49FE-B91A-D25E3A6354A5";
+
+                 
+
+        // code flow + PKCE (PKCE is turned on by default)
+
+        options.ResponseType = "code";
+
+        options.UsePkce = true;
+
+        options.Scope.Add("openid");
+
+        options.Scope.Add("profile");
+
+        options.Scope.Add("email");
+
+        options.Scope.Add("scope1");
+
+        options.Scope.Add("scope2");
+
+        options.GetClaimsFromUserInfoEndpoint = true;
+
+        options.SaveTokens = true;
+
+    });
+
+    services.AddControllersWithViews(options =>
+
+    {
+
+        var policy = new AuthorizationPolicyBuilder()
+
+            .RequireAuthenticatedUser()
+
+            .Build();
+
+        options.Filters.Add(new AuthorizeFilter(policy));
+
+    });
+
+}
+```
+
+Procedo a explicar el código para que no os perdáis:
+
+-   Incluimos nuestro contexto de base de datos en el motor de inyección
+    de dependencias.
+
+-   Agregamos los servicios de DataProtection e indicamos que las claves
+    se deben incluir en el contexto de base de datos del punto anterior.
+
+-   Agregamos los servicios de autenticación en los cuales configuramos:
+
+    -   El esquema por defecto de autenticación será el de Cookie de
+        autenticación. Sobre la que configuramos tiempo de expiración y
+        que use nuestro TicketStore para almacenar los tickets en
+        nuestra base de datos, al que le pasamos el IServiceCollection
+        para que dentro de nuestra clase podamos resolver fácilmente las
+        dependencias necesarias y un DataProtectorProvider para realizar
+        el cifrado/descrifrado del ticket.
+
+    -   Configurar OpenIdConnect estableciendo a nuestro Identity Server
+        como proveedor de Autoridad.
+
+-   Agregamos los servicios para los controladores y vistas.
+
+**¿Cómo queda entonces la implementación de nuestro TicketStore?**
+
+La implementación quedaría de la siguiente forma:
+
+```
+/// <summary>
+
+/// TicketStore
+
+/// </summary>
+
+public class TicketStore : ITicketStore
+
+{
+
+    private readonly IServiceCollection services;
+
+    private readonly IDataProtector dataProtector;
+
+    public TicketStore(IServiceCollection services, IDataProtectionProvider dataProtectionProvider)
+
+    {
+
+        this.services = services;
+
+        this.dataProtector = dataProtectionProvider.CreateProtector(GetType().FullName);
+
+    }
+
+    /// <summary>
+
+    /// RemoveAsync
+
+    /// </summary>
+
+    /// <param name="key"></param>
+
+    /// <returns></returns>
+
+    public async Task RemoveAsync(string key)
+
+    {
+
+        using var scope = services.BuildServiceProvider().CreateScope();
+
+        var context = scope.ServiceProvider.GetService<DataProtectionKeysContext>();
+
+        if (Guid.TryParse(key, out var id))
+
+        {
+
+            var authenticationTicket = await context.AuthenticationTickets.SingleOrDefaultAsync(x => x.Id == id);
+
+            if (authenticationTicket != null)
+
+            {
+
+                context.AuthenticationTickets.Remove(authenticationTicket);
+
+                await context.SaveChangesAsync();
+
+            }
+
+        }
+
+    }
+
+    /// <summary>
+
+    /// RenewAsync
+
+    /// </summary>
+
+    /// <param name="key"></param>
+
+    /// <param name="ticket"></param>
+
+    /// <returns></returns>
+
+    public async Task RenewAsync(string key, AuthenticationTicket ticket)
+
+    {
+
+        using var scope = services.BuildServiceProvider().CreateScope();
+
+        var context = scope.ServiceProvider.GetService<DataProtectionKeysContext>();
+
+        if (Guid.TryParse(key, out var id))
+
+        {
+
+            var authenticationTicket = await context.AuthenticationTickets.FindAsync(id);
+
+            if (authenticationTicket != null)
+
+            {
+
+                authenticationTicket.Value = dataProtector.Protect(SerializeToBytes(ticket));
+
+                authenticationTicket.LastActivity = DateTimeOffset.UtcNow;
+
+                authenticationTicket.Expires = ticket.Properties.ExpiresUtc;
+
+                await context.SaveChangesAsync();
+
+            }
+
+        }
+
+    }
+
+    /// <summary>
+
+    /// RetrieveAsync
+
+    /// </summary>
+
+    /// <param name="key"></param>
+
+    /// <returns></returns>
+
+    public async Task<AuthenticationTicket> RetrieveAsync(string key)
+
+    {
+
+        using var scope = services.BuildServiceProvider().CreateScope();
+
+        var context = scope.ServiceProvider.GetService<DataProtectionKeysContext>();
+
+        if (Guid.TryParse(key, out var id))
+
+        {
+
+            var authenticationTicket = await context.AuthenticationTickets.FindAsync(id);
+
+            if (authenticationTicket != null)
+
+            {
+
+                authenticationTicket.LastActivity = DateTimeOffset.UtcNow;
+
+                await context.SaveChangesAsync();
+
+                return DeserializeFromBytes(dataProtector.Unprotect(authenticationTicket.Value));
+
+            }
+
+        }
+
+        return null;
+
+    }
+
+    /// <summary>
+
+    /// StoreAsync
+
+    /// </summary>
+
+    /// <param name="ticket"></param>
+
+    /// <returns></returns>
+
+    public async Task<string> StoreAsync(AuthenticationTicket ticket)
+
+    {
+
+        const string principalEmailType = "email";
+
+        using var scope = services.BuildServiceProvider().CreateScope();
+
+        var userId = ticket.Principal.FindFirst(t => t.Type == principalEmailType)?.Value;
+
+        var context = scope.ServiceProvider.GetService<DataProtectionKeysContext>();
+
+        var authenticationTicket = new AspNetCoreMvcClient.Data.AuthenticationTicket()
+
+        {
+
+            UserId = userId,
+
+            LastActivity = DateTimeOffset.UtcNow,
+
+            Value = dataProtector.Protect(SerializeToBytes(ticket)),
+
+            Expires = ticket.Properties.ExpiresUtc
+
+        };
+
+        context.AuthenticationTickets.Add(authenticationTicket);
+
+        await context.SaveChangesAsync();
+
+        return authenticationTicket.Id.ToString();
+
+    }
+
+    private byte[] SerializeToBytes(AuthenticationTicket source) => TicketSerializer.Default.Serialize(source);
+
+    private AuthenticationTicket DeserializeFromBytes(byte[] source) => source == null ? null : TicketSerializer.Default.Deserialize(source);
+
+}
+```
+
+**¿Dónde puedo encontrar el código de ejemplo?**
+
+Podéis descargaros los proyectos de ejemplo en:
+<https://github.com/sparraguerra/compartimoss/tree/master/AspNetCoreManageCookieInServer>
+
+**Conclusiones**
+
+Hemos visto lo sencillo que es implementar la gestión de cookies en
+servidor utilizando para ello el interfaz ITicketStore. Podríamos ir más
+allá y poder almacenar por ejemplo desde qué IP ha iniciado sesión el
+usuario, con qué navegador o lo que se nos ocurra.
+
+Happy coding!
+
+**Sergio Parra Guerra** <br />
+Software & Cloud Architect at Encamina <br />
+https://twitter.com/sparraguerra

@@ -1,0 +1,23 @@
+---
+id: luis-molina
+title: Luis Molina
+jobTitle: Ingeniero Informático
+slug: /autores/luis-molina
+photo: ../../../images/Autores/LuisMolina.jpg
+twitter: 
+blog: 
+type: author
+content: >-
+    Ingeniero informático por la Universidad de Castilla La Mancha. Especialista en desarrollo .Net y Sharepoint y team leader vocacional.​
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "luis-molina"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

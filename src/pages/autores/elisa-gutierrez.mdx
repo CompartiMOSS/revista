@@ -1,0 +1,23 @@
+---
+id: elisa-gutierrez
+title: Elisa Gutierrez
+jobTitle: Analista web del Área CEI y Web de la UC
+slug: /autores/elisa-gutierrez
+photo: ../../../images/Autores/ElisaGutierres.jpg
+twitter: 
+blog: http://blogs.unican.es/comunicatec/default.aspx
+type: author
+content: >-
+    ​Elisa es Ingeniero en Informática por la Universidad de Cantabria y MCTS SharePoint 2010. Actualmente trabaja como analista web en el Área del Campus de Excelencia Internacional y Web de la misma universidad, donde participa en los proyectos técnicos que demanda la institución para avanzar y mejorar el uso de las herramientas que se emplean, centrándose principalmente en tecnologías .NET y entornos web basados en SharePoint.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "elisa-gutierrez"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

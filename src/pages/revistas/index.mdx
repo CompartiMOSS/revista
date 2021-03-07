@@ -1,0 +1,33 @@
+import Layout from '../../components/layout'
+import { graphql } from "gatsby";
+import ViewNumbers from "../../components/view-numbers"
+import SEO from '../../components/seo'
+
+<SEO title="Revistas" keywords={['CompartiMOSS', 'Microsoft', 'Microsoft 365', 'Office 365', 'Azure']} />
+
+# Revistas
+
+<ViewNumbers numbers={props.data.allMdx} />
+
+export const pageQuery = graphql`
+    query {
+        allMdx(    
+            sort: {
+                fields: frontmatter___magazine, order: DESC
+            }
+            filter: {
+                frontmatter: {type: {eq:"number"}}
+            }) 
+            {
+            edges {
+                node {
+                    frontmatter {
+                        title, slug, magazine, content
+                    }      
+                }
+            }
+        }
+    }
+`
+
+export default Layout

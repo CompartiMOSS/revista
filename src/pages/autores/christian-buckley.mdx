@@ -1,0 +1,22 @@
+---
+id: christian-buckley
+title: Christian Buckley
+jobTitle: SharePoint MVP
+slug: /autores/christian-buckley
+photo: ../../../images/Autores/Buckley.jpg
+twitter: https://twitter.com/buckleyplanet
+blog: http://www.buckleyplanet.com/
+type: author
+content: >-
+    Christian Buckley is a SharePoint MVP, Top 25 SharePoint Influencer, and Managing Director, Americas at GTconsult, a consulting and managed services provider with offices in South Africa and the US. Prior to GTconsult, Christian was a key part of two SharePoint ISV acquisitions (echoTechnology in 2010, and Axceler in 2013) and most recently served as Chief Evangelist at Metalogix. He was a member of the Microsoft team that launched SharePoint Online (now part of Office365), and spent a number of years building and managing product and project management organizations for a number of companies in the software, telecom, supply chain and financial services industries.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "christian-buckley"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

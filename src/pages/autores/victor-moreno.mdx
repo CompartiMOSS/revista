@@ -1,0 +1,23 @@
+---
+id: victor-moreno
+title: Victor Moreno
+jobTitle: Software Engineer at Amdocs
+slug: /autores/victor-moreno
+photo: ../../../images/Autores/VictorMoreno.jpg
+twitter: https://twitter.com/vmorenoz
+blog: http://blogs.itpro.es/eduardocloud
+type: author
+content: >-
+    Víctor Moreno es un especialista en cómputo en la nube, tiene una experiencia de 10 años en desarrollo de software con .Net y actualmente es galardonado con el MVP Award en la categoría de Microsoft Azure.​
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "victor-moreno"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

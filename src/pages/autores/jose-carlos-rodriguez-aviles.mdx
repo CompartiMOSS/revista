@@ -1,0 +1,23 @@
+---
+id: jose-carlos-rodriguez-aviles
+title: José Carlos Rodríguez Avilés
+jobTitle: Analista programador en soluciones de SharePoint en UCI
+slug: /autores/jose-carlos-rodriguez-aviles
+photo: ../../../images/Autores/JoseCarlosRodriguezAviles.jpeg
+twitter: https://twitter.com/jcroav
+blog: http://elblogdelprogramador.wordpress.com
+type: author
+content: >-
+    ​Ingeniero informático por la Universidad de Córdoba. En los últimos 3 años está centrando en el desarrollo de software basado en SharePoint y la tecnología de Microsoft en general. Dentro de su compañía participa en proyectos como el portal de gestión de conocimiento y en el desarrollo de la intranet corporativa, tanto en el análisis, diseño como desarrollo de los mismos. Actualmente está muy interesado en conocer las nuevas tendencias y las oportunidades que ofrecen, como son la suite de Office 365 y Azure y como se pueden combinar  con SharePoint para abrir el abanico de soluciones a los problemas que se presentan en los proyectos.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "jose-carlos-rodriguez-aviles"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

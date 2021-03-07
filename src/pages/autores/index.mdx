@@ -1,0 +1,34 @@
+---
+title: Autores
+slug: /autores/
+type: authors
+---
+
+import LayoutAuthors from '../../components/layout-authors'
+import { graphql } from "gatsby";
+import ViewAuthors from "../../components/view-authors"
+
+# Autores
+
+<ViewAuthors authors={props.data.allMdx} />
+
+export const pageQuery = graphql`
+    query {
+        allMdx(
+            sort: {fields: frontmatter___title, order: ASC},     
+            filter: {
+                frontmatter: {type: {eq: "author"}}
+            }) 
+            {
+                edges {
+                    node {
+                        frontmatter {
+                            id, title, slug
+                        }      
+                    }
+                }        
+            }
+    }
+`
+
+export default LayoutAuthors

@@ -1,0 +1,23 @@
+---
+id: francisco-ricardo-gil-gonzalez
+title: Francisco Ricardo Gil González
+jobTitle: Consultor SharePoint
+slug: /autores/francisco-ricardo-gil-gonzalez
+photo: ../../../images/Autores/RicardoGil.jpg
+twitter: 
+blog: 
+type: author
+content: >-
+    ​Ricardo Gil es Consultor SharePoint en MVP Cluster, Comenzó su andadura en el año 2010 con SharePoint en un proyecto para el ministerio de defensa de Emiratos Árabes Unidos, donde fue el responsable de dicha plataforma. Siguió su carrera como Administrador de una granja de SharePoint en una empresa nacional de gran envergadura con más de 8.000 usuario. MCSE de SharePoint.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "francisco-ricardo-gil-gonzalez"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

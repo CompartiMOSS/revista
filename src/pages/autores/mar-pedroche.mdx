@@ -1,0 +1,23 @@
+---
+id: mar-pedroche
+title: Mar Pedroche
+jobTitle: Modern Workplace Solutions Specialist en ENCAMINA
+slug: /autores/mar-pedroche
+photo: ../../../images/Autores/mar-pedroche.png
+twitter: https://twitter.com/MarPedroche
+blog: 
+type: author
+director: false
+content: >-
+    Soy una apasionada de las nuevas tecnologías con grandes aptitudes en informática. Me gusta la gestión de proyectos que tengan que ver con la tecnología y la mejora de procesos. Busco retos que me permitan desarrollar mi potencial y disfrutar día a día. 
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "mar-pedroche"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

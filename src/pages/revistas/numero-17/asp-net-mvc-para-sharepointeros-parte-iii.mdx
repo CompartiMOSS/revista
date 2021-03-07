@@ -1,0 +1,250 @@
+---
+title: ASP.NET MVC para SharePointeros - Parte III
+slug: /revistas/numero-17/asp-net-mvc-para-sharepointeros-parte-iii
+date: 06/08/2013
+magazine: 17
+author: Edin Kapic
+authorId: edin-kapic
+keywords: ['MVC']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+​En los artículos previos vimos cómo crear aplicaciones de SharePoint con la tecnología ASP.NET MVC, introduciendo conceptos como las vistas, los controladores o las acciones. En este artículo cerraremos la serie con inyección de dependencia y pruebas unitarias, conceptos muy importantes para el desarrollo web fácil de mantener y extender.
+
+**Inyección de dependencia**
+
+El término "**inyección de dependencia**" (*Dependency Injection, DI*) y su cercano pariente "**inversión de control**" (*IoC*) son patrones arquitectónicos que resuelven el problema de acoplamiento fuerte entre componentes. Voy a intentar explicar el concepto para que quede claro.
+
+***Acoplamiento fuerte***
+
+Cuando una clase en nuestro programa necesita otra clase para realizar alguna acción, decimos que hay acoplamiento entre las dos clases. En el ejemplo siguiente, la clase ProductsController y la clase SharePointHelper están acopladas entre sí.
+
+```
+public class ProductsController : Controller
+{
+    public ActionResult Index()
+    {
+        SharePointHelper helper = new SharePointHelper();
+        var products = helper.GetProducts();         return View(products);
+    }
+}
+```
+
+El acoplamiento suele ser unidireccional, en nuestro caso ProductsController "sabe" como crear y pasar los datos a SharePointHelper pero SharePointHelper vive en la ignorancia más absoluta de quien lo está usando.
+
+Pongámonos en el caso de tener que modificar este programa unos meses después. Ahora en vez de usar los datos en SharePoint decidimos almacenarlos en una base de datos NoSQL, como por ejemplo MongoDB. Tendremos que crear una nueva clase MongoDbHelper y sustituir las referencias originales de SharePointHelper por MongoDbHelper en el controlador.
+
+```
+public class ProductsController : Controller
+{
+    public ActionResult Index()
+    {
+        MongoDbHelper helper = new MongoDbHelper();
+        var products = helper.GetProducts();         return View(products);
+    }
+}
+```
+
+El problema principal es que ProductsController tiene que saber dos cosas del servicio al que está acoplado:
+
+- La clase exacta del servicio que tiene que invocar (por lo tanto, necesita tener referencia a su ensamblado).
+- La manera de construir el servicio (pasándole los parámetros del constructor, si los hubiera).
+
+
+Esto provoca que cambiar el servicio no sea fácil y que el código del controlador tiene poco potencial de reutilización o extensión.
+
+***Inversión de control***
+
+Una de las soluciones a este problema es la inversión de control. Se llama así porque en vez de que el "usuario" de una clase (en nuestro caso, ProductsController) decida que objeto va a instanciar, el mismo objeto "le viene dado" al usuario y por tanto el "usuario" no tiene control sobre el objeto instanciado.
+
+![Programación tradicional versus Inversión de control](../../../images/numero17/asp-net-mvp-para-sharepointeros-parte-iii/figura1.png)
+
+Como se ve en la Imagen 1, el usuario (Controller) cede el control sobre los objetos de los que depende a otra entidad, llamada contenedor de inversión de control (IoC). En la actualidad el contenedor es una librería especializada como Unity, AutoFac, StructureMap, Ninject o alguna de las muchas librerías de IoC disponibles. Sin embargo, en la versión más "casera" de inyección de dependencia este contenedor podría ser el método Main de una aplicación. Lo importante es entender el concepto, más allá de la implementación concreta.
+
+¿Cómo queda ahora nuestro controlador? Al quitarle la potestad de inicializar los objetos que necesita, ahora está obligado a solicitarlos explícitamente al contenedor. Pero bueno, ¿qué va a solicitar? Pues nada menos que una interfaz. El contenedor le devolverá el objeto más adecuado que implementa esa interfaz.
+
+En nuestro caso tenemos que sacar la funcionalidad común de SharePointHelper y MongoDbHelper en una interfaz llamada IBackEndHelper.
+
+```
+public interface IBackEndHelper
+{
+    public Product GetProduct(int productId);
+    public IEnumerable<Product> GetProducts();
+    public void SaveProduct(Product p);
+}
+```
+
+Ahora sólo falta habilitar la inyección de dependencia en MVC. Para ello usaremos el framework de Microsoft llamado Unity.
+
+***ASP.NET MVC y Unity***
+
+En vez de usar la librería Unity de manera aislada, nos bajaremos una adaptación de Unity para MVC llamada Unity.Mvc4 (si tenéis MVC 3, podéis usar Unity.Mvc3, es idéntico). Instalamos el paquete NuGet de Unity.Mvc4 y estamos listos para seguir.
+
+![El paquete de Unity para MVC](../../../images/numero17/asp-net-mvp-para-sharepointeros-parte-iii/figura2.png)
+
+Lo que hace este paquete es registrar un contenedor de IoC de Unity ligado a la vida de una petición HTTP en ASP.NET MVC. Además, nos crea una clase llamada Bootstrapper.cs donde vamos a registrar las dependencias (en nuestro caso IBackEndHelper y SharePointHelper), en el método BuildUnityContainer(). Ya tenemos todo el contenedor creado, sólo hay que añadir la línea de código que está resaltada:
+
+```
+private static IUnityContainer BuildUnityContainer()
+{
+  var container = new UnityContainer();
+  container.RegisterType<IBackEndHelper, SharePointHelper>(); 
+  RegisterTypes(container);
+  return container;
+}
+```
+
+El último paso para registrar el contenedor es añadir una línea en el evento Application\_Start de Global.asax para inicializar el propio Bootstrapper:
+
+```
+protected void Application_Start()
+{
+    AreaRegistration.RegisterAllAreas();
+    Bootstrapper.Initialise();
+    RegisterGlobalFilters(GlobalFilters.Filters);
+    RegisterRoutes(RouteTable.Routes);
+}
+```
+
+Ahora ya tenemos un contenedor inicializado con las dependencias. A continuación, toca eliminar los constructores de SharePointHelper en ProductsController y sustituirlos por una variable local \_helper. Esta variable se inicializará con el valor pasado por el constructor:
+
+```
+public class ProductsController : Controller
+{
+    IBackEndHelper _helper;
+    public ProductsController(IBackEndHelper helper)
+    {
+        _helper = helper;
+    }
+    public ActionResult Index()
+    {
+        var products = _helper.GetProducts();
+        return View(products);
+    }
+}
+```
+
+Esta es la "magia" de inyección de dependencia: el controlador recibe la dependencia automáticamente sin tener que saber cómo se construye. Todo el trabajo de construir y mantener los objetos lo hace el contenedor.
+
+***Pruebas unitarias***
+
+Una vez que tenemos probado y digerido el concepto de inyección de dependencia, vamos a dotar a nuestra aplicación de ejemplo con una batería de pruebas unitarias que validarán que la aplicación funciona bien. Las pruebas unitarias son pequeños métodos que usan las aserciones (Assert) para comprobar que se cumplen ciertas condiciones al salir del método.
+
+El problema clásico cuando hacemos las pruebas unitarias es que resulta difícil probar componentes que acceden a servicios fuera de la aplicación como las bases de datos, SharePoint, servicios web etc. Sin embargo, al tener desacoplados los controladores de las clases "ligadas al exterior" podemos utilizar la inyección de dependencia a nuestro favor.
+
+La idea es crear una clase "ficticia" que implemente la interfaz que el controlador necesita. En las pruebas unitarias usaremos esa clase ficticia y en el código real usaremos la real. Nuestro controlador no tiene (más bien, no debe) saber que está recibiendo una u otra.
+
+Para comenzar, añadiremos a la solución un nuevo proyecto de tipo Unit Test Project y dentro del proyecto  vamos a renombrar la clase que nos crea por defecto a ProductTests.cs.  Agregaremos la referencia al proyecto de MVC para poder acceder a las clases y también a los ensamblados de System.Web.Mvc.
+
+![El proyecto de pruebas unitarias](../../../images/numero17/asp-net-mvp-para-sharepointeros-parte-iii/figura3.png)
+
+El helper ficticio FakeHelper.cs que necesitamos crear será una lista de instancias de Product creadas de manera fija.
+
+```
+public class FakeHelper : IBackEndHelper
+{
+    List<Product> _list;
+    public FakeHelper()
+    {
+        _list = new List<Product>();
+        _list.Add(new Product() { Name = "Product 1", ProductId = 1 });
+        _list.Add(new Product() { Name = "Product 2", ProductId = 2 });
+        _list.Add(new Product() { Name = "Product 3", ProductId = 3 });
+    }
+    public Models.Product GetProduct(int productId)
+    {
+        var result = _list.Where(x => x.ProductId == productId).FirstOrDefault();
+        return result;
+    }
+    public IEnumerable<Models.Product> GetProducts()
+    {
+        return _list;
+    }
+    public void SaveProduct(Models.Product p)
+    {
+        return;
+    }
+}
+```
+
+Ya estamos listos para hacer el código de las pruebas. La mayoría de pruebas unitarias siguen el llamado patrón ACT (Arrange, Call, Test):
+
+- Primero instanciamos los objetos necesarios para la prueba (Arrange).
+- Luego llamamos el método que queremos probar (Call).
+- Al final, comprobamos los valores devueltos con una aserción (Test).
+
+
+El primer test que vamos a hacer es comprobar que la acción Index del controlador devuelve una vista:
+
+```
+ [TestMethod]
+ public void TestThatIndexReturnsView()
+ {
+     // Arrange      var helper = new FakeHelper();
+     var controller = new ProductsController(helper);
+     // Call
+     var view = controller.Index();
+     // Test
+     Assert.IsInstanceOfType(view, typeof(ViewResult));
+ }
+```
+
+En esta prueba instanciamos un ProductsController pasándole como dependencia un FakeHelper. La acción Index() devuelve una vista de tipo ViewResult y al final comprobamos que la vista que se devuelve es del tipo correcto.
+
+Otra prueba que podemos hacer es llamar a un producto concreto (p.ej. el que tiene ID 2) con la acción Display del controlador y comprobar su nombre en la vista que se devuelve. Para ello disponemos de la propiedad Model de la vista.
+
+```
+[TestMethod]
+public void TestValidProduct()
+{
+    var helper = new FakeHelper();
+    var controller = new ProductsController(helper);
+    ViewResult view = (ViewResult) controller.Display(2);
+    Product product = (Product) view.Model;
+    Assert.IsNotNull(product);
+    Assert.AreEqual(product.Name, "Product 2");
+}
+```
+
+Para finalizar, la última prueba que vamos a hacer es consultar la acción Display pasándole un valor incorrecto y comprobaremos que el producto que devuelve la vista es nulo.
+
+```
+[TestMethod]
+public void TestInvalidProduct()
+{
+    var helper = new FakeHelper();
+    var controller = new ProductsController(helper);
+    ViewResult view = (ViewResult)controller.Display(4);
+    Product product = (Product)view.Model;
+    Assert.IsNull(product);
+}
+```
+
+Probaremos los tests yendo al menú Test/Run en Visual Studio. Si todo ha ido bien, veremos las luces verdes de pruebas finalizadas con éxito:
+
+![La vida es bonita con las pruebas unitarias en verde](../../../images/numero17/asp-net-mvp-para-sharepointeros-parte-iii/figura4.png)
+
+**Conclusión**
+
+En este artículo hemos visto cómo separar las dependencias dentro de los controladores de MVC y cómo podemos aprovechar ese desacoplamiento para facilitar las pruebas unitarias en nuestras aplicaciones MVC. Para no extenderme demasiado, he dejado temas como la inyección de vistas o *mocking* de objetos en las pruebas unitarias para un posible futuro artículo, si hay suficiente interés.
+
+Espero que hayáis disfrutado de esta pequeña serie de introducción a ASP.NET MVC para aplicaciones de SharePoint y que hayáis aprendido algo de todos ellos.
+
+El código completo de este artículo está disponible en [http://sdrv.ms/16xoioC](http&#58;//sdrv.ms/16xoioC).
+
+
+
+**Edin Kapić**
+
+Arquitecto SharePoint
+
+[edin.kapic@spenta.es](mailto&#58;edin.kapic@spenta.es)
+
+@ekapic
+
+[http://www.spenta.es](http&#58;//www.spenta.es/)

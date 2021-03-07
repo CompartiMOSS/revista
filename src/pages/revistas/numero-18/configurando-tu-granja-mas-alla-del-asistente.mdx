@@ -1,0 +1,836 @@
+---
+title: Configurando tu granja más allá del Asistente
+slug: /revistas/numero-18/configurando-tu-granja-mas-alla-del-asistente
+date: 27/10/2013
+magazine: 18
+author: Daniel Seara
+authorId: #
+keywords: ['Governance','PowerShell']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+El proceso de instalación de SharePoint 2013 (aplica también para la versión 2010), es sumamente sencillo. Sin embargo, la utilización del asistente conlleva algunas configuraciones algo espurias y que no en todos los casos resultan adecuadas (por no decir en la mayoría de los entornos de producción). Veremos en este artículo los porqués, y un paso a paso para conseguir mejores resultados de nuestra granja.
+
+**¿Cómo lo hace el asistente?**
+
+Veamos primero que características de las acciones del asistente son las que deben ocuparnos.
+
+**Creación de bases de datos con parámetros predeterminados**
+
+Desde el punto de vista de la administración de bases de datos, el asistente utiliza la forma reducida de sentencia para la creación de una base de datos. Digamos que crea la base de datos de configuración (SharePoint\_Config). La sentencia utilizada es:
+
+```
+CREATE DATABASE [SharePoint_Config]
+```
+
+```
+GO
+```
+
+Esta sentencia utiliza los valores predeterminados que, sin cambios por parte del administrador de bases de datos, definen los mismos almacenamientos que la base de datos model (la plantilla con la que se crean las bases de datos en general), tiene configurados.
+
+
+| **name** | **size** | **filename** |
+| --- | --- | --- |
+| SharePoint\_Config | 5 | &lt;DataDir&gt;\SharePoint\_Config.mdf |
+| SharePoint\_Config\_log | 1 | &lt;DataDir&gt;\SharePoint\_Config\_log.ldf |
+
+
+Como se ve, el tamaño del archive de datos, alcanza los 5 Mb, mientras que el archivo físico de log, solo lleva 1 Mb. Ambos tamaños son realmente escasos para lo que podemos necesitar almacenar en la base de datos. Y ni que decir cuando tratamos con otras bases, como pueden ser nuestras bases de datos de contenidos. Claro, la base tiene configurada la opción de auto incremento de tamaño, lo cual nos ahorra cualquier preocupación acerca de la estimación de tamaño… excepto porque dicho crecimiento se hace en bloques de ¡1 Mb!, mientras que el del archivo de log se hace en modo porcentual (10%)
+
+```
+select name,
+```
+
+```
+              case is_percent_growth 
+```
+
+```
+                     when 1 then 
+```
+
+```
+                            (growth)
+```
+
+```
+                     else 
+```
+
+```
+                            round(growth/102.4,0) 
+```
+
+```
+                     end 
+```
+
+```
+                     as growth,
+```
+
+```
+              case is_percent_growth 
+```
+
+```
+                     when 1 then 
+```
+
+```
+                            '%' 
+```
+
+```
+                     else 
+```
+
+```
+                            'Mb' 
+```
+
+```
+                     end 
+```
+
+```
+                     as growMode 
+```
+
+```
+       from sys.database_files
+```
+
+
+
+Probablemente, en el caso de la base de datos de configuración de la granja, esto no sea demasiado importante pero: ¿Y las bases de datos de contenido?
+
+
+| **name** | **growth** | **growMode** |
+| --- | --- | --- |
+| SharePoint\_Config | 1 | Mb |
+| SharePoint\_Config\_log | 10 | % |
+
+
+
+
+Imaginemos un usuario agregando un archivo a un sitio de SharePoint, siendo el documento de 10 Mb. El proceso de subida del mismo deberá esperar 10 veces a que se incremente el espacio de la base de datos, si justo se da el caso que la misma esté totalmente ocupada.
+
+¿Situación casi imposible, no? Que justo la base esté llena… ¿Seguro? Imaginemos 100 usuarios trabajando en distintas bibliotecas en simultáneo, cada uno subiendo documentos de variado tamaño…
+
+**Esas bases de datos con nombres raros**
+
+Es claro que resulta complejo asignar nombres de bases de datos en forma automática y es por ello que el asistente genera las bases de datos (excepto la que define la granja), con nombres a los que encadena un GUID. Esto, en el tiempo, hará más confuso el mantenimiento de las bases en general.
+
+Finalmente, una vez tengamos creada la granja y el SharePoint en uso, los propios usuarios demandarán, mayor almacenamiento y mejor rendimiento. Y entonces, habrá que coordinar con el DBA de qué manera distribuir los archivos físicos en discos ad-hoc… cosa que ni el asistente ni la Administración Central de SharePoint serán capaces de manejar.
+
+**Empecemos por las cuentas de servicio**
+
+Una de las consideraciones importantes es la de tener cuentas de servicio definidas para ejecutar SharePoint. Más allá de la posibilidad que ya existan creadas, o que el Administrador de dominio lo haga, en casos donde podamos definirlo, será más fácil tener un script listo para ello (que podremos regalar al Administrador, para quedar bien).
+
+Veamos que cuentas debiéramos tener.
+
+
+| **Utilización** | **Ejemplo** |
+| --- | --- |
+| Servicios de SharePoint | SPServices |
+| Servicios de búsqueda | SPSearch |
+| Cuenta del App pool de sitios | SPAppPool |
+| Cuenta del App Pool de Admón. Central | SPCAAppPool |
+| Otras |   |
+
+
+
+
+Además, siendo ordenados, las cuentas de servicio debieran estar en otra Unidad Organizacional que el grupo genérico de "usuarios" habitual en el dominio. Esto permitirá manejar mejor cuestiones de, por ejemplo, seguridad. Utilizando PowerShell, siempre que podamos ejecutarlo como administradores de dominio en un servidor que tenga dicho rol asignado, podremos crear estos elementos. Como primer paso, debemos agregar el Snap-In correspondiente.
+
+```
+import-module ActiveDirectory -ErrorAction Stop
+```
+
+Luego<br />procederemos a buscar si ya tenemos una OU para las cuentas de servicios.<br />Estamos usando el nombre ‘Services’ para dicha OU, pero está definida en una<br />variable de modo de adaptarla a los requerimientos de cada caso
+
+```
+$ServicesOU="Services" #Nombre de la OU de servicios
+```
+
+```
+$OU=Get-ADOrganizationalUnit -Filter 'Name -like $ServicesOU' -ErrorAction SilentlyContinue
+```
+
+```
+if($OU -eq $null){
+```
+
+```
+    $OU=New-ADOrganizationalUnit -Name $ServicesOU
+```
+
+```
+    $OU=Get-ADOrganizationalUnit -Filter 'Name -like $ServicesOU' -ErrorAction Stop
+```
+
+```
+}
+```
+
+Luego,<br />también en variable, definiremos la contraseña a usar para los servicios, la<br />transformamos a cadena segura y definimos las cuentas para los mismos.
+
+```
+New-ADUser -Path $OU -Name SPServices -AccountPassword $password -GivenName "SharePoint" -Surname "Services" -DisplayName "SharePoint Services" -CannotChangePassword $true -ChangePasswordAtLogon $false  -Description "SharePoint Services account" -Enabled $true -PasswordNeverExpires $true -SamAccountName SPServices  #EOL
+```
+
+```
+New-ADUser -Path $OU -Name SPSearch -AccountPassword $password -GivenName "Search" -Surname "Services" -DisplayName "Search Services" -CannotChangePassword $true -ChangePasswordAtLogon $false  -Description "SharePoint Search account" -Enabled $true -PasswordNeverExpires $true -SamAccountName SPSearch #EOL
+```
+
+```
+New-ADUser -Path $OU -Name SPAppPool -AccountPassword $password -GivenName "SharePoint" -Surname "AppPool" -DisplayName "SharePoint AppPool" -CannotChangePassword $true -ChangePasswordAtLogon $false  -Description "SharePoint App Pool account" -Enabled $true -PasswordNeverExpires $true -SamAccountName SPAppPool #EOL
+```
+
+```
+New-ADUser -Path $OU -Name SPCAAppPool -AccountPassword $password -CannotChangePassword $true -ChangePasswordAtLogon $false -GivenName "SharePoint CA" -Surname "AppPool"  -Description "SharePoint Central Administration App Pool account" -Enabled $true -PasswordNeverExpires $true -SamAccountName SPCAAppPool  #EOL
+```
+
+Nota: Cada sentencia debe estar completa en una sola línea y es por ello que he indicado el final de cada una con #EOL.
+
+**Creación de las bases de datos**
+
+Entremos ahora al tema de las bases de datos. Todos los pasos que siguen en este título, deben ser ejecutados con el SQL Server Management Studio en el servidor SQL que utilizaremos para servir nuestras bases de datos. Aquí necesitamos algunos datos importantes, a saber. Por ejemplo, la ubicación predeterminada de los archivos de datos y de transacciones del SQL Server.
+
+La configuración de esto se encuentra en el registro de Windows, como bien me aclaró el amigo Eladio Rincón ([http://tinyurl.com/erincon](http&#58;//tinyurl.com/erincon) ).
+
+Claro que eso de meterse en la registry desde T-SQL es como medio peligroso, así que se me ocurrió, sencillamente, crear una base de datos vacía, ver donde los ponía, y luego eliminarla sin más. No es muy ortodoxo, de acuerdo, pero: ¿a qué es efectivo?
+
+```
+USE Dummy
+```
+
+```
+GO
+```
+
+```
+DECLARE @DBDir                      AS     NVARCHAR(MAX)
+```
+
+```
+DECLARE @LogDir                            AS     NVARCHAR(MAX)
+```
+
+```
+/* Obtiene las ubicaciones de los archivos físicos de la base reciénc reada */
+```
+
+```
+SELECT    
+```
+
+```
+    @DBDir=
+```
+
+```
+  REPLACE(a.FILENAME,RIGHT(a.FILENAME, CHARINDEX('\', REVERSE(a.FILENAME))-1),'')
+```
+
+```
+FROM
+```
+
+```
+   dbo.sysfiles a  WHERE a.name NOT LIKE '%_log'
+```
+
+```
+SELECT    
+```
+
+```
+    @LogDir=
+```
+
+```
+  REPLACE(a.FILENAME,RIGHT(a.FILENAME, CHARINDEX('\', REVERSE(a.FILENAME))-1),'')
+```
+
+```
+FROM
+```
+
+```
+   dbo.sysfiles a  WHERE a.name  LIKE '%_log'
+```
+
+Por otra parte, dar a las bases de datos un tamaño de inicio acorde al espacio necesario, ayuda a que la ejecución y la estructuración interna de las páginas sean más efectiva.
+
+Aproximadamente, los tamaños utilizados por la base de datos de la granja y la de Administración Central son los siguientes:
+
+
+| **Base** | **Tamaño** |
+| --- | --- |
+| **Granja** | 60 Mb |
+| **Admón. Central** | 120 Mb |
+
+
+
+
+… bastante lejanos a los cinco megas iniciales.
+
+Finalmente, podemos aprovechar la característica de definición de variables/parámetros del entorno de SQL Server Management Studio, para que puedan modificarse estos valores rápidamente.
+
+Entonces, la asignación de nombres quedaría así:
+
+```
+DECLARE @MDFFile                    AS     NVARCHAR(MAX)
+```
+
+```
+DECLARE @LDFFile                    AS     NVARCHAR(MAX)
+```
+
+```
+DECLARE @DBName                            AS     SYSNAME
+```
+
+```
+/* Define los nombres de los archivos de la base de la granja */
+```
+
+```
+SET @DBName='<Farm_Database_name, SYSNAME, SPFarm_Config>'
+```
+
+```
+SET @MDFFile=@DBDir+@DBName+'.mdf'
+```
+
+```
+SET @LDFFile=@LogDir+@DBName+'_log.ldf'
+```
+
+Ya con<br />esta información, podemos proceder a armar el script de creación de la base,<br />que también tendrá parametrizable los tamaños
+
+```
+DECLARE @CreationScript             AS     NVARCHAR(MAX)
+```
+
+```
+SET @CreationScript='CREATE DATABASE ['+@DBName+'] ON  PRIMARY'+ 
+```
+
+```
+'(     NAME = N"'+@DBName+'",'+
+```
+
+```
+'      FILENAME = N"'+ @MDFFile + '",'+ 
+```
+
+```
+'      SIZE = <Farm_FileSize,,61440KB> , '+ 
+```
+
+```
+'      FILEGROWTH = <Farm_FileGrow,,20%>)'+ 
+```
+
+```
+' LOG ON '+ 
+```
+
+```
+'(     NAME = N"'+@DBName+'_log",'+  
+```
+
+```
+'      FILENAME = N"'+ @LDFFile + '",'+ 
+```
+
+```
+'      SIZE = 5120KB , '+ 
+```
+
+```
+'      FILEGROWTH = 20%) COLLATE Latin1_General_CI_AS_KS_WS '
+```
+
+```
+Set @CreationScript=REPLACE(@CreationScript,'"',char(39))
+```
+
+Dicho script se ejecuta para proceder a la creación efectiva de la base:
+
+```
+/*Crea la base*/
+```
+
+```
+EXEC (@CreationScript)
+```
+
+Queda ahora repetir estos pasos para la base de datos de administración. Y, ya que estamos, para una base de datos de contenido. Nos queda, finalmente, asignar nuestra cuenta de usuario de ejecución de los servicios de SharePoint, como integrante del grupo db\_owner de cada base de datos.
+
+Primero aseguramos que dicho usuario tenga acceso al SQL Server, por poseer una cuenta de acceso (login) definida en el propio SQL Server:
+
+```
+USE [master]
+```
+
+```
+GO
+```
+
+```
+DECLARE @FarmUser           AS  SYSNAME
+```
+
+```
+SET @FarmUser='<SP_ServiceName, SYSNAME, DOMINIO\SPServices>'
+```
+
+```
+/*Evalúa si ya existe la cuenta en el SQL Server */
+```
+
+```
+if (
+```
+
+```
+       SELECT count(*)
+```
+
+```
+              FROM sys.server_principals 
+```
+
+```
+              where name =@FarmUser)
+```
+
+```
+              =0 
+```
+
+```
+BEGIN
+```
+
+```
+       EXEC ('CREATE LOGIN ['+@FarmUser+'] FROM WINDOWS WITH DEFAULT_DATABASE=[master]')
+```
+
+```
+END
+```
+
+Luego, se crea el usuario en cada base, y se lo asigna al mencionado rol:
+
+```
+USE [<Farm_Database_name, SYSNAME, SPFarm_Config>]
+```
+
+```
+GO
+```
+
+```
+DECLARE @FarmUser           AS  SYSNAME
+```
+
+```
+SET @FarmUser='<SP_ServiceName, SYSNAME, DOMINIO\SPServices>'
+```
+
+```
+exec ('CREATE USER ['+@FarmUser+'] FOR LOGIN ['+@FarmUser+']')
+```
+
+```
+GO
+```
+
+```
+DECLARE @FarmUser           AS  SYSNAME
+```
+
+```
+SET @FarmUser='<SP_ServiceName, SYSNAME, DOMINIO\SPServices>'
+```
+
+```
+EXEC sp_addrolemember N'db_owner', @FarmUser
+```
+
+```
+GO
+```
+
+Con todo el script creado, con la opción "Specify values for Template Parameters…" del menú Query:
+
+![Imagen 1.- Opción “Specify Values for Templates Parameters…](../../../images/numero18/configurando-tu-granja-mas-alla-asistente/imagen1.png)
+
+… podremos asignar los valores definitivos y luego proceder a la ejecución del mismo.
+
+![Imagen 2.- Valores de los parámetros](../../../images/numero18/configurando-tu-granja-mas-alla-asistente/imagen2.png)
+
+Con lo que conseguiremos las bases de datos con los tamaños adecuados (pero aún vacíos):
+
+![Imagen 3.- Bases de datos definidas](../../../images/numero18/configurando-tu-granja-mas-alla-asistente/imagen3.png)
+
+**Definiendo la granja en PowerShell**
+
+Vayamos ahora al primer servidor de nuestra granja, en el cual procederemos a crear y configurar la granja completa.
+
+En él, podemos ejecutar todos los pasos utilizando PowerShell (recomiendo la nota de Gustavo Vélez al respecto, que es una muy buena forma de entender el entorno [http://www.compartimoss.com/revistas/numero-17/powershell-cmdlets-crearlos-morir](/revistas/numero-17/powershell-cmdlets-crearlos-morir) )
+
+Además, si quieren trabajar más cómodo, recomiendo PowerShell ISE (versión 3), que además de permitir ver fácilmente si hay errores de escritura, facilita la edición de scripts complejos. En Windows Server 2012 está instalado en forma predeterminada, solo hay que buscarlo.
+
+En Windows Server 2008 R2 está la versión 2 (también útil), disponible para agregar en Características.
+
+Bien, vayamos por partes y seamos ordenados.
+
+Antes que nada, incluyamos el Snap-In de SharePoint:
+
+```
+Add-PSSnapin Microsoft.SharePoint.PowerShell
+```
+
+La idea es dejar un script que resulte reutilizable.
+
+Por ello, definamos variables para los argumentos necesarios, de modo que al inicio del script tengamos toda la información que necesitemos modificar en cada caso.
+
+```
+#Variables para la definición de la granja
+```
+
+```
+$ServiceUserName="DOMAIN\SharePointServiceAcount" 
+```
+
+```
+$PasswordPhrase ="Pa_1w0rdPhra!e" 
+```
+
+```
+$FarmDatabase="SPFarm_Config" #Debe coincidir con el nombre utilizado en la creación de la base
+```
+
+```
+$CentralAdministrationDB="SPAdmin_Content" #Debe coincidir con el nombre utilizado en la creación de la base
+```
+
+```
+$DatabaseServer="SQL" #Nombre del servidor SQL Server 
+```
+
+```
+$CAPort=9999 #Puerto para el sitio de administración central
+```
+
+Es importante tener en cuenta que se usa como *PasswordPhrase*, ya que es lo que nos permitirá, a posteriori, vincular otros servidores, configurar algunos servicios, etc.
+
+La primera acción es, precisamente, crear la granja.
+
+```
+# Crea la nueva granja
+```
+
+```
+New-SPConfigurationDatabase -DatabaseName $FarmDatabase -DatabaseServer $DatabaseServer -AdministrationContentDatabaseName $CentralAdministrationDB -Passphrase (ConvertTo-SecureString $PasswordPhrase -AsPlainText -force) -FarmCredentials (Get-Credential $ServiceUserName) #EOL
+```
+
+En la sentencia, la función Get-Credential solicitará la contraseña del usuario por motivos de seguridad. Obviamente, puede hacerse de modo similar a script de creación de usuarios
+
+Además, como se ve, incluye también la asignación de la base de datos del sitio de Administración Central,
+
+El siguiente paso, antes de continuar, es asegurarnos que la granja ha sido correctamente creada.
+
+```
+# Controla si se ha creado satisfactoriamente
+```
+
+```
+# Obtiene la granja y evalúa si hay error o no puede recuperarla
+```
+
+```
+$spfarm = Get-SPFarm -ErrorAction SilentlyContinue -ErrorVariable err
+```
+
+```
+# Si no pudo obtenerla, o hay error
+```
+
+```
+if ($spfarm -eq $null -or $err)
+```
+
+```
+{
+```
+
+```
+    $Mensaje="No se pudo verificar la creación de la granja: "+$err
+```
+
+```
+    throw $Mensaje
+```
+
+```
+}
+```
+
+```
+else
+```
+
+```
+{
+```
+
+```
+    Write-host -ForegroundColor green "Se ha creado la granja " 
+```
+
+```
+    Write-Host -NoNewline  -ForegroundColor blue $spfarm.Name 
+```
+
+Sin embargo, a estas alturas, la granja aún está "vacía", esto es no tiene ninguna funcionalidad propia de SharePoint. Para ello, debemos:
+
+1. Proteger los recursos propios de SharePoint.
+2. Instalar los Servicios de SharePoint.
+3. Instalar todas las características que pueden disponerse (se usen o no).
+
+
+```
+# Completa la preparación de la granja
+```
+
+```
+    Write-Host -Foreground green "Protegiendo recursos... "
+```
+
+```
+    Initialize-SPResourceSecurity
+```
+
+```
+    Write-Host -Foreground green "Instalando Servicios ... "
+```
+
+```
+    Install-SPService
+```
+
+```
+    Write-Host -Foreground green "Instalando Características ... "
+```
+
+```
+    Install-SPFeature -AllExistingFeatures
+```
+
+Finalmente, toca crear el Sitio de Administración Central, y agregarle todo el contenido necesario, incluyendo páginas, listas, bibliotecas, páginas de ayuda, etc.
+
+```
+# Crea el sitio de Administración Central
+```
+
+```
+    Write-Host -Foreground green "Creando Administración Central... "
+```
+
+```
+    New-SPCentralAdministration -Port $CAPort -WindowsAuthProvider NTLM
+```
+
+```
+    Write-Host -Foreground green "Instalando Ayuda... "
+```
+
+```
+    Install-SPHelpCollection -All
+```
+
+```
+ 
+```
+
+```
+    Write-Host -Foreground green "Instalando Contenido de Administración Central ... "
+```
+
+```
+    Install-SPApplicationContent
+```
+
+```
+    
+```
+
+```
+}
+```
+
+Al ejecutar este script, y cuando este agregue el Snap-In de SharePoint, se presentará el siguiente mensaje, dado que el Snap-In intenta conectarse a la granja actual, que aún no existe.
+
+The local farm is not accessible. Cmdlets with FeatureDependencyId are not registered.
+
+Ahora ya tenemos nuestra granja habilitada.
+
+Podemos, crear nuestra Aplicación Web inicial desde la Administración Central sin problemas. Basta que usemos como nombre de la base de datos, el mismo que asignamos al crearla.
+
+También puede crearse utilizando el script de PowerShell que acompaña las descargas. (*04 Crea Sitio SharePoint.ps1*)
+
+En él se deben tener en cuenta 4 consideraciones:
+
+1. Se necesita definir una cuenta administrada.
+2. También, es necesario crear el Pool de Aplicación y asignarle dicha cuenta.
+3. Finalmente, que plantilla se desea utilizar.
+
+
+Para conocer las plantillas disponibles, basta con ejecutar el comando Get-SPWebTemplate en cualquier servidor de la granja. En estos momentos, la lista completa de SharePoint 2013 en una granja recién instalada es la siguiente:
+
+
+| **Nombre** | **Título** | **LocaleId** | **Version** |
+| --- | --- | --- | --- |
+| GLOBAL#0 | Global template | 1033 | 15 |
+| STS#0 | Team Site | 1033 | 15 |
+| STS#1 | Blank Site | 1033 | 15 |
+| STS#2 | Document Workspace | 1033 | 15 |
+| MPS#0 | Basic Meeting Workspace | 1033 | 15 |
+| MPS#1 | Blank Meeting Workspace | 1033 | 15 |
+| MPS#2 | Decision Meeting Workspace | 1033 | 15 |
+| MPS#3 | Social Meeting Workspace | 1033 | 15 |
+| MPS#4 | Multipage Meeting Workspace | 1033 | 15 |
+| CENTRALADMIN#0 | Central Admin Site | 1033 | 15 |
+| WIKI#0 | Wiki Site | 1033 | 15 |
+| BLOG#0 | Blog | 1033 | 15 |
+| SGS#0 | Group Work Site | 1033 | 15 |
+| TENANTADMIN#0 | Tenant Admin Site | 1033 | 15 |
+| APP#0 | App Template | 1033 | 15 |
+| APPCATALOG#0 | App Catalog Site | 1033 | 15 |
+| ACCSRV#0 | Access Services Site | 1033 | 15 |
+| ACCSVC#0 | Access Services Site Internal | 1033 | 15 |
+| ACCSVC#1 | Access Services Site | 1033 | 15 |
+| BDR#0 | Document Center | 1033 | 15 |
+| DEV#0 | Developer Site | 1033 | 15 |
+| DOCMARKETPLACESITE#0 | Academic Library | 1033 | 15 |
+| EDISC#0 | eDiscovery Center | 1033 | 15 |
+| EDISC#1 | eDiscovery Case | 1033 | 15 |
+| OFFILE#0 | (obsolete) Records Center | 1033 | 15 |
+| OFFILE#1 | Records Center | 1033 | 15 |
+| OSRV#0 | Shared Services Administration Site | 1033 | 15 |
+| PPSMASite#0 | PerformancePoint | 1033 | 15 |
+| BICenterSite#0 | Business Intelligence Center | 1033 | 15 |
+| SPS#0 | SharePoint Portal Server Site | 1033 | 15 |
+| SPSPERS#0 | SharePoint Portal Server Personal Space | 1033 | 15 |
+| SPSPERS#2 | Storage And Social SharePoint Portal ... | 1033 | 15 |
+| SPSPERS#3 | Storage Only SharePoint Portal Server... | 1033 | 15 |
+| SPSPERS#4 | Social Only SharePoint Portal Server ... | 1033 | 15 |
+| SPSPERS#5 | Empty SharePoint Portal Server Person... | 1033 | 15 |
+| SPSMSITE#0 | Personalization Site | 1033 | 15 |
+| SPSTOC#0 | Contents area Template | 1033 | 15 |
+| SPSTOPIC#0 | Topic area template | 1033 | 15 |
+| SPSNEWS#0 | News Site | 1033 | 15 |
+| CMSPUBLISHING#0 | Publishing Site | 1033 | 15 |
+| BLANKINTERNET#0 | Publishing Site | 1033 | 15 |
+| BLANKINTERNET#1 | Press Releases Site | 1033 | 15 |
+| BLANKINTERNET#2 | Publishing Site with Workflow | 1033 | 15 |
+| SPSNHOME#0 | News Site | 1033 | 15 |
+| SPSSITES#0 | Site Directory | 1033 | 15 |
+| SPSCOMMU#0 | Community area template | 1033 | 15 |
+| SPSREPORTCENTER#0 | Report Center | 1033 | 15 |
+| SPSPORTAL#0 | Collaboration Portal | 1033 | 15 |
+| SRCHCEN#0 | Enterprise Search Center | 1033 | 15 |
+| PROFILES#0 | Profiles | 1033 | 15 |
+| BLANKINTERNETCONT... | Publishing Portal | 1033 | 15 |
+| SPSMSITEHOST#0 | My Site Host | 1033 | 15 |
+| ENTERWIKI#0 | Enterprise Wiki | 1033 | 15 |
+| PROJECTSITE#0 | Project Site | 1033 | 15 |
+| PRODUCTCATALOG#0 | Product Catalog | 1033 | 15 |
+| COMMUNITY#0 | Community Site | 1033 | 15 |
+| COMMUNITYPORTAL#0 | Community Portal | 1033 | 15 |
+| SRCHCENTERLITE#0 | Basic Search Center | 1033 | 15 |
+| SRCHCENTERLITE#1 | Basic Search Center | 1033 | 15 |
+| visprus#0 | Visio Process Repository | 1033 | 15 |
+| GLOBAL#0 | Global template | 1033 | 14 |
+| STS#0 | Team Site | 1033 | 14 |
+| STS#1 | Blank Site | 1033 | 14 |
+| STS#2 | Document Workspace | 1033 | 14 |
+| MPS#0 | Basic Meeting Workspace | 1033 | 14 |
+| MPS#1 | Blank Meeting Workspace | 1033 | 14 |
+| MPS#2 | Decision Meeting Workspace | 1033 | 14 |
+| MPS#3 | Social Meeting Workspace | 1033 | 14 |
+| MPS#4 | Multipage Meeting Workspace | 1033 | 14 |
+| CENTRALADMIN#0 | Central Admin Site | 1033 | 14 |
+| WIKI#0 | Wiki Site | 1033 | 14 |
+| BLOG#0 | Blog | 1033 | 14 |
+| SGS#0 | Group Work Site | 1033 | 14 |
+| TENANTADMIN#0 | Tenant Admin Site | 1033 | 14 |
+| ACCSRV#0 | Access Services Site | 1033 | 14 |
+| ACCSRV#1 | Assets Web Database | 1033 | 14 |
+| ACCSRV#3 | Charitable Contributions Web Database | 1033 | 14 |
+| ACCSRV#4 | Contacts Web Database | 1033 | 14 |
+| ACCSRV#6 | Issues Web Database | 1033 | 14 |
+| ACCSRV#5 | Projects Web Database | 1033 | 14 |
+| BDR#0 | Document Center | 1033 | 14 |
+| OFFILE#0 | (obsolete) Records Center | 1033 | 14 |
+| OFFILE#1 | Records Center | 1033 | 14 |
+| OSRV#0 | Shared Services Administration Site | 1033 | 14 |
+| PPSMASite#0 | PerformancePoint | 1033 | 14 |
+| BICenterSite#0 | Business Intelligence Center | 1033 | 14 |
+| SPS#0 | SharePoint Portal Server Site | 1033 | 14 |
+| SPSPERS#0 | SharePoint Portal Server Personal Space | 1033 | 14 |
+| SPSMSITE#0 | Personalization Site | 1033 | 14 |
+| SPSTOC#0 | Contents area Template | 1033 | 14 |
+| SPSTOPIC#0 | Topic area template | 1033 | 14 |
+| SPSNEWS#0 | News Site | 1033 | 14 |
+| CMSPUBLISHING#0 | Publishing Site | 1033 | 14 |
+| BLANKINTERNET#0 | Publishing Site | 1033 | 14 |
+| BLANKINTERNET#1 | Press Releases Site | 1033 | 14 |
+| BLANKINTERNET#2 | Publishing Site with Workflow | 1033 | 14 |
+| SPSNHOME#0 | News Site | 1033 | 14 |
+| SPSSITES#0 | Site Directory | 1033 | 14 |
+| SPSCOMMU#0 | Community area template | 1033 | 14 |
+| SPSREPORTCENTER#0 | Report Center | 1033 | 14 |
+| SPSPORTAL#0 | Collaboration Portal | 1033 | 14 |
+| SRCHCEN#0 | Enterprise Search Center | 1033 | 14 |
+| PROFILES#0 | Profiles | 1033 | 14 |
+| BLANKINTERNETCONT... | Publishing Portal | 1033 | 14 |
+| SPSMSITEHOST#0 | My Site Host | 1033 | 14 |
+| ENTERWIKI#0 | Enterprise Wiki | 1033 | 14 |
+| SRCHCENTERLITE#0 | Basic Search Center | 1033 | 14 |
+| SRCHCENTERLITE#1 | Basic Search Center | 1033 | 14 |
+| SRCHCENTERFAST#0 | FAST Search Center | 1033 | 14 |
+| visprus#0 | Visio Process Repository | 1033 | 14 |
+
+
+Teniendo a mano los correspondientes scripts, instalar y configurar una granja puede ser realmente sencillo. Hay que tener en cuenta que a este momento, no hay Aplicaciones de servicio configuradas… Bueno, no es tan cierto… algunas hay.
+
+
+| **Servicio** | **Estado** |
+| --- | --- |
+| Central Administration | Online |
+| Distributed Cache | Online |
+| Microsoft SharePoint Foundation Incoming E-Mail | Online |
+| Microsoft SharePoint Foundation Web Application | Online |
+| Microsoft SharePoint Foundation Workflow Timer Service | Online |
+
+
+El resto de las aplicaciones de servicio están deshabilitadas. Ya veremos en artículos posteriores cómo seguir configurando la granja de forma controlada.
+
+**Daniel A. Seara**
+Mentor SolidQ Global
+Especialista en SharePoint Server
+

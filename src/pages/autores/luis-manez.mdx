@@ -1,0 +1,23 @@
+---
+id: luis-manez
+title: Luis Mañez
+jobTitle: SharePoint developer en Content and Code
+slug: /autores/luis-manez
+photo: ../../../images/Autores/LuisManez.jpg
+twitter: https://twitter.com/luismanez
+blog: http://geeks.ms/blogs/lmanez/
+type: author
+content: >-
+    ​Luis Mañez es SharePoint developer en Content and Code (London, UK) una de las mejores consultoras especializadas en SharePoint del Reino Unido. Cuenta con mas de 11 años de experiencia en IT, y desde 2003 trabajando con SharePoint. Es MCPD en SharePoint 2010 y Microsoft Active Professional desde 2010. Es miembro activo de la comunidad SharePoint, donde es colaborador habitual de la revista, y con su blog.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "luis-manez"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

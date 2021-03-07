@@ -1,0 +1,27 @@
+---
+id: enrique-sanchez
+title: Enrique Sánchez
+jobTitle: Cloud Services Manager
+slug: /autores/enrique-sanchez
+photo: ../../../images/autores/enrique-sanchez.png
+twitter: #
+blog: http://www.esanchezm.com
+type: author
+content: >-
+    Enrique Sánchez Moreno trabaja como Cloud Services Manager en ILUNION IT Services. 
+    <br/><br/>
+    Lleva trabajando con tecnologías Microsoft desde hace más de diez años y cuenta con las certificaciones de Microsoft 365 Teamwork Administrator Associate y Microsoft Service Adoption Specialist.
+    <br/><br/>
+    Tiene amplia experiencia en todas las versiones de SharePoint on-premise, así como en la versión Online y el resto de aplicaciones que integran la suite de Office 365. 
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "enrique-sanchez"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

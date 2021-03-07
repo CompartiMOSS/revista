@@ -1,0 +1,23 @@
+---
+id: javier-lopez-gonzalez
+title: Javier López
+jobTitle: IT guy
+slug: /autores/javier-lopez-gonzalez
+photo: ../../../images/Autores/JaviLopez.jpg
+twitter: https://twitter.com/JaviLopezG
+blog: https://javilopezg.com/
+type: author
+content: >-
+    Informático, empresario frustrado, gestor de proyectos... Inquieto por la tecnología, la arquitectura de sistemas, buscar soluciones sencillas a problemas complicados, pero siempre con un pie en el lado técnico y otro en el de negocio. Me certifiqué en Azure cuando aun estaba en beta porque siempre me han gustado los entornos distribuidos y en especial las cosas de la nube. He trabajado con muchas tecnologías, no sólo de Microsoft.​​
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "javier-lopez-gonzalez"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

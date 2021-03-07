@@ -1,0 +1,75 @@
+---
+title: Primeros pasos con Azure Resource Graph
+slug: /revistas/numero-41/primeros-pasos-con-azure-resource-graph
+date: 16/08/2019
+magazine: 41
+author: Alberto Andrés Rodríguez
+authorId: alberto-andrés-rodríguez
+keywords: ['Azure','Azure Resource Graph']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+​Azure Resource Graph está diseñado para extender la administración de los recursos de Azure, ayudándonos a gobernar nuestro entorno un poquito más. Actualmente soporta querys contra recursos básicos de Azure, como nombres de recursos, ID, Type, Subscription… Pero como todo en Azure, seguro que evolucionará y muy rápido
+
+Azure Resource Graph está basado en lenguaje [Kusto](https&#58;//docs.microsoft.com/en-us/azure/data-explorer/data-explorer-overview), soportando un gran número de funciones y operadores.
+
+Para preparar nuestro entorno para hacer querys contra Azure Resource Graph, como mínimo necesitaremos permisos de lectura sobre los recursos que queremos consultar, y utilizar Azure CLI, la extensión [SDK con REST](https&#58;//docs.microsoft.com/en-us/dotnet/api/microsoft.azure.management.resourcegraph.resourcegraphclient?view=azure-dotnet) o bien PowerShell. En este post exploraremos este último método.
+
+Primero, para instalar los comandos de Azure Resource Graph, deberemos de abrir una consola de PowerShell y ejecutar el siguiente comando:
+
+Install-Module -Name Az.ResourceGraph
+
+A partir de aquí, sobre la misma consola de PowerShell, podemos ejecutar la siguiente query con lo que nos devolverá sobre qué número de objetos tenemos permisos sobre nuestro tenant:
+
+```
+Search-AzGraph -Query "summarize count()"
+count_
+------
+    217
+```
+
+Ahora lo que haremos es consultar las máquinas virtuales que tenemos bajo la suscripción, y utilizaremos un operador para consultar tanto las máquinas en formato ARM como las que están en formato clásico (si algunos aún tenemos de esas)
+
+```
+Search-AzGraph -Query "where type == 'Microsoft.Compute/virtualMachines' or type == 'Microsoft.ClassicCompute/virtualMachines' | summarize count()"
+count_
+------
+18
+```
+
+Incluso podemos ver el tipo de máquinas que tenemos:
+
+```
+Search-AzGraph -Query "where type =~ 'Microsoft.Compute/virtualMachines' | summarize count() by tostring(properties.storageProfile.osDisk.osType)"
+properties_storageProfile_osDisk_osType count_
+--------------------------------------- ------
+Windows                                 14
+Linux                                   4
+```
+
+Otros ejemplos que podemos utilizar (entre muchos) son:
+
+```
+# Listar Recursos por tipo de la suscripción
+Search-AzGraph -Query "summarize count() by type, subscriptionId | order by type, subscriptionId asc" 
+
+# Listar Máquinas virtuales que cumplen con un patrón en concreto
+Search-AzGraph -Query "where type =~ 'microsoft.compute/virtualmachines' and name matches regex @'^Contoso(.*)[0-9]+$' | project name | order by name asc"
+
+# Listar todas las IP públicas
+Search-AzGraph -Query "where type contains 'publicIPAddresses' and isnotempty(properties.ipAddress) | project properties.ipAddress"
+
+# Listar WebApps:
+Search-AzGraph -Query "where type=='microsoft.web/sites' | project name, subscriptionId, type | order by type, subscriptionId"
+
+# Listar Storage accounts:
+Search-AzureRmGraph -Query "where type=='microsoft.storage/storageaccounts' | project name, resourceGroup,subscriptionId"
+```
+
+**Alberto Andrés Rodríguez** <br />
+Cloud Architect en Seidor

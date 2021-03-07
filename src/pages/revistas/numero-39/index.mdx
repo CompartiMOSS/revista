@@ -1,0 +1,51 @@
+---
+title: Número 39 - Marzo 2019
+slug: /revistas/numero-39/
+date: 2020-03-29
+magazine: 39
+type: number
+content: >-
+    ​​​​​​​​​​​​​​​​​​​​Con el inicio del nuevo año, vemos que Microsoft sigue en su ruta de "todo-en-la-nube". Acercándose la nueva versión de Windows 10, está claro que la compañía apuesta cada vez más a esta ruta como demuestra la reciente noticia de que una gran parte del equipo de desarrollo de Windows ha sido movido al equipo de Azure. ¿Cuánto tiempo más antes de que llegue la tan mencionada versión en la nube de Windows?
+    <br /><br />
+    Por el momento seguimos viendo también que, según las cifras de negocios presentadas por Microsoft hace unas cuantas semanas, Azure disminuye un poco en crecimiento, lo que es bastante comprensible después de años de doblar su rendimiento cada año, y que Office es todavía la gallina de los huevos de oro. Mejor dicho, nada nuevo bajo el sol. Y que, por supuesto Microsoft ha recuperado el puesto número uno como compañía más valiosa del mundo, algo que era impensable hace cinco años.
+    <br /><br />
+    En CompartiMOSS seguimos, como es nuestra costumbre, mostrando lo más nuevo y más interesante técnicamente que nos ofrece Microsoft. Tanto los autores como los editores les ofrecemos un nuevo numero de la revista, que es de todos, y les deseamos que la disfruten tanto leyéndola y aplicando las ideas presentadas, como nosotros, los autores y responsables del magazín, disfrutamos creándola.
+    <br /><br />
+    <b>El Equipo Editorial de CompartiMOSS​​​​​​​​</b>
+---
+
+import LayoutNumber from '../../../components/layout-number'
+import { graphql } from "gatsby";
+import ViewArticles from "../../../components/view-articles"
+import DownloadPDF from "../../../components/download-pdf"
+import ViewPartners from '../../../components/view-partners'
+import NumberHeader from '../../../components/number-header'
+
+<NumberHeader frontmatter={props.pageContext.frontmatter} />
+
+<ViewArticles articles={props.data.allMdx} title="Índice" />
+
+<ViewPartners />
+
+export const pageQuery = graphql`
+    query {
+        allMdx(    
+            sort: {
+                fields: frontmatter___title
+            }
+            filter: {
+                frontmatter: {magazine: {eq: 39}, type: {ne: "number"}}
+            }) 
+            {
+                edges {
+                    node {
+                        frontmatter {
+                            title, author, slug, authorId
+                        }      
+                    }
+                }
+            }
+    }
+`
+
+export default LayoutNumber

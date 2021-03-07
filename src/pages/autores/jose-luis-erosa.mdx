@@ -1,0 +1,23 @@
+---
+id: jose-luis-erosa
+title: Jose Luis Erosa
+jobTitle: Consultor SharePoint
+slug: /autores/jose-luis-erosa
+photo: ../../../images/Autores/jose-erosa.jpeg
+twitter: https://twitter.com/pp_uy
+blog: http://netconf.uy/
+type: author
+content: >-
+    ​Desde el 2008 José ha trabajado de forma activa en proyectos de SharePoint, despeñándose en diversos roles como desarrollador, jefe de proyecto, arquitecto y consultor.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "jose-luis-erosa"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

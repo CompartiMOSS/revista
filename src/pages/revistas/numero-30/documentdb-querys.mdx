@@ -1,0 +1,647 @@
+---
+title: DocumentDB Query’s
+slug: /revistas/numero-30/documentdb-querys
+date: 28/11/2016
+magazine: 30
+author: Robert Bermejo
+authorId: robert-bermejo
+keywords: ['DocumentDB','Azure']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+DocumentDB es el servicio NoSQL que nos proporciona Azure como servicio PaaS. Sabemos que las bases de datos NoSQL no tienen esquema y en el caso de DocumentDB guardan su información en formato JSON.
+
+Entonces, si no tenemos esquemas y los datos se guardan en formato JSON ¿Cómo puedo consultar los datos que tengo? La respuesta es mediante lenguaje SQL (*Structured Query Language*).
+
+En este artículo veremos que sentencias SQL pueden utilizarse y cómo hacerlo.
+
+**Esquema de una sentencia SQL en DocumentDB**
+
+**SELECT**  [**TOP** &lt;top\_expression&gt;] &lt;select\_list&gt;
+
+[**FROM** &lt;from\_sepecification]
+
+[**WHERE** &lt;filter\_condition&gt;}
+
+[**ORDER BY** &lt;sort\_specification&gt;]​
+
+
+
+Como se puede observar el esquema para realizar consultas es muy familiar si se conoce SQL Cada sentencia consiste en un SELECT acompañado opcionalmente por un FROM, WHERE o ORDER BY. Veamos un ejemplo.
+
+Tenemos la siguiente información en nuestra *collection* Familias de DocumentDB**:**
+
+```
+{
+  "id": "FamiliaCompartiMOSS",
+  "padres": [
+    {
+      "apellido": "CompartiMOSS",
+      "nombre": "Revista"
+    },
+    {
+      "apellido": "Apellido1",
+      "nombre": "Nombre1"
+    }
+  ],
+  "hijos": [
+    {
+      "apellido": "Apellido2",
+      "nombre": "Nombre2",
+      "sexo": "mujer",
+      "grado": 1,
+      "mascotas": [
+        {"nombre": "Goofy" },
+        {"nombre": "Mickey" }
+      ]
+    },
+    {
+      "apellido": "Apellido3",
+      "nombre": "Nombre3",
+      "sexo": "mujer",
+      "grado": 8
+    }
+  ],
+  "direccion": {
+    "pais": "España",
+    "ciudad": "BCN"
+  },
+  "contacto": {
+    "email": "email@email.com",
+    "telefono": "000000000"
+  },
+  "registrado": false
+}
+```
+
+ Y realizamos la siguiente consulta:
+
+```
+ SELECT {
+  "Nombre": "f.id",
+  "Ciudad": "f.direccion.ciudad"
+} AS Familia FROM Familias f WHERE f.direccion.ciudad = “BCN”
+```
+
+El resultado será:
+
+```
+[
+  {
+    "Familia": {
+      "Name": "FamiliaCompartiMOSS",
+      "Ciudad": "BCN"
+    }
+  }
+]
+```
+
+Aunque no tengamos un esquema fijo podemos ver cómo podemos realizar consultas utilizando la potencia de SQL. Ahora vamos a ver más en detalle todas las opciones.
+
+**FROM**
+
+Clausula opcional, aunque si se aplica un filtro en la query o se proyecta algún campo como resultado, entonces será obligatorio definir esta cláusula. Como en una consulta SQL convencional, la cláusula FROM indica la collection sobre la cual se ejecutará la consulta, también puede identificar un subconjunto de la collection como fuente de la consulta. 
+
+
+Un ejemplo de utilización de un subconjunto de la collection sería:
+
+```
+SELECT * 
+FROM Familias.hijos 
+```
+
+El resultado será:
+
+```
+ [
+  [
+    {
+      "apellido": "Apellido2",
+      "nombre": "Nombre2",
+      "sexo": "mujer",
+      "grado": 1
+    },
+    {
+      "apellido": "Apellido3",
+      "nombre": "Nombre3",
+      "sexo": "mujer",
+      "grado": 8
+    }
+  ]
+]
+```
+
+También se puede utilizar alias en las consultas de la forma convencional: SELECT f.id FROM Familias AS f. Una vez se utiliza el alias la fuente ya no se reconocerá, es decir, si realizáramos la consulta SELECT Familias id FROM Familias AS f la query no funcionaría, como tampoco funcionaria SELECT id FROM Familias AS f. 
+
+Por último, también se puede utilizar la cláusula IN, que nos permite realizar iteraciones sobre JSON arrays. La cláusula FROM nos da soporte para iteraciones. Vamos a ver un ejemplo, cogiendo como base el ejemplo anterior:
+
+```
+SELECT * 
+FROM c IN Familias.hijos 
+El resultado será:
+
+```
+[
+  {
+    "apellido": "Apellido2",
+    "nombre": "Nombre2",
+    "sexo": "mujer",
+    "grado": 1
+  },
+  {
+    "apellido": "Apellido3",
+    "nombre": "Nombre3",
+    "sexo": "mujer",
+    "grado": 8
+  }
+]
+```
+
+Podemos ver que al aplicar la cláusula IN, todos los resultados se devuelven en una única lista, mientras que en el primer ejemplo devolvía una lista por resultado.
+
+**WHERE**
+
+El comando WHERE es opcional, y si lo añadimos dentro de una query DocumentDB lo que estamos indicando que condiciones deben satisfacer los resultados que serán incluidos en el resultado de la ejecución.
+
+En el siguiente ejemplo podemos ver como se aplica el operador WHERE:
+
+```
+SELECT f.direccion
+FROM Familias f 
+WHERE f.id = "FamiliaCompartiMOSS "
+```
+
+El resultado será:
+
+```
+[
+  {
+    "direccion": {
+      "pais": "España",
+      "ciudad": "BCN"
+    }
+  }
+]
+```
+
+En el ejemplo anterior hemos aplicado el operador =, pero no es el único que podemos utilizar con esta cláusula, también se pueden utilizar los siguientes:
+
+·       Aritméticos: +,-,*,/,%
+·       Lógicos: AND, OR
+·       Strings: || (concatenación)
+·       Comparación: =, !=, >, >=, <, <=, <>
+·       Bits: |, &, ^
+·       Binarios y unarios: true, false, null, undefined… Un ejemplo de uso de un operador binario sería:
+
+```
+SELECT * FROM Familias f WHERE f.registrado
+```
+
+Esta query nos devolvería todos aquellos documentos que contengan true como valor.
+
+·       BETWEEN: Palabra clave que especifica un rango de valores. Puede ser usada con strings o números. Por ejemplo:
+
+```
+SELECT * 
+FROM Familias.hijos [ 0 ] c 
+WHERE c.grado BETWEEN 1 AND 5
+```
+
+·       IN: Palabra clave que se utiliza para verificar que un valor esté en un conjunto predefinido de valores. Por ejemplo:
+
+```
+SELECT *
+FROM Familias 
+WHERE Familias.id IN ('Familia2', 'FamiliaCompartiMOSS')
+```
+
+**SELECT**
+
+Cualquier consulta sobre DocumentDB debe contener la cláusula SELECT. Esta cláusula nos indica los campos que serán devueltos al ejecutarse la query. Por ejemplo, si queremos devolver solo la dirección ejecutaríamos la siguiente query:
+
+```
+SELECT f.contacto
+FROM Familias f 
+WHERE f.id = " FamiliaCompartiMOSS "
+```
+
+El resultado será:
+
+```
+[
+  {
+    "contacto": {
+      "email": "email@email.com",
+      "telefono": "000000000"
+    }
+  }
+]
+```
+
+Dentro del operador SELECT podemos realizar las siguientes operaciones:
+
+·       Propiedades Anidadas: Devolver una propiedad que está dentro de otra. Por ejemplo: 
+
+```
+SELECT f.direccion.pais, f.direccion.ciudad
+FROM Familias f 
+WHERE f.id = " FamiliaCompartiMOSS "
+
+El resultado será:
+
+```
+[
+  {
+    "pais": "España",
+    "ciudad": "BCN"
+  }
+]
+
+·       Proyecciones: Devolvemos el resultado en una estructura propia.
+
+```
+SELECT {
+  "pais": "f.direccion.pais",
+  "ciudad": "f.direccion.ciudad",
+  "nombre": "f.id"
+} FROM Familias f WHERE f.id = " FamiliaCompartiMOSS "
+```
+
+El resultado será:
+
+```
+[{
+  "$1": {
+    "pais": "España",
+    "ciudad": "BCN",
+    "name": " FamiliaCompartiMOSS "
+  }
+}]
+```
+
+·       Utilización de Alias: Cuando queremos devolver la estructura propia con un nombre propio.
+
+```
+SELECT
+{
+  "pais": "f.direccion.pais",
+  "ciudad": "f.direccion.ciudad"
+} AS DireccionInfo, 
+       { "nombre ": f.id } NombreInfo
+FROM Familias f 
+WHERE f.id = " FamiliaCompartiMOSS "
+```
+
+El resultado será:
+
+```
+[{
+  "DireccionInfo": {
+    "pais": "España", 
+    "ciudad": "BCN"
+  },
+  "NombreInfo": {
+    "nombre": " FamiliaCompartiMOSS "
+  }
+}]
+```
+
+·       Expresiones escalares: SELECT soporta expresiones del tipo constantes, expresiones aritméticas, lógicas…. Por ejemplo:
+
+```
+SELECT ((2 + 11 % 7)-2)/3   
+```
+
+El resultado será:          
+
+```
+[
+  {
+    "$1": 1.33333
+  }
+] 
+```
+
+·       VALUE: Es una palabra clave que nos permite devolver un valor. Por ejemplo, si lo quisiéramos devolver una constante:
+
+```
+SELECT VALUE "CompartiMOSS" 
+```
+
+El resultado será: 
+
+```
+[
+  "CompartiMOSS"
+]
+```
+
+También nos permitiría eliminar etiquetas de los resultados generados:
+
+```
+SELECT VALUE f.direccion
+FROM Familias f 
+```
+
+El resultado será:          
+
+```
+[
+  {
+    "pais": "España",
+    "ciudad": "BCN"
+  }
+]
+```
+
+·       * :  Operador especial que nos devolverá todos los campos de la consulta que realicemos:
+
+```
+SELECT * 
+FROM Familias f 
+WHERE f.id = " FamiliaCompartiMOSS 
+```
+
+El Resultado será:
+
+```
+[
+  {
+    "id": "FamiliaCompartiMOSS",
+    "padres": [
+      {
+        "apellido": "CompartiMOSS",
+        "nombre": "Revista"
+      },
+      {
+        "apellido": "Apellido1",
+        "nombre": "Nombre1"
+      }
+    ],
+    "hijos": [
+      {
+        "apellido": "Apellido2",
+        "nombre": "Nombre2",
+        "sexo": "mujer",
+        "grado": 1,
+        "mascotas": [
+          { "nombre": "Goofy" },
+          { "nombre": "Mickey" }
+        ]
+      },
+      {
+        "apellido": "Apellido3",
+        "nombre": "Nombre3",
+        "sexo": "mujer",
+        "grado": 8
+      }
+    ],
+    "direccion": {
+      "pais": "España",
+      "ciudad": "BCN"
+    },
+    "contacto": {
+      "email": "email@email.com",
+      "telefono": "000000000"
+    },
+    ]
+```
+
+·       BETWEEN: Tiene el mismo significado y uso que en el Where.
+
+```
+SELECT (c.grado BETWEEN 0 AND 10) 
+FROM Familias.hijos [ 0 ] c
+```
+
+·       Operdores ? (Ternary) y ?? (Coalesce): Estos operadores nos permiten aplicar condiciones. Por ejemplo:
+
+```
+SELECT (c.grado < 5)? "directo": "indirecto" AS nivelgrado 
+FROM Familias.hijos [ 0 ] c 
+```
+
+```
+SELECT f.nombre ?? f.apellido AS apellido 
+FROM Familias f
+```
+
+·       TOP: Operador que nos permitirá devolver un número concreto de resultados deseados.
+
+```
+SELECT TOP 1 * 
+FROM Familias f
+```
+
+El resultado será:
+
+```
+[
+  {
+    "id": "FamiliaCompartiMOSS",
+    "padres": [
+      {
+        "apellido": "CompartiMOSS",
+        "nombre": "Revista"
+      },
+      {
+        "apellido": "Apellido1",
+        "nombre": "Nombre1"
+      }
+    ],
+    "hijos": [
+      {
+        "apellido": "Apellido2",
+        "nombre": "Nombre2",
+        "sexo": "mujer",
+        "grado": 1,
+        "mascotas": [
+          { "nombre": "Goofy" },
+          { "nombre": "Mickey" }
+        ]
+      },
+      {
+        "apellido": "Apellido3",
+        "nombre": "Nombre3",
+        "sexo": "mujer",
+        "grado": 8
+      }
+    ],
+    "direccion": {
+      "pais": "España",
+      "ciudad": "BCN"
+    },
+    "contacto": {
+      "email": "email@email.com",
+      "telefono": "000000000"
+    },​
+    "registrado": false
+  }
+]
+```
+
+**Arrays y Objetos**
+
+DocumentDB permite la creación de arrays y/o objetos. Podemos construir arrays de la siguiente forma:
+
+```
+SELECT [ "f.direccion.ciudad", "f.direccion.pais" ] AS PaisCiudad 
+FROM Familias f
+```
+
+El Resultado será:
+
+```
+[
+  {
+    " PaisCiudad ": [
+      "BCN",
+      "España"
+    ]
+  },
+  {
+    "CiudadState": [
+      "BCN",
+      "BCN"
+    ]
+  }
+]
+```
+
+**JOINS**
+
+DocumentDB nos permite realizar JOINS, pero a diferencia del concepto JOIN de una Base de Datos relacional, no nos sirve para relacionar tablas de forma que podamos obtener los datos deseados, sino que nos permite relacionar el schema consigo mismo, lo que en una base de datos relacional equivaldría a realizar una “self-join”.
+
+El resultado de realizar la operación JOIN es un conjunto de N-tuplas con N-Values por tupla, con valores obtenidos de iterar los todos los alias de las collections sobre sus conjuntos.
+
+Por ejemplo, podemos realizar una JOIN entre la raíz y un hijo, el resultado es el producto cruzado entre los dos objetos JSON.
+
+Supongamos que, para este ejemplo, además de la entrada anterior, disponemos de la siguiente entrada
+
+```
+{
+  "id": "FamiliaCompartiMOSS2",
+  "padres": [
+    {
+      "apellido": "CompartiMOSS22",
+      "nombre": "Revista"2
+    },
+    {
+      "apellido": "Apellido12",
+      "nombre": "Nombre12"
+    }
+  ],
+  "hijos": [
+    {
+      "apellido": "Apellido22",
+      "nombre": "Nombre22",
+      "sexo": "mujer",
+      "grado": 1,
+      "mascotas": [
+        {"nombre": "Goofy2" },
+        {"nombre": "Mickey2" }
+      ]    
+  ],
+  "direccion": {
+    "pais": "España",
+    "ciudad": "MAD"
+  },
+  "contacto": {
+    "email": "email2@email.com",
+    "telefono": "000000001"
+  },
+  "registrado": true
+}​
+```
+
+Y realizamos la siguiente *query*:
+
+```
+SELECT f.id
+FROM Familias f
+JOIN c IN f.hijos 
+```
+
+El Resultado será:
+
+```
+[
+  {
+    "id": " FamiliaCompartiMOSS2"
+  },
+  {
+    "id": "FamiliaCompartiMOSS"
+  },
+  {
+    "id": "FamiliaCompartiMOSS"
+  }
+]
+```
+
+ORDER BY
+
+En caso de añadir este operador, nos permitirá ordenar los resultados de la query de la forma deseada, seguimos teniendo las dos entradas en nuestra collection.
+
+```
+SELECT f.id, f.direccion.ciudad
+FROM Familias f 
+ORDER BY f.direccion.ciudad
+```
+
+El Resultado será:
+
+```
+[
+  {
+    "id": "FamiliaCompartiMOSS",
+    "ciudad": "BCN"
+  },
+  {
+    "id": " FamiliaCompartiMOSS2",
+    "ciudad": "MAD"
+  }
+]
+```
+
+CONCLUSIONES
+
+Como podéis observar, realizar queries sobre DobumentDB es muy similar a realizar queries sobre SQL, todos los operadores que tiene son familiares y funcionan de la forma que esperamos. Query playground es un sitio web proporcionado por Microsoft para poder practicar y ver más en profundidad como realizar queries en DobumentDB.
+
+Destacar que DocumentDB también permite trabajar con funciones del tipo:
+
+·       Matemático: ABS, CEILING, EXP…..
+
+·       Comprobación de tipos: IS\_ARRAY, IS\_BOOL…
+
+·       Funciones de Strings: CONCAT, CONTAINS, ENDSWITH…
+
+·       Funciones de Arrays: ARRAY\_CONCAT, ARRAY\_CONTAINS…
+
+·       Funciones de espacio: ST\_DISTANCE, ST\_WITHIN…
+
+Para saber más sobre funciones en DocubmentDB, visitar los links del apartado referencias.
+
+**REFERENCIAS:**
+
+·      
+[https://docs.microsoft.com/en-us/azure/documentdb/documentdb-sql-query#built-in-functions](https&#58;//docs.microsoft.com/en-us/azure/documentdb/documentdb-sql-query#built-in-functions)
+
+·      
+[https://www.documentdb.com/sql/tutorial](https&#58;//www.documentdb.com/sql/tutorial)
+
+·       [https://www.documentdb.com/sql/demo](https&#58;//www.documentdb.com/sql/demo)
+
+
+
+**Robert Bermejo**
+Arquitecto .Net
+
+roberto.bermejo@sogeti.com
+ @robertbemejo
+ www.robertbermejo.com​
+

@@ -1,0 +1,204 @@
+---
+title: Integrando Azure Cognitives Services con SharePoint Online
+slug: /revistas/numero-45/integrando-azure-cognitives-services-con-sharepoint-online
+date: 30/08/2020
+magazine: 45
+author: Alex Rostan
+authorId: alex-rostan
+keywords: ['SharePoint Online','Azure Cognitives Services']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+En este articulo particular veremos cómo analizar el contenido de
+imágenes en una biblioteca de SharePoint aplicando OCR mediante el
+Servicio Cognitivo "Computer Vision". Todos hemos tenido el problema de
+querer extraer el texto de una imagen de un pdf o de un texto al que le
+sacamos una foto desde el celular, por lo que este articulo los puede
+ayudar a solucionar ese inconveniente en pocos minutos.
+
+Si bien no es complicado tendremos que conocer y utilizar el portal de
+Azure y saber cuáles son los componentes de Power Automate apropiados.
+
+Al final lograremos un proceso que, al cargar una imagen a una
+biblioteca de SharePoint, rápidamente le extrae el texto identificado y
+cargará la información extraída en un elemento de lista con la imagen en
+adjunto como testigo de lo extraído.
+
+-   Primero debemos crear el servicio en el [Portal de
+    Azure](https://portal.azure.com/).
+
+-   Ingresamos a nuestra suscripción de Azure y vamos a "Create
+    Resource".
+
+![Imagen 1.- Creación del recurso.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image1.png)
+
+
+
+-   Buscamos en el cuadro de búsqueda "**Computer Vision**".
+
+![Imagen 2.- Búsqueda del servicio de Computer Vision.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image2.png)
+
+
+
+![Imagen 3.- Creación del servicio.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image3.png)
+
+
+
+-   Lo creamos haciendo clic en "Create". En la siguiente pantalla
+    debemos seleccionar una serie de valores.
+
+![Imagen 4.- Configuraciones del servicio.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image4.png)
+
+
+
+-   Primero seleccionamos la suscripción y el grupo de recursos en que
+    queremos alojar nuestro nuevo recurso:
+
+![Imagen 5.- Selección de la suscripción.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image5.png)
+
+
+
+-   Segundo elegimos la región de Azure en la que lo queremos
+    aprovisionar y luego le damos un nombre:
+
+![Imagen 6.- Selección de la región de Azure.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image6.png)
+
+
+
+(\*) Si no está seguro de que región elegir puede ingresar en la
+siguiente [url](https://azurespeedtest.azurewebsites.net/) y elegir la
+que tenga menor latencia.
+
+-   Luego elegimos el "**Pricing tier**", si usted este experimentando
+    le recomiendo usar el **F0** que es gratis y le permitirá probar sin
+    gastar ni preocuparse, luego ya en producción le recomiendo el S1.
+
+![Imagen 7.- Selección del Pricing Tier.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image7.png)
+
+
+
+-   Luego de elegir el precio vamos a Revisar y Crear "**Review +
+    créate**".
+
+(\*) Solo puede tener un recurso Computer Vision con Pricing F0(gratis)
+por suscripción.
+
+![Imagen 8.- Resumen parametrizaciones realizadas.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image8.png)
+
+
+
+-   Una vez validado le damos "Create".
+
+Una creado el servicio en Azure debemos crear el flujo en Power Automate
+que nos procese la imagen y guarde el resultado en un elemento de lista.
+
+-   Desde la biblioteca donde se cargarán las imágenes debemos crear el
+    flujo de Power Automate.
+
+![Imagen 9.- Inicio de la creación del Flujo de Power Automate.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image9.png)
+
+
+
+-   Cundo hacemos clic en Crear un flujo nos aparecerá el siguiente pop
+    up.
+
+![Imagen 10.- Acceso a todos los flujos.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image10.png)
+
+
+
+-   Hacemos clic en "Ver los flujos" y esto nos llevara al sitio de
+    Power Automate y allí debemos creamos un nuevo flujo.
+
+![Imagen 11.- Plantilla de inicio para crear el Flujo.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image11.png)
+
+
+
+-   Luego le damos un nombre y seleccionamos el disparador de tipo "When
+    a file is created in a folder" y lo Creamos.
+
+![Imagen 12.- Configuraciones iniciales del Flujo.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image12.png)
+
+
+
+Una vez en el flujo comenzamos a configurarlo:
+
+-   Primero seleccionamos el sitio de SharePoint y la biblioteca a la
+    que le vamos a aplicar el flujo.
+
+![Imagen 13.- Parámetros de configuración de la acción.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image13.png)
+
+
+
+-   Después agregamos el paso de procesamiento de imagen y lo
+    configuramos:
+
+![Imagen 14.- Acción para realizar OCR sobre imágenes.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image14.png)
+
+
+
+![Imagen 15.- Parámetros de configuración de conexión a Computer Vision API.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image15.png)
+
+
+
+-   En "Connection Name" podemos poner el nombre que más nos guste.
+
+-   En Account Key y Site Url debemos ir al recurso en el portal de
+    Azure y obtener los valores de Key1 y EndPoint
+
+![Imagen 16.- Parámetros KEY 1 y ENDPOINT de Computer Vision API.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image16.png)
+
+
+
+-   Una vez creada la conexión le decimos cual es el archivo que debe
+    procesar:
+
+![Imagen 17.- Configuración del archivo a procesar.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image17.png)
+
+
+
+-   Cuando nos posicionamos en Image Content se nos desplegara el
+    contenido dinámico y allí seleccionamos "File Content" que no es más
+    que el contenido del archivo ósea la imagen.
+
+![Imagen 18.- Contenido dinámico.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image18.png)
+
+
+
+-   Paso siguiente inicializamos y cargamos la variable con el resultado
+    del procesamiento:
+
+![Imagen 19.- Configuraciones de las variables.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image19.png)
+
+
+
+-   Por último, creamos el elemento de lista de SharePoint y le
+    adjuntamos la imagen.
+
+![Imagen 20.- Creación del elemento de lista.](../../../images/numero45/integrando-azure-cognitives-services-con-sharepoint-online/image20.png)
+
+
+
+Por último, una vez salvado el flujo podemos ir a nuestra biblioteca,
+cargar una imagen de la que queramos extraer el texto y validar que
+nuestra solución este correcta y en la lista "TextoExtraido" se esté
+guardando la información correctamente.
+
+**Conclusión**
+
+Este tipo de integración entre SharePoint y los Servicios Cognitivos de
+Azure a través de Power Automate nos abre nuevas posibilidades de
+procesar documentos y extraer información relevante de los mismos sin
+necesitar escribir una sola línea de código. Esto nos permite explotar
+el potencial de Microsoft Azure y todos sus servicios en nuestro
+SharePoint.
+
+**Alex Rostán** <br />
+Country Manager AI & Smarts Applications Arkano Paraguay <br />
+<alex.rostan@arkanosoft.com> <br />
+Twitter: @rostanker <br />
+<https://www.linkedin.com/in/alexrostan/> <br />
+<http://www.arkanosoft.com> <br />

@@ -1,0 +1,22 @@
+---
+id: andres-ortiz
+title: Andrés Ortíz
+jobTitle: Lider de Proyectos
+slug: /autores/andres-ortiz
+photo: ../../../images/Autores/AndresOrtiz.jpg
+twitter: 
+blog: http://desarrollo.topgroup.com.ar/search/label/Sharepoint
+type: author
+content: >-
+    ​Con más de 10 años de experiencia como Ingeniero y Especialista en Sistemas de Información, siempre he estado vinculado con las tecnologías y plataformas de Microsoft, implementando soluciones sobre la plataforma .NET.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "andres-ortiz"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

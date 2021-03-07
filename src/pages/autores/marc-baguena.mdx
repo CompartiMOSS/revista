@@ -1,0 +1,22 @@
+---
+id: marc-baguena
+title: Marc Bàguena
+jobTitle: Project Manager
+slug: /autores/marc-baguena
+photo: ../../../images/Autores/MarcBaguena.jpg
+twitter: 
+blog: 
+type: author
+content: >-
+    ​Marc Bàguena es Líder de la práctica de SharePoint en Birchman, Gold Partner de Microsoft. MCITP de SharePoint 2010 y MCP de Project Server 2010, Marc también participa activamente en el liderazgo y gobierno de proyectos con Project Server. Lleva trabajando con tecnologías Microsoft más de 8 años y desde hace 6 años está centrado en el soluciones sobre SharePoint 2007/2010/2013 y Project Server 2010/2013.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "marc-baguena"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

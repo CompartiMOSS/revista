@@ -1,0 +1,23 @@
+---
+id: cristina-quesada-calderon
+title: Cristina Quesada
+jobTitle: MCITP y MCTS en SharePoint
+slug: /autores/cristina-quesada-calderon
+photo: ../../../images/Autores/CristinaQuesada.jpg
+twitter: https://twitter.com/cris_quesada
+blog: http://cristina-quesada.blogspot.com.es
+type: author
+content: >-
+    ​Cristina Quesada, es Consultora de SharePoint Server en el Grupo CMA (www.grupocma.com) de Costa Rica. Ingeniera de Sistemas Informáticos de la Universidad Latina de Costa Rica, cuenta con más de 7 años de experiencia en tecnologías y plataformas de Microsoft SharePoint, su trabajo diario gira en torno a las plataformas SharePoint & Office 365. Cristina ha participado en el desarrollo de Proyectos de SharePoint en varios países de Latinoamérica para Fundes Internacional. Es actualmente profesora de Sistemas Colaborativos en la Universidad Latina de Costa Rica.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "cristina-quesada-calderon"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

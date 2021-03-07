@@ -1,0 +1,25 @@
+---
+id: juan-pablo-pussacq
+title: Juan Pablo Pussacq Laborde
+jobTitle: MVP SharePoint Server
+slug: /autores/juan-pablo-pussacq
+photo: ../../../images/Autores/JuanPabloPussacq.jpeg
+twitter: https://twitter.com/jpussacq
+blog: http://surpoint.blogspot.com/
+type: author
+content: >-
+    ​Juan Pablo Pussacq Laborde nació en Buenos Aires, Argentina, en 1974. Es Licenciado en Análisis de Sistemas, recibido en la Facultad de Ingeniería de la Universidad de Buenos Aires de Argentina. Consultor en TI, especialista en gestión de proyectos, EPM y Project Server. Arquitecto SharePoint. Especialista en WordPress / BuddyPress y sitios web 2.0. MVP en SharePoint Server. Emprendedor. 
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+<ViewArticles articles={props.data.allMdx} title="Índice" />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "juan-pablo-pussacq"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

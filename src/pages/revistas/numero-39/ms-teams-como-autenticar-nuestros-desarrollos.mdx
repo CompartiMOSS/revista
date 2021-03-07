@@ -1,0 +1,98 @@
+---
+title: MS-Teams -  Cómo autenticar nuestros desarrollos
+slug: /revistas/numero-39/ms-teams-como-autenticar-nuestros-desarrollos
+date: 28/02/2019
+magazine: 39
+author: Adrian Diaz Cervera
+authorId: adrian-diaz-cervera
+keywords: ['Teams','Autenticación']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+​Desde el punto de vista del desarrollo, Teams no se había tenido muy en cuenta debido a que la plataforma de por sí ya contiene una gran cantidad de utilidades que se utilizan en el día a día. Dicho uso ha propiciado que las empresas se encuentren con la tesitura de incluir sus desarrollos dentro de Teams. Seguro que este planteamiento a los más viejos del lugar nos recuerda a lo que pasaba con SharePoint en su versión MOSS 2007. ¿Cuáles son las principales diferencias desde hace una década? Principalmente que los tiempos han cambiado, Microsoft Teams no está atado a un framework, permite mucha más libertad a la hora de elegir la tecnología a utilizar. Está pensado para el cloud. Si miramos lo que podíamos hacer antaño era un “simple” User Control y muchas dificultades para incluirlo con otras aplicaciones de la empresa.  Por esta parte vamos viendo como Microsoft aprende en parte de los errores que se cometieron en el pasado.
+
+Ahora bien, dentro de esta libertad, que opciones tenemos desde el punto de vista de autenticación:
+
+- SPFx =&gt; Con la versión anteri​or se permite que nuestros desarrollos tal como se ejecutan en SharePoint, se puedan ejecutar dentro de un Teams. Aquí la autenticación va integrada con el propio modelo de desarrollo. La aplicación esta alojada en el catálogo de Aplicaciones de SharePoint Online y dentro de Teams se ejecuta en un iFrame de una página de SharePoint. Por lo que en este tipo de aplicaciones todo está incluido de serie. Ahora bien, en el contexto de una aplicación del mundo real, no todo está en el propio contexto, sino que es posible que se necesite consumir atrás apis/aplicaciones y para ello tendremos que seguir lo indicado por la documentación oficial de SPFx.  [https://docs.microsoft.com/en-us/sharepoint/dev/spfx/use-aadhttpclient-enterpriseapi](https&#58;//docs.microsoft.com/en-us/sharepoint/dev/spfx/use-aadhttpclient-enterpriseapi)
+- Aplicación Provider-Hosted=&gt; Recuperó el termino Provider Hosted que se estableció con los Add-in de SharePoint porque el planteamiento es el mismo. El desarrollador elige la ubicación donde va a estar alojada su aplicación (cloud, on-premise). Pudiendo elegir cualquier alternativa que quiera, lo único que necesitamos es la url publica y que se pueda acceder desde cualquier parte del mundo.  En este tipo de aplicaciones son en las que vamos a centrar el artículo.
+
+
+NOTA: Antes de empezar con el tema de la autenticación, tenemos que tener en cuenta una particularidad que tiene el desarrollo en Teams: no se puede hacer redirección a ninguna url que no esté permitida dentro del manifiesto de la aplicación de Teams. Esto quiere decir que si el sistema de autenticación que va a utilizar nuestra aplicación lanza un PopUp/Redirección en el que nos solicita las credenciales, esta url debe de estar permitida. Si no, la aplicación no funcionará, ya que Teams bloqueará dicha llamada y nuestra aplicación no arrancará. Este es un funcionamiento totalmente distinto al que se utiliza dentro de los Tabs de Microsoft Teams (por eso debemos saber muy bien cada una de las particularidades que tiene el desarrollo sobre esta nueva plataforma).
+
+Tipos de Autenticación
+
+Mucha gente piensa que al estar en el contexto de Teams, el desarrollo ya está autenticado. Pero si vamos al concepto que tenemos de una aplicación Provider-Hosted, debemos tener claro que la autenticación del desarrollo es responsable del “Provider”. Partiendo de esto, como developer podemos hacer uso de Azure Active Directory (al igual que hace Teams) u optar por otro proveedor de autenticación, ya sea un proveedor Custom o alguno de los comunes (Google, Twitter, Facebook, Instagram, Microsoft, …).
+
+En el caso de que optemos por otro proveedor que no sea el Azure Active Directory está claro que el usuario deberá poner un usuario y contraseña ya que las cuentas son distintas y desde el punto de vista de la experiencia de usuario es algo que todo usuario acepta sin problemas. De hecho, si miramos la gran mayoría de aplicaciones que hay en la Store de Teams, utilizan su propia autenticación (JIRA, BitBucket, Adobe…) Para incluir esta autenticación en el proyecto basta con seguir las indicaciones de ese proveedor.
+
+Ahora bien, para organizaciones donde ya utilizan Azure Active Directory y tienen aplicaciones que ya utilizan este para acceder, lo normal es que se decanten por hacer uso de esta también para las apps de Teams.  Un primer pensamiento (equivocado) es que al estar autenticado ya en Teams, para poder acceder a nuestra aplicación con que exista una librería en la plataforma que sea la que se encargue de esto puede ser más que suficiente. Pues nada más lejos de la realidad, el hecho de que este autenticado en Teams no implica que tu aplicación pueda coger el contexto de esa autenticación y de esta forma evitar que el usuario se autentique.  Tampoco implica que obteniendo los mismos permisos que tiene esta App podamos tener los mismos permisos que tiene Teams.
+
+¿Entonces como lo podemos hacer? Según la documentación facilitada por Microsoft para poder autenticar nuestra aplicación haciendo uso del directorio activo tendremos que tener una página de autenticación en la misma que se levante en un PopUp. En esta página el usuario introduce su usuario y contraseña y con la devolución del token ya vuelve al contexto de tu página.  El flujo de autenticación seria tal que de la siguiente forma:
+
+![Imagen 1.- Flujo de autenticación en Teams (Fuente&#58; Microsoft).](../../../images/numero39/teams-como-autenticar-nuestros-desarrollos/image1.png)
+
+Ahora bien, una vez contada la teoría, vamos manos a la obra para ver los pasos que tendríamos que hacer:
+
+1.      Para la autenticación vamos a utilizar la librería ADAL.JS para establecer la autenticación. Para ello en primer lugar tendremos una página silent-start.html en la que lo que tendremos la llamada a Adal para autenticar. El código sería el siguiente:
+
+```
+<html><head>    <title>Silent Authentication Sample Login</title></head><body>    <script src="https://statics.teams.microsoft.com/sdk/v1.0/js/MicrosoftTeams.min.js" integrity="sha384-SNENyRfvDvybst1u0LawETYF6L5yMx5Ya1dIqWoG4UDTZ/5UAMB15h37ktdBbyFh" crossorigin="anonymous"></script>    <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.17/js/adal.min.js" crossorigin="anonymous"></script>     <script type="text/javascript">            microsoftTeams.initialize();            microsoftTeams.getContext(function (context) {                // ADAL.js configuration                let config = {                    tenant: 'xxxx',                    clientId: "xxxx",                    redirectUri: window.location.origin + "/silent-end.html",                           endpoints: {                        api: 'xxxx',                        graph: 'https://graph.microsoft.com/'                    },                    cacheLocation: "localStorage",                    navigateToLoginRequestUrl: false,                };                config.displayCall = function (urlNavigate) {                    if (urlNavigate) {                        if (config.extraQueryParameters) {                            urlNavigate += "&" + config.extraQueryParameters;                        }                        window.location.replace(urlNavigate);                    }                }                 // Navigate to the AzureAD login page                let authContext = new AuthenticationContext(config);                authContext.login();            });    </script></body></html>
+```
+
+
+
+2.      Una vez tenemos esta página nos vamos a crear otra página silent-end.html con el siguiente código:
+
+```
+<html><head>    <title>Silent Authentication Sample Login</title></head><body>    <script src="https://statics.teams.microsoft.com/sdk/v1.0/js/MicrosoftTeams.min.js" integrity="sha384-SNENyRfvDvybst1u0LawETYF6L5yMx5Ya1dIqWoG4UDTZ/5UAMB15h37ktdBbyFh" crossorigin="anonymous"></script>    <script src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.17/js/adal.min.js" crossorigin="anonymous"></script>     <script type="text/javascript">            microsoftTeams.initialize();             // ADAL.js configuration            let config = {                tenant: '**',                clientId: "+++",                redirectUri: window.location.origin + "/silent-end.html",                       endpoints: {                    api: 'xxx',                    graph: 'https://graph.microsoft.com/'                },                cacheLocation: "localStorage",                navigateToLoginRequestUrl: false,            };            let authContext = new AuthenticationContext(config);             if (authContext.isCallback(window.location.hash)) {                authContext.handleWindowCallback(window.location.hash);                // Only call notifySuccess or notifyFailure if this page is in the authentication popup                if (window.opener) {                    if (authContext.getCachedUser()) {                        microsoftTeams.authentication.notifySuccess();                    } else {                        microsoftTeams.authentication.notifyFailure(authContext.getLoginError());                    }                }            }    </script></body></html>
+```
+
+​En esta parte la mayor novedad es el uso de la librería de Teams para JavaScript: para empezar a utilizarlo en primer lugar tenemos que inicializar la variable. A continuación, lo que se realiza es enviar notificación a Teams si la acción ha ido bien o mal. Si la acción ha ido bien se cerrará la página y en caso de error se mostrará una notificación.
+
+3.      ¿Todas estas páginas están bien pero como podemos hacer que nuestra aplicación funcione? Partamos del caso que tenemos una aplicación ReactJS, en el caso tendremos que tener un componente que en primer lugar muestre un botón de Login. ¿Qué acción realizará este botón?   Haciendo uso del sdk de Teams lo que haremos será ejecutar un contexto de login, cargando la página creada en el punto 1. Con un código similar al siguiente:
+
+```
+login() {        microsoftTeams.authentication.authenticate({            url: window.location.origin + "/silent-start.html",            width: 600,            height: 535,            successCallback: (result) => success(result),            failureCallback: (result) => failureCallback(result),        });
+```
+
+Como veis, el funcionamiento es el siguiente:
+
+- Cargamos un componente React.
+- Cargamos el Popup que lo hace en la página silent-start.html.
+- Cuando finaliza la autenticación redirige a la página silent-end.html.
+- Una vez tengamos el resultado de la autenticación ya volvemos el control a nuestra página.​
+
+
+Otras consideraciones y curiosidades
+
+A la hora del desarrollo de una APP nuestra aplicación deberá poder ejecutarse tanto en Teams como fuera del contexto de Teams. Por este motivo es posible que la autenticación pueda ser diferente dentro de Teams como fuera. Pongamos por caso que nuestra aplicación se autentique haciendo uso de AdalJS cuando está fuera de Teams y cuando estemos en Teams tengamos que hacer el Flow que hemos incluido anteriormente.
+
+Otro de los aspectos más curiosos a la hora del propio del funcionamiento que tiene Teams es que no es lo mismo que ejecutemos Teams, en el navegador, en la App o en un dispositivo móvil. El SDK tiene un método en el que nos indica si estamos dentro de Teams o no. Sin embargo, este método no funciona cuando estamos vía web. Por lo que para solucionarlo Wictor Willen publicó un workaround que es poner el siguiente método:
+
+```
+const inTeams = (): boolean => {    try {        return window.self !== window.top;    } catch (e) {        return true;    }}
+```
+
+En este articulo estamos centrando en la propia autenticación contra un sistema y dejamos para posteriores artículos como poder tener varios endpoint en los que vamos a autenticar. Ejemplo tengo una API y este api por un lado se autentica contra el Azure Active Directory, pero también accede a algunos endpoints de Graph. ¿Como lo podemos hacer? Todo esto lo abordaremos en futuros artículos.
+
+
+
+Conclusiones
+
+Microsoft Teams es un amplio abanico para el desarrollador, el que nos permite multitud de integración con diversos sistemas. Sin embargo, a este modelo de desarrollo le faltan aspectos, tener una forma de autenticar sencilla, poder utilizar el propio token que tiene Teams, poder incluir permisos para Graph, etc. Supongo que todo que se echa de menos es debido al rápido crecimiento y que en un futuro cercano podamos tenerlo y disfrutemos de la plataforma y como poder incluirle valor. Mientras tanto nos queda buscar alternativas para poder cumplir con los requerimientos solicitados.
+
+
+
+Adrián Diaz Cervera -- Architect Software Lead at Encamina
+
+MVP Office Development
+
+[http://blogs.encamina.com/desarrollandosobresharepoint](http&#58;//blogs.encamina.com/desarrollandosobresharepoint)
+
+adiaz@encamina.com @AdrianDiaz81​
+

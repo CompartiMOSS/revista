@@ -1,0 +1,55 @@
+---
+title: Número 36 - Junio 2018
+slug: /revistas/numero-36/
+date: 2020-03-29
+magazine: 36
+type: number
+content: >-
+    ​​​​​​​​​​​​​​​​​​​​Nos gustaría reflexionar sobre dos frases acerca de los datos y su futuro: 
+    <br /><br />
+    Brian Krzanich, CEO de Intel, dijo “Oil changed the world in the 1900s. It drove cars, it drove the whole chemical industry,” Krzanich explains. “Data, I look at it as the new oil. It’s going to change most industries across the board.”
+    <br /><br />
+    Satya Nadella, CEO de Microsoft, en la Keynote del último Build "We need to ask ourselves not only what computers can do, but what computers should do, Data privacy is a human right"
+    <br /><br />
+    La tecnología de la que hablamos en esta Revista no deja de ser un medio para procesar y analizar los datos. Nuestros artículos, directa o indirectamente, tratan de explorar medios para trabajar con esos datos y potenciar la transformación de las personas. Datos es el concepto del futuro, el nuevo petróleo con el que tenemos que trabajar con ética y responsabilidad social.
+    <br /><br />
+    Nuestros autores son expertos en tecnología Microsoft que comparten sus conocimientos para hacer un mundo mejor, que escriben sus artículos para que podamos todos cambiar el modo en que trabajamos con los datos. Disfruten leyendo este número de septiembre y los invitamos a compartir su conocimiento en el próximo número de la revista y, por su puesto, a seguir leyéndonos.
+    <br /><br />
+    <b>El Equipo Editorial de CompartiMOSS​​​​​​​​</b>
+---
+
+import LayoutNumber from '../../../components/layout-number'
+import { graphql } from 'gatsby';
+import ViewArticles from '../../../components/view-articles'
+import DownloadPDF from '../../../components/download-pdf'
+import ViewPartners from '../../../components/view-partners'
+import NumberHeader from '../../../components/number-header'
+
+<NumberHeader frontmatter={props.pageContext.frontmatter} />
+
+<ViewArticles articles={props.data.allMdx} title="Índice" />
+
+<ViewPartners />
+
+export const pageQuery = graphql`
+    query {
+        allMdx(    
+            sort: {
+                fields: frontmatter___title
+            }
+            filter: {
+                frontmatter: {magazine: {eq: 36}, type: {ne: "number"}}
+            }) 
+            {
+                edges {
+                    node {
+                        frontmatter {
+                            title, author, slug, authorId
+                        }      
+                    }
+                }
+            }
+    }
+`
+
+export default LayoutNumber

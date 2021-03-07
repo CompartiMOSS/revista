@@ -1,0 +1,463 @@
+---
+title: Procesando formularios con Form Recognizer y Azure Functions
+slug: /revistas/numero-46/form-recognizer_azure-functions
+date: 30/12/2020
+magazine: 46
+author: Sergio Hernández Mancebo
+authorId: sergio-hernandez-mancebo
+keywords: ['Form Recognizer', 'Azure Functions', 'Azure']
+featuredImage: ../../../images/numero46/form-recognizer_azure-functions/image1.png
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+Es evidente que poco a poco va desapareciendo el papel físico en cuanto
+a la gestión de facturas y recibos, pero estamos muy muy lejos de
+conseguirlo aún. Y aunque lo consigamos a medio plazo, veo muy difícil
+que no sigamos recibiendo Pdf's o words con el detalle de nuestras
+compras. Esto provoca un coste incalculable de dinero y de tiempo en las
+Empresas, no solo ya para los departamentos financieros y de
+administración, sino para los propios empleados que tienen que perder
+bastante tiempo procesando facturas en aplicaciones de gastos que en
+muchos casos son muy complicadas de procesar.
+
+Nuestro objetivo al terminar este artículo es comprobar si Form
+Recognizer nos puede ayudar a automatizar los procesos de volcado de
+formularios y facturas a nuestras Bases de datos del CORE financiero,
+aunque vamos a comprobar que podemos aplicar el servicio para lectura de
+formularios de cualquier tipología.
+
+**Nuestro objetivo, automatización e integración**
+
+Para situarnos un poco más, y antes de adentrarnos en destripar el
+servicio de Azure Form Recognizer que sé que tenemos todos muchas ganas,
+vamos a plantearnos el escenario de uso y así nos será mucho más
+sencillo llegar al éxito. Partiendo del problema de que contabilizar las
+facturas de nuestros proveedores puede ser un trabajo muy costoso para
+nuestra compañía, vamos a construir un proceso que automatice lo máximo
+posible el insertar nuestra facturas en el ERP.
+
+El proceso se va a basar en:
+
+-   Usaremos **Azure Functions** para integrar un **Blob Storage de Ficheros**, donde dejaremos nuestras facturas a procesar, con el servicio cognitivo de Form Recognizer.
+
+-   Con Form Recognizer procesaremos una lectura automática de las facturas, obteniendo un fichero JSON controlado en base a un entrenamiento personalizado.
+
+-   Utilizaremos una Logic App para insertar este JSON en un Commno Data Service, que hará las veces de ERP en nuestro ejemplo.
+
+
+![**Imagen** **1.- Proceso de extracción de facturas.**](../../../images/numero46/form-recognizer_azure-functions/image1.png)
+
+
+**Form Recognizer, servicio Cognitivo de la familia VISION**
+
+Desde el pasado mes de Julio tenemos 100% disponible un nuevo servicio
+en General Available como Form Recognizer, con el cual vamos a poder
+procesar formularios personalizados, recibos o tarjetas de visita entre
+otros modelos. Este servicio se apoya en modelos pre-compilados que
+nosotros mismos podemos extender con entrenamiento, y en la lectura de
+ficheros por OCR para poder extraer en formato JSON los datos de los
+formularios o de los recibos, que se definen como pares "Clave -valor".
+
+![**Imagen** **2.- Extracción clave valor.**](../../../images/numero46/form-recognizer_azure-functions/image2.png)
+
+
+Por ahora el formato de los ficheros que puede procesar el servicio son
+PDF y ficheros del tipo Imagen, aunque están trabajando en incluir más
+tipos de ficheros. Para nuestro reto de hoy nos vamos a centrar en
+trabajar con "Formularios personalizados" y en como debemos "entrenar
+nuestro servicio" para poder tener una extracción exacta.
+
+**Primer contacto con el API y utilización de la librería cliente en C#**
+
+Dado que vamos a utilizar un Azure Function para procesar los
+formularios, deberemos conocer la librería cliente que podemos utilizar
+con C#, JavaScript o Python para construir nuestro código serverless,
+pero en este caso los ejemplos están en C#. Antes de entrar a construir
+con C#, es bueno que entendamos que nos devuelve el API con los modelos
+pre-compilados, y con la lectura de OCR básica.
+
+Los siguientes fragmentos de código que vamos a ir nombrando los podemos
+localizar en el siguiente repositorio
+<https://github.com/shmancebo/FormRecognizer>
+
+Para empezar a trabajar con el servicio desde código, a parte de dejar
+el servicio creado en el portal de Azure (omitimos este paso dado que es
+una creación muy básica como cualquier otro servicio cognitivo), debemos
+crearnos una librería de clases en Net Core por ejemplo, y añadir el
+siguiente paquete NuGet:
+
+![**Imagen** **3.- Paquete Nuget.**](../../../images/numero46/form-recognizer_azure-functions/image3.png)
+
+
+Si accedemos al ejemplo de Github veremos un proyecto Shared en el que
+encontramos una clase FormRecognizerService.cs , que nos sirve para
+comunicarnos con el servicio de Form Recognizer. Lo primero es construir
+la conexión con el servicio, y eso se realiza en el constructor:
+
+![**Imagen** **4.- Conectando con el servicio.**](../../../images/numero46/form-recognizer_azure-functions/image4.png)
+
+
+Para poder conectar con el servicio le debemos pasar la url del servicio
+y la clave de suscripción, y ambos datos los encontramos en el Portal de
+Azure entrando en la configuración de claves del servicio creado. Una
+vez conectado el servicio, vamos a hacer un método que permita analizar
+un formulario sin "moledo personalizado", y así podremos ver que nos
+devuelve de base el servicio.
+
+![**Imagen** **5.- Analizando un formulario.**](../../../images/numero46/form-recognizer_azure-functions/image5.png)
+
+Si analizamos el código anterior, vemos que el servicio espera un Stream
+del formulario a procesar, y con esto invocando al método
+"StarRecognizeContent", obtenemos una evaluación completa. Para probar
+si esto nos devuelve un "clave-valor" válido para poder trabajar, vamos
+a utilizar la consola del ejemplo del respositorio TestFR, que invoca a
+este método AnalyFromFromStream que acabamos de definir.
+
+![**Imagen** **6.- Console test.**](../../../images/numero46/form-recognizer_azure-functions/image6.png)
+
+Si lanzamos la consola, nos va a pedir si queremos analizar un
+formulario o un recibo, seleccionamos un formulario, y dejamos en blanco
+el "id de modelo", ya que así vamos a forzar que pase por el método que
+acabamos de construir.
+
+![**Imagen** **7.- Código console.**](../../../images/numero46/form-recognizer_azure-functions/image7.png)
+
+Vamos a asegurarnos que el código de la consola apunta al formulario de
+ejemplo "Form_1.jpg", que tiene un formulario como el de la imagen
+siguiente, y que contiene una orden de pedido:
+
+![**Imagen 8 - Orden de pago.**](../../../images/numero46/form-recognizer_azure-functions/image8.png)
+
+Si ejecutamos la consola con el formulario anterior, vamos a obtener un
+resultado muy parecido al siguiente:
+
+![**Imagen 9 - Primer análisis.**](../../../images/numero46/form-recognizer_azure-functions/image9.png)
+
+Si veis la consola de salida, el servicio hace una lectura de la imagen,
+y saca una lectura del mismo basado en líneas del documento, y de estas
+obtiene las palabras. Esto quiere decir que sin hacer nada ya puedo
+sacar palabras clave y valores, con lo que por ejemplo alimentar un
+índice de búsqueda. Imaginemos que "Purchase Order" fuera una palabra
+reservada para posicionar este tipo de facturas, pues solo con este
+ejemplo ya podríamos localizar todas las ordenes de pago de este tipo.
+Aunque claro está para nuestro reto de insertar este formulario de orden
+de pedido en el ERP, este modelo de datos no nos vale, porque nuestra
+Azure Function quedaría con un código muy muy complejo, y procesando
+demasiadas líneas y palabras que pueden variar.
+
+**Entrenando el formulario con un modelo personalizado**
+
+Para poder mejorar la extracción de "clave -valor", vamos a entrenar el
+formulario anterior, de cara a obtener un código mucho más limpio de
+mapeo. Para ello debemos subir a un blob storage el contenido de la
+carpeta "Formularios para entrenar" de la solución de Visual Studio.
+
+![**Imagen 10 - Blob storage**](../../../images/numero46/form-recognizer_azure-functions/image10.png)
+
+Una vez subidos los formularios, debemos generar un "Shared Access
+signature" de lectura, para que nuestro API de Form Recognizer pueda
+llegar a los formularios.
+
+![**Imagen 11 - Dando permisos a Form Recognizer.**](../../../images/numero46/form-recognizer_azure-functions/image11.png)
+
+Una vez generada la firma de acceso, nos quedamos con el campo Uri que
+debe ser del tipo
+
+https://frlabstorage.blob.core.windows.net/invocesjpg?sp=rl&st=2020-12-03T08:06:56Z&se=2020-12-04T08:06:56Z&sv=2019-12-12&sr=c&sig=K6tcxgSEYOneKJFBeMyKk0KyC7%2BBnu816S%2Brx5VBXwk%3D
+
+Ahora vamos a ejecutar desde el Postman por ejemplo la siguiente
+petición:
+
+```
+POST
+
+{Url form recognizer}/formrecognizer/v2.0/custom/models
+
+BODY
+{
+
+  "source": "https://frlabstorage.blob.core.windows.net/invocesjpg?sp=rl&st=2020-12-03T08:06:56Z&se=2020-12-04T08:06:56Z&sv=2019-12-12&sr=c&sig=K6tcxgSEYOneKJFBeMyKk0KyC7%2BBnu816S%2Brx5VBXwk%3D",
+
+  "sourceFilter": {
+
+    "includeSubFolders": **false**
+
+  },
+
+  "useLabelFile":**false**
+
+}
+
+HEADERS
+
+Ocp-Apim-Subscription-Key : {Key Form Recognizer}
+
+Content-Type : Application/json
+``` 
+
+Si todo es correcto nos va devolver la petición un resultado "201" tal y
+como vemos en la siguiente imagen, pero deberemos coger de la cabecera
+Location la URL que nos devuelve, y realizar una petición GET a esa url,
+donde veremos si el entrenamiento ha finalizado o no.
+
+![*Imagen 12 - Resultado de la petición.**](../../../images/numero46/form-recognizer_azure-functions/image12.png)
+![*Imagen 12 - Resultado de la petición.**](../../../images/numero46/form-recognizer_azure-functions/image13.png)
+
+Como vemos en la anterior imagen, el resultado del entrenamiento nos
+devuelve "modelId", que debemos anotar para poder pasárselo a nuestro
+servicio de Form Recognizer en el próximo análisis. Debemos recordar
+que, a mayor número de formularios aportados en el entrenamiento, mejor
+eficiencia tendrá nuestro modelo, aunque puedes comprobar con el ejemplo
+que **con tan solo 5 formularios podemos empezar a probar el modelo.**
+
+**Ejecutando un análisis con un modelo personalizado**
+
+A diferencia del primer análisis, ahora le vamos a pasar al análisis el
+ID del modelo entrenado en el paso anterior. Para eso vamos a revisar
+FromRecognizerService en el proyecto Shared, ya que debe tener un método
+que permita añadir el "model id" como parámetro al análisis.
+
+![**Imagen 13 - Analizando con modelo.**](../../../images/numero46/form-recognizer_azure-functions/image14.png)
+
+Como se aprecia en el código anterior, la propia librería cliente de
+Form Recognizer nos expone un método para "Custom Form", en el que le
+podemos pasar el modelId, además del propio fichero. Si volvemos a la
+consola, ahora le debemos pasar el modelId al wizard para que nos
+devuelva correctamente el análisis:
+
+![**Imagen 14 - Prueba de custom form.**](../../../images/numero46/form-recognizer_azure-functions/image15.png)
+
+
+Como podemos revisar el cambio es sustancial, ya que ya no nos devuelve
+filas y palabras, si no que ya nos devuelve un "clave-valor" basado en
+"campos", los cuales podemos mapear mucho más fácil. De hecho, para que
+entendáis aún mejor lo que os digo, podemos revisar los métodos "Print"
+del proyecto de consola, y en el caso de Custom Form con modelo
+entrenado, el código es mucho más limpio y sencillo que si no le pasamos
+un modelo.
+
+![**Imagen 15 - Print de un análisis.**](../../../images/numero46/form-recognizer_azure-functions/image16.png)
+
+Aunque este código ya nos podría servir para mapear el modelo a nuestro
+ERP, le encuentro aun una pega, y es que "Field" sigue teniendo valores
+genéricos como "Field-1", "Field-2" ..., y deberíamos tirar de
+comparación de cadenas por el campo "field.LabelData.Text", y aunque con
+LINQ por ejemplo podríamos intentar realizar un mapper, el rendimiento
+de esto no es lo mejor del mundo, sin contar que a la mínima que nos
+cambien el formulario ni nos vamos a enterar, ya que esto sigue sacando
+todos los campos del formulario, pero la "clave" digamos no es única.
+
+Para conseguir esta última mejora, antes de hacer nuestra Azure
+Functions vamos a realizar un entrenamiento con "Labels".
+
+**Entrenamiento con Labels, Claves-Valor más controladas en Form Recognizer**
+
+El último paso que nos queda una vez hemos visto como entrenar nuestro
+servicio y los frutos que recogemos en forma de una extracción mucha más
+limpia, es hacer uso del "Labeling" para poder tener claves únicas
+dentro de nuestro formulario, y así poder ver como mejoramos la salida.
+
+Para conseguir añadir un entrenamiento con labels, yo os recomiendo
+utilizar la herramienta de etiquetado de ejemplo
+<https://docs.microsoft.com/es-es/azure/cognitive-services/form-recognizer/quickstarts/label-tool?tabs=v2-0>,
+la cual podemos desplegar desde un Docker en nuestro tenant o utilizar
+la versión de prueba que nos proporciona Microsoft
+<https://fott-preview.azurewebsites.net/> .
+
+En cualquier caso, la herramienta nos va a permitir entrenar nuestros
+formularios y añadirle con una herramienta muy visual labels; en los
+enlaces anteriores viene muy explicado como realizar la conexión al blob
+storage y como añadir etiquetas.
+
+Yo si me voy a parar en que necesitais añadir las etiquetas necesarias
+para poder procesar los formularios que tenemos en la carpeta Samples, y
+que nos devuelva las siguientes etiquetas para que nuestra Azure
+Functions sepa luego mapearlas.
+
+![**Imagen 16 - Tooling label.**](../../../images/numero46/form-recognizer_azure-functions/image17.png)
+
+Como veis en la imagen, necesitamos indicarle a la herramienta los
+"labels anteriores" con esos nombres concretos de cara a que por código
+podamos luego controlar esas claves únicas.
+
+Una vez añadido todos los labels en los 5 formularios, en la pestaña
+entrenar podemos generar un modelo de entrenamiento, tal y como hicimos
+vía Postman en el ejemplo anterior.
+
+![**Imagen 17 - Entrenando con la herramienta.**](../../../images/numero46/form-recognizer_azure-functions/image18.png)
+
+Vamos a realizar una nueva ejecución de la consola de ejemplo en nuestra
+solución de Visual Studio, pero pasandole el "Model ID" , que obtenemos
+de la herramienta de labeling.
+
+![**Imagen 18 - Ejecucion con labels.**](../../../images/numero46/form-recognizer_azure-functions/image19.png)
+
+Ahora vemos que si obtenemos **nombres de campos "únicos" como "Field
+Purchase Order" en vez de "Field -1 "**, y estamos listos para construir
+un Azure Functions genérico, que recoja formularios y devuelva este
+clave valor que hemos entrenado.
+
+**Construyendo nuestra Azure Function de Integración**
+
+Estamos muy cerca de tener un proceso que integre nuestro blob y el
+servicio de Form Recognizer, y para ello vamos a construir un Azure
+Function. En el ejemplo del repositorio ya tenéis creada la Azure
+Function, que es un proyecto base y tiene una function
+CustomFormFunctions con un trigger del tipo HTTP.
+
+Necesitamos una clase que contenga el modelo base de nuestro formulario
+y la encontramos en InvoceModel.cs :
+
+![**Imagen 19 - Model Invoices.**](../../../images/numero46/form-recognizer_azure-functions/image20.png)
+
+Que decir que esta clase debe coincidir con los Labels que definíamos en
+la herramienta de Form Recognizer. Volviendo a la Functions, que es muy
+muy sencilla gracias a que Form Recognizer hace todo el trabajo por
+nosotros, vamos a tener el siguiente código:
+
+![**Imagen 20 - Azure Functions.**](../../../images/numero46/form-recognizer_azure-functions/image21.png)
+
+Analizandolo vemos que en la settings de la Functions necesitamos
+almacenar una firma de acceso para poder llegar al blog storage, la url
+del blob donde vamos a ir subiendo las imágenes y las ordenes de pedido
+a procesar. Además necesitamos los datos de conexión al servicio de form
+recognizer.
+
+```
+{
+    "IsEncrypted": false,
+    "Values": {
+        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+        "Sassblob": "{SASS}",
+        "BlobUrl": "{BLOB URL}",
+        "FormRecognizerService": "{Form Recognizer URL}",
+        "SuscriptionKeyForms": "{key}"
+    }
+}
+```
+
+Toda la magia de la function reside en los métodos
+**AnalyzeCustomFormFromStream**, que ya hemos visto en los ejemplos
+anteriores y que hemos utilizado en la consola, y además por novedosos
+debemos analizar los métodos de la propio función:
+
+-   **GetDocumentFromStorage**
+
+> Este método realiza una petición HTTP al blob para obtener un array de
+> bytes de este, con el que construiremos un Stream y desde el cual
+> analizaremos con Form Recognizer.
+>
+> Lo curioso es la construcción de la URL en la variable "**Uri**" para
+> realizar el get, y que se apoya en la firma del Blob para poder
+> posicionar el fichero dentro del mismo.
+
+![**Imagen 21 - Obteniendo el fichero.**](../../../images/numero46/form-recognizer_azure-functions/image22.png)
+
+-   **MappingForm**
+
+![**Imagen** **22.- Mapping.**](../../../images/numero46/form-recognizer_azure-functions/image23.png)
+
+
+> Esta es la **magia de todo el ejemplo**, si analizais este mapeo es
+> muy **sencillo**, respecto a los métodos de print que tenemos en la
+> consola por no utilizar Labels.
+> 
+> El parámetro de entrada "**RecognizedForm**", nos lo devuelve el
+> propio servicio de Form Recognizer, y este tiene unos campos **con
+> unas claves únicas**, que podemos mediante una consulta en LINQ
+> extraer de forma controlada. Al ser **claves únicas podemos controlar
+> si viene a null**, si no viene bien conformada, o si el formulario no
+> tiene la estructura correcta en el proceso de análisis.
+
+**Automatizando la carga en el ERP con Logic App y nuestra Azure
+Function**
+
+Una vez terminado la Azure Function, tal y como la hemos visto en el
+punto anterior, la podemos integrar como queramos de cara a automatizar
+nuestro proceso de extracción de ordenes de pago.
+
+Debemos recordar que nuestra función, recibe por Query tanto el nombre
+del fichero a procesar dentro del blob de facturas, como el Id de
+modelo, y los dos son necesarios para que el proceso no falle, tal y
+como vemos en el siguiente código:
+
+```
+public static async Task<IActionResult> Run(
+[HttpTrigger(AuthorizationLevel.Function, "get", "post", Route =
+null)] HttpRequest req,
+ILogger log)
+{
+string fileName = req.Query["fileName"];
+string model = req.Query["model"];
+```
+
+En mi caso he optado por construir una Logic App que tiene como trigger
+la subida de un fichero a un blob, invoca a nuestra Azure Function que
+ya está correctamente desplegada en mi tenant, y por último graba en una
+entidad de Common Data Service los datos de la factura o de la orden de
+pago. Este punto es un poco libre, pero si analizamos una ejecución
+podremos ver la composición del flujo de forma correcta:
+
+**Flujo muy simple**
+
+![**Imagen** **23.- Logic App de inserción de facturas.**](../../../images/numero46/form-recognizer_azure-functions/image24.png)
+
+Como podemos ver es un flujo de apenas 4 acciones, ya que toda la lógica
+de negocio la tiene nuestra función, que a su vez podemos opinar también
+que es muy sencilla, lo cual nos habla mucho de todo lo que ha aportado
+el entrenamiento con Labels, y la potencia de extracción del servicio de
+Form Recognizer.
+
+La primera acción es un trigger de Blob Storage, que conecta el blob con
+la Logic App, debe ser el mismo blob que configuremos en las settings
+del Azure Functions, ya que si recordamos nuestra Azure Function solo
+recibe el nombre del fichero y el id del modelo.
+
+![**Imagen** **24.- Trigger de la Logic App.**](../../../images/numero46/form-recognizer_azure-functions/image25.png)
+![**Imagen** **24.- Trigger de la Logic App.**](../../../images/numero46/form-recognizer_azure-functions/image26.png)
+
+Como vemos en las imágenes anteriores, nuestra función recibe de forma
+correcta el nombre del fichero, que obtenemos desde el trigger contra el
+Blob Storage. Las otras dos acciones, son simplemente una acción de
+parseo a un modelo JSON que nuestra Logic App pueda procesar, y por
+último una escritura en la entidad Invoces de nuestro Common Data
+Service.
+
+![**Imagen** **25.- Parseo de JSON y escritura en el CDS.**](../../../images/numero46/form-recognizer_azure-functions/image27.png)
+![**Imagen** **25.- Parseo de JSON y escritura en el CDS.**](../../../images/numero46/form-recognizer_azure-functions/image28.png)
+
+El resultado de este proceso es que cada vez que subamos un fichero a un
+Blob, se genera un registro en nuestro Common Data Service, derivado de
+extraer un conjunto de claves y valores desde los formularios de ordenes
+de pago, y todo sin necesidad de que un ser humano revise los
+documentos. Desde aquí podemos empezar a crear aplicaciones frontales
+que se alimenten de nuestra entidad de Common Data Service y hacer todos
+los procesos de negocio necesarios.
+
+**¡¡¡¡Mira que igual esto funciona y todo!!!!**
+
+Este servicio me ha demostrado dos cosas, uno que esta muy maduro, y
+que, si hacemos unos entrenamientos limpios, y organizamos bien nuestra
+información, los procesos de extracción van a ser muy muy livianos y
+fácil de mantener, dejando toda la carga al servicio cognitivo.
+
+Y la segunda conclusión que me llevo, es que cada vez salen más estables
+los servicios en Azure, si bien hace unos años había que coger con
+pinzas cada nuevo servicio desplegado, hoy en día tienen una madurez la
+plataforma, que casi no te cuesta integrar lo nuevo que va saliendo, y
+tiene una fiabilidad muy muy alta.
+
+Yo recomiendo empezar a utilizar este servicio desde ya, me parece super
+interesante el hueco que tiene en el mercado tanto del Knowlege mining y
+como se puede complementar con un Cognitive Search, o para procesos de
+integración y extracción tan demandado en nuestras organizaciones.
+Felicidades a Azure y Microsoft por sacar un servicio tan interesante y
+útil!!!
+
+** Sergio Hernández Mancebo ** <br />
+Azure MVP | @shmancebo

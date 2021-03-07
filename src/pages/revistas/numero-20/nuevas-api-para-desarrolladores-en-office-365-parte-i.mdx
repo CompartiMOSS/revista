@@ -1,0 +1,534 @@
+---
+title: Nuevas API’s para desarrolladores en Office 365 Parte I
+slug: /revistas/numero-20/nuevas-api-para-desarrolladores-en-office-365-parte-i
+date: 06/05/2014
+magazine: 20
+author: Adrian Diaz Cervera
+authorId: adrian-diaz-cervera
+keywords: ['Office 365','Exchange Online','REST']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+​**Nota:** Estas APIs están actualmente en fase de Preview y pueden sufrir modificaciones cuando se lance la versión definitiva. Naturalmente, no se recomienda el uso de ninguna de estas APIs en un entorno de producción.
+
+En la Conferencia de SharePoint que tuvo lugar en Las Vegas el pasado mes de Abril, Microsoft presentó muchas novedades para nuestro *servidor favorito* sobre todo en la versión Online: nuevos formularios para sustituir a InfoPath, Office Graph, novedades en las Apps, versión de SDK para Android, mejoras en la API REST, novedades en NAPA y  la aparición de nuevas APIs para Office 365.
+
+Respecto a las nuevas APIS, nos encontraremos con las siguientes:
+
+- Exchange Online: Permitir el acceso, añadir y modificar elementos tanto a nivel de Calendarios y de Contactos como enviar y consultar correos electrónicos.
+- SharePoint Online: Facilitar el acceso a carpeta y ficheros. Representa un rediseño del almacenamiento y la administración de archivos a través de la API de SharePoint.
+- Active Directory: Consulta, alta y modificación  de usuarios en el Directorio Activo de Azure.
+
+
+Además de estas APIs, el uso de las mismas es posible gracias a otra de las novedades que se han introducido como es la posibilidad de implementar OAuth fuera del contexto de SharePoint Online. Es decir, tengo una aplicación fuera del contexto de Office 365, y le puedo dar permisos para utilizar estos datos. Esta técnica de delegación de las credenciales está presente en casi todas las aplicaciones móviles, como por ejemplo cualquier App de Twitter, Instagram, etc. Cómo se implementa esta delegación de credenciales no es objeto de este artículo, para más información de cómo realizarlo se puede consultar este enlace: [http://msdn.microsoft.com/es-ES/library/office/dn605895](http&#58;//msdn.microsoft.com/es-ES/library/office/dn605895)
+
+Si damos tanta importancia a estas APIs es porque, desde que se presentó el nuevo modelo de Apps y la Office Store, Microsoft apenas había presentado novedades. Algunas de estas APIs (como por ejemplo la API de Exchange Online) eran continuas reclamaciones que le hacíamos los desarrolladores para poder implementar aplicaciones interesantes y de calidad en la Office Store utilizando Exchange Online. Además el hecho de que estas APIs puedan ser Cross-Plataform da un motivo más a los clientes para unirse a Office 365, bien en un entorno hibrido, bien en un entorno nube.
+
+**Desgranando las API de Exchange Online**
+
+La API que se incluyen dentro de Exchange es la que más novedades incorpora y, quizás, de la que más partido se le pueda obtener. Principalmente porque Exchange fue de los primeros productos que se decidió llevar a la nube, con lo cual, la base instalada es bastante amplia.
+
+**Mail REST API**
+
+La Mail REST API proporciona acceso total a los mensajes de correo electrónico en el buzón de un usuario en Exchange Online. Tenemos los siguientes Endpoints disponibles:
+
+- **Obtener el e-mail:**
+
+
+Podemos obtener el correo electrónico de dos maneras diferentes. Se puede solicitar un conjunto de mensajes de correo electrónico desde una carpeta, opcionalmente filtro o una ordenación, o puede solicitar una dirección de correo electrónico específica por su propiedad ID.
+
+- **Obtener los mails de la carpeta Inbox:**
+
+
+| `GET https:``//outlook.office365.com/ews/odata/Me/Inbox/Messages` |
+| --- |
+
+| `Accept: application/json;odata.metadata=full` |
+| --- |
+
+- **Obtener un e-mail en particular,**para ello tendremos que tener el Identificador del e-mail que queremos consultar:
+
+
+| `GET <a href=``"https://outlook.office365.com/EWS/OData/Me/Messages"``><span lang=``"EN-US"``>https://outlook.office365.com/EWS/OData/Me/Messages</span></a>(``' ID del mensaje'``)` |
+| --- |
+
+| `Accept: application/json;odata.metadata=full` |
+| --- |
+
+Otra de las posibilidades de que se dispone es, dado que hace uso del estándar OData versión 4.0, es la de poder realizar filtros, paginación, ordenación y número de elementos a mostrar dentro de la propia petición como por ejemplo:
+
+| `GET https:``//outlook.office365.com/ews/odata/Me/Inbox/Messages?$orderby=DateTimeReceived&$filter=Importance eq Microsoft.Exchange.Services.OData.Model.Importance'Low'&$select=Subject,Importance,DateTimeReceived&$top=5` |
+| --- |
+
+| `Accept: application/json;odata.metadata=full` |
+| --- |
+
+En el ejemplo propuesto ordenamos los mensajes por fecha de creación haciendo uso de $orderby, filtramos mediante el parámetro $filter por los elementos que son de importancia "Low" y mostramos los siguientes campos: Subject, Importance y DateTimeReceived utilizando $select.  Indicamos el número de elementos que nos traemos con la sentencia $top donde en este caso nos trae los primeros 5 elementos.
+
+**Nota:** El número de elementos que nos podemos traer por petición es de un máximo de 500. Por defecto está limitado a 50, pero se puede incrementar hasta 500.
+
+- **Crear un e-mail:**
+
+
+Para crear un mail tendremos que crear un objeto JSON  con la estructura de un e-mail: Mensaje, Cuerpo y Recipientes. El objeto tendría la siguiente estructura:
+
+| `{` |
+| --- |
+
+| `  ``"@odata.type"``:``"#Microsoft.Exchange.Services.OData.Model.Message"``,` |
+| --- |
+
+| `  ``"Subject"``:``"Articulo Compartimos para utilizar las nuevas APIS de Office 365"``,` |
+| --- |
+
+| `  ``"Importance"``:``"High"``,` |
+| --- |
+
+| `  ``"Body"``: {` |
+| --- |
+
+| `    ``"ContentType"``:``"HTML"``,` |
+| --- |
+
+| `    ``"Content"``:``"Aquí está el articulo leerlo y cualquier cosa me decís"` |
+| --- |
+
+| `  ``},` |
+| --- |
+
+| `  ``"ToRecipients"``: [` |
+| --- |
+
+| `    ``{` |
+| --- |
+
+| `      ``"Name"``:``"Alberto Diaz"``,` |
+| --- |
+
+| `      ``"Address"``:``"adiazcan@compartimoss.com"` |
+| --- |
+
+| `    ``},` |
+| --- |
+
+| `{` |
+| --- |
+
+| `      ``"Name"``:``"JC Gonzalez"``,` |
+| --- |
+
+| `      ``"Address"``:``"jcg1981@compartimoss.com"` |
+| --- |
+
+| `    ``},{` |
+| --- |
+
+| `      ``"Name"``:``"Fabian Imaz"``,` |
+| --- |
+
+| `      ``"Address"``:``"Fabian.imaz@compartimoss.com"` |
+| --- |
+
+| `    ``},{` |
+| --- |
+
+| `      ``"Name"``:``"Gustavo Velez"``,` |
+| --- |
+
+| `      ``"Address"``:``"Gustavo.velez@compartimoss.com"` |
+| --- |
+
+| `    ``}` |
+| --- |
+
+| `  ``]` |
+| --- |
+
+| `}` |
+| --- |
+
+Sobre este objeto realizaremos la siguiente petición:
+
+| `POST https:``//outlook.office365.com/ews/odata/Me/Drafts/Messages` |
+| --- |
+
+| `Accept: application/json;odata.metadata=full` |
+| --- |
+
+| `Content-Type: application/json;odata.metadata=full` |
+| --- |
+
+**NOTA:** En el momento que creas un e-mail por defecto se crea dentro de la carpeta de borradores (se puede modificar para que directamente se envíe el mail directamente estableciendo el parámetro "MessageDispostion" al valor "SendAndSaveCopy", el valor por defecto es "SaveOnly").
+
+- **Actualizar un e-mail:**
+
+
+Una vez tenemos un mensaje en la carpeta de borradores, podemos realizar cualquier modificación del mismo, por un lado, generamos el objeto JSON con los campos a modificar, por ejemplo, vamos a modificar el Cuerpo del mensaje:
+
+| `{` |
+| --- |
+
+| `  ``"Body"``: {` |
+| --- |
+
+| `    ``"ContentType"``:``"HTML"``,` |
+| --- |
+
+| `    ``"Content"``:``"Vamos a modificar el mensaje!!"` |
+| --- |
+
+| `  ``}` |
+| --- |
+
+| `}` |
+| --- |
+
+Con el objeto creado se realiza la siguiente petición:
+
+| `PATCH https:``//outlook.office365.com/ews/odata/Me/Messages('IdentificadordelMensaje')` |
+| --- |
+
+| `Accept: application/json;odata.metadata=full` |
+| --- |
+
+| `Content-Type: application/json;odata.metadata=full` |
+| --- |
+
+- **Eliminar un e-mail:**
+
+
+Se puede eliminar correo electrónico, simplemente enviando una solicitud DELETE para la dirección de la entidad de mensajes como por ejemplo, la siguiente petición.
+
+| `DELETE <a href=``"https://outlook.office365.com/ews/odata/Me/Messages%28%27IdentificadordelMensaje%27"``>https://outlook.office365.com/ews/odata/Me/Messages(``'IdentificadordelMensaje'``</a>)` |
+| --- |
+
+- **Enviar un e-mail:**
+
+
+Mediante la API se pueden enviar e-mails de dos formas:
+
+    - Seleccionando el Identificador del e-mail :
+
+
+| `<span lang=``"EN-US"``>POST <a href=``"https://outlook.office365.com/ews/odata/Me/Messages%28%27IdentificadordelMensaje%27%27"``>https://outlook.office365.com/ews/odata/Me/Messages(``'IdentificadordelMensaje'``'</a>)</span>` |
+| --- |
+
+    - Indicando el parámetro MessageDisposition=SendAndSaveCopy dentro de la petición de Crear un e-mail:
+
+
+| `POST https:``//outlook.office365.com/ews/odata/Me/Drafts/Messages? MessageDisposition=SendAndSaveCopy` |
+| --- |
+
+| `Accept: application/json;odata.metadata=full` |
+| --- |
+
+| `Content-Type: application/json;odata.metadata=full` |
+| --- |
+
+**Calendar REST API**
+
+Con el Calendar API vamos a tener acceso tanto a los grupos del Calendario como los propios elementos, desde la propia API se va a poder contestar a Reuniones o Meetings propuestos.
+
+- **Obtener los grupos de Calendario:**
+
+
+En Outlook y Outlook Web App, los usuarios pueden añadir varios calendarios en un solo grupo de calendario. Esto hace que sea más fácil para los usuarios ver rápidamente todos los calendarios dentro del grupo. Se puede acceder a los grupos de calendarios en un buzón de correo a través de la propiedad CalendarGroups en el buzón.  El siguiente ejemplo solicita todos los grupos de calendario en el buzón del usuario autenticado.
+
+| `GET https:``//outlook.office365.com/ews/odata/Me/CalendarGroups` |
+| --- |
+
+| `Accept: application/json` |
+| --- |
+
+- **Obtener los Calendarios:**
+
+
+Se puede acceder a los calendarios a través de la propiedad "Calendar", ya sea en el buzón o en un grupo de calendarios específicos. También puede acceder al calendario predeterminado del usuario a través de la propiedad Calendar en el buzón. El siguiente ejemplo solicita a todos los calendarios en el buzón.
+
+| `GET https:``//outlook.office365.com/ews/odata/Me/Calendars` |
+| --- |
+
+| `Accept: application/json` |
+| --- |
+
+- **Obtener los elementos de un calendario:**
+
+
+Con el Calendar REST API se permite crear, actualizar, eliminar, mover y copiar los elementos del calendario. También puede aceptar, rechazar o aceptar provisionalmente las solicitudes de reunión. Los elementos del calendario se dividen en las siguientes categorías:
+
+    - Citas - Una entrada básica en un calendario que no tiene asistentes. Se puede acceder a las citas a través de la propiedad Events en un calendario o el buzón.
+    - Reuniones - una cita con los asistentes. Las convocatorias de reunión se envían cuando se crea una reunión, y los asistentes tendrán la posibilidad de aceptar, rechazar o aceptar provisionalmente la solicitud. Se puede acceder a reuniones a través de la propiedad eventos en un calendario o el buzón.
+    - Reunión solicitudes - un elemento de calendario que se envía a los asistentes cuando el organizador crea, actualiza o cancela una reunión. Se puede acceder a las solicitudes de reunión a través de la propiedad de los mensajes en las carpetas o el buzón.
+
+
+A continuación vamos  a ver algunas de las operaciones disponibles en la API:
+
+Consultar los elementos del calendario: Mediante la propiedad de Events obtenemos los elementos que tenemos en nuestros calendarios. Además, de la misma forma que con el mail, al hacer uso de OData es posible utilizar la propiedad "filter" para filtrar los elementos que se devolverán en la respuesta.
+
+| `GET https:``//outlook.office365.com/ews/odata/Me/Calendar/Events?$filter=Start le 2014-02-14T05:00:00Z and End ge 2014-02-10T05:00:00Z` |
+| --- |
+
+| `Accept: application/json` |
+| --- |
+
+Actualizar los elementos: Para actualizar un elemento de calendario, hay que realizar una petición PATCH para la URL del evento. En esta petición hay que incluir un objeto JSON con las propiedades para actualizar. Si actualiza una reunión en la que el usuario es el organizador, se envía una actualización a todos los asistentes. El ejemplo siguiente actualiza la ubicación de una reunión.
+
+| `PATCH https:``//outlook.office365.com/ews/odata/Me/Calendar/Events('AAMkAGI3...')` |
+| --- |
+
+| `Accept: application/json;odata.metadata=full` |
+| --- |
+
+| `Content-Type: application/json;odata.metadata=full` |
+| --- |
+
+| `Objeto JSON para actualizar la ubicación de la reunión` |
+| --- |
+
+| `<br />{<br />``"Location"``: {<br />``"DisplayName"``:``"Encamina Canarias"``<br /> }<br />}` |
+| --- |
+
+Responder a una petición de reunión: Para responder a una petición hay que realizar varios pasos debido a que una Petición de reunión es un Objeto Mensaje y no un objeto Calendario. Por lo que en primer lugar, tendremos que consultar el mensaje. En dicho mensaje tendremos, por un lado en la propiedad  "MeetingMessageType" y, en la siguiente propiedad, tendremos un EventID que es el Identificador de la solicitud (posteriormente lo utilizaremos para contestar a dicha solicitud).
+
+Una vez hemos consultado el mensaje y tenemos la información relativa al EVENTID podemos enviar una contestación a dicha convocatoria. Como por ejemplo:
+
+| `POST https:``//outlook.office365.com/ews/odata/Me/Events('Identificador')/Accept?MessageDisposition=SendAndSaveCopy` |
+| --- |
+
+| `Accept: application/json` |
+| --- |
+
+| `Content-Type: application/json;odata.metadata=full` |
+| --- |
+
+| `Expect: 100-``continue` |
+| --- |
+
+| ` ` |
+| --- |
+
+| `{` |
+| --- |
+
+| `  ``"Comment"``:``"Por mi parte perfecto. Alli estaré!"` |
+| --- |
+
+| `}` |
+| --- |
+
+**Contact REST API**
+
+Con la Contact REST API puedes consultar, añadir, modificar y eliminar cualquier contacto.
+
+- **Consultar los Contactos:**
+
+
+Para obtener contactos, enviar una petición GET a la propiedad contactos de la carpeta de contactos. Dentro de la petición se puede utilizar el parámetro "Select" para indicar las propiedades que queremos que se devuelvan en la respuesta.
+
+| `GET https:``//outlook.office365.com/ews/odata/Me/Contacts?$select=DisplayName,EmailAddress1,Birthday,Categories` |
+| --- |
+
+| `Accept: application/json` |
+| --- |
+
+- **Crear un Contacto:**
+
+
+Para añadir un contacto, hay que enviar una solicitud POST en la que se envía un objeto JSON indicando que ese objeto es de tipo Contacto más la representación del contacto.
+
+| `POST https:``//outlook.office365.com/ews/odata/Me/Contacts` |
+| --- |
+
+| `Accept: application/json` |
+| --- |
+
+| `Content-Type: application/json;odata.metadata=full` |
+| --- |
+
+| ` ` |
+| --- |
+
+| `{` |
+| --- |
+
+| `  ``"@odata.type"``:``"#Microsoft.Exchange.Services.OData.Model.Contact"``,` |
+| --- |
+
+| `  ``"GivenName"``:``"Santiago "``,` |
+| --- |
+
+| `  ``"Surname"``:``"Porras"``,` |
+| --- |
+
+| `  ``"EmailAddress1"``:``"s.porras@mvp.microsoft.com"` |
+| --- |
+
+| `}` |
+| --- |
+
+- **Actualizar un Contacto:**
+
+
+Para modificar un contacto hay que enviar una solicitud "PATCH" hacia la dirección del contacto y se adjunta un objeto JSON con las propiedades que queremos modificar.
+
+| `PATCH https:``//outlook.office365.com/ews/odata/Me/Contacts('sporras@mvp.microsoft.com')` |
+| --- |
+
+| `Accept: application/json;odata.metadata=full` |
+| --- |
+
+| `Content-Type: application/json;odata.metadata=full` |
+| --- |
+
+| `Expect: 100-``continue` |
+| --- |
+
+| ` ` |
+| --- |
+
+| `{` |
+| --- |
+
+| `  ``"Birthday"``:``"1974-07-22"``,` |
+| --- |
+
+| `  ``"Categories"``: [` |
+| --- |
+
+| `    ``"MVP"``,` |
+| --- |
+
+| `    ``"College Friend"``,` |
+| --- |
+
+| `    ``"UX"``,` |
+| --- |
+
+| `  ``]` |
+| --- |
+
+| `}` |
+| --- |
+
+- **Eliminar un Contacto:**
+
+
+Para eliminar un contacto, enviamos una petición DELETE para la dirección del contacto.
+
+| `DELETE https:``//outlook.office365.com/ews/odata/Me/Contacts(' sporras@mvp.microsoft.com ')` |
+| --- |
+
+| `Accept: application/json` |
+| --- |
+
+**Ejemplo: Utilizar estas APIs en una aplicación ASP NET. MVC**
+
+Para realizar este ejemplo, necesitaremos los siguientes requisitos previos:
+
+- Tener instalado Visual Studio 2013 (versiones Profesional o Ultimate).
+- Descargar las Office 365 API Tools bien directamente desde esta dirección [http://visualstudiogallery.msdn.microsoft.com/7e947621-ef93-4de7-93d3-d796c43ba34f](http&#58;//visualstudiogallery.msdn.microsoft.com/7e947621-ef93-4de7-93d3-d796c43ba34f) o bien desde Nuget.
+
+
+Una vez tenemos instalada las Office 365 API Tools, abrimos Visual Studio y creamos un proyecto ASP. NET MVC 4 seleccionando la plantilla WebAPI. A continuación, a nuestro proyecto le vamos a añadir la conexión a los servicios REST de la API de Office 365. Para añadirlos, nos dirigimos al Explorador de soluciones, Agregar Servicio conectado tal y como se muestra en la siguiente imagen:
+
+![Imagen 1.- Añadir Servicio Conectado a nuestra App ASP.NET MVC.](../../../images/numero20/nuevas-api-para-desarrolladores-en-office-365-parte-i/imagen1.png)
+
+Aparecerá el Administrador de servicios. Seleccionamos Office365 e introducimos los datos de usuario y contraseña de la cuenta de Office 365 que se vaya a utilizar. Una vez autentificado contra el Tenant de Office365, veremos una lista de tres servicios: Active Directory, Exchange y SharePoint. Inicialmente, la columna Permisos a la derecha de cada servicio estará vacía. En nuestro ejemplo vamos a seleccionar Exchange. Una vez seleccionado pulsamos Aceptar (Imagen 2).
+
+![Imagen 2.- Administrador de Servicios.](../../../images/numero20/nuevas-api-para-desarrolladores-en-office-365-parte-i/imagen2.png)
+
+Dado que no están establecidos los permisos, al tratarse de una versión preview, estos se solicitan por pantalla. En nuestro caso, vamos a otorgar todos los permisos para poder ver todas las opciones que vienen incluidas y que hemos visto en este artículo.
+
+![Imagen 3.- Permisos sobre las APIs de Exchange.](../../../images/numero20/nuevas-api-para-desarrolladores-en-office-365-parte-i/imagen3.png)
+
+Una vez hemos añadido la API a nuestro proyecto revisamos la estructura de nuestro proyecto que quedará de la siguiente forma:
+
+![Imagen 4.- Estructura del proyecto en el explorador de soluciones.](../../../images/numero20/nuevas-api-para-desarrolladores-en-office-365-parte-i/imagen4.png)
+
+Tal y como hemos remarcado en la imagen, se han añadido dos controladores (ExchangeSampleController, Office365CommonController), un modelo (Office365ServiceInfo) y una serie de vistas para poder comprobar las capacidades de estas APIs.
+
+Si analizamos los ficheros que se han añadido:
+
+- Office365ServiceInfo: En esta clase disponemos del modelo que se utiliza para obtener la información para cada una de las APIs, para el caso de Exchange tendremos la siguiente información:
+    - ResourceId = "https://outlook.office365.com/";
+    - ApiEndpoint = "https://outlook.office365.com/ews/odata";
+    - AccessToken = Office365CommonController.GetAccessToken(ResourceId);
+- Office365CommonControler: Se implementa un controlador común para manejar la autenticación y el control de errores sobre las peticiones al Tenant de Office 365. Además disponemos de diversos métodos, como por ejemplo, para obtener el token el usuario que esta logado en este momento e incluso para eliminar esta información del navegador (para evitar que nos puedan robar las credenciales y suplantarnos la identidad).
+- ExchangeSampleController: Dentro del controlador de Exchange por un lado tendremos una serie de Clases: Calendario, Contactos, Mail para poder mapear el objeto JSON que nos devuelve la API en Clases .NET y poder mostrarlo en la vista. Por otro lado, dentro de este controlador tendremos tres métodos para obtener el Calendario, el Mail y los Contactos. Estos métodos no son más que peticiones HTTP a la API Rest correspondiente.
+- Ficheros de Vistas: En estos ficheros están las vistas RAZOR para representar los datos obtenidos en las distintas peticiones a las APIs de Exchange.
+
+
+Una vez analizado el código añadido, vamos a modificar el controlador por defecto, para ello dentro de nuestra solución nos dirigimos a  la Carpeta "App\_Start", editamos el fichero RouteConfig.cs. En esta clase tan solo tiene un método "RegisterRoutes",  en el mismo modificamos el controlador  por defecto, en nuestro caso "ExchangeSample", quedando de la siguiente forma:
+
+
+
+| `public` `static` `void` `RegisterRoutes(RouteCollection routes)` |
+| --- |
+
+| `       ``{` |
+| --- |
+
+| `           ``routes.IgnoreRoute(``"{resource}.axd/{*pathInfo}"``);` |
+| --- |
+
+| `           ``routes.MapRoute(` |
+| --- |
+
+| `               ``name: ``"Default"``,` |
+| --- |
+
+| `               ``url: ``"{controller}/{action}/{id}"``,` |
+| --- |
+
+| `               ``defaults: ``new` `{ controller = ``"ExchangeSample"``, action = ``"Index"``, id = UrlParameter.Optional }` |
+| --- |
+
+| `           ``);` |
+| --- |
+
+| `       ``}` |
+| --- |
+
+Una vez realizada esta modificación, compilamos la solución y si todo ha ido correctamente visualizaremos la imagen 5
+
+![Imagen 5.- Ejemplo de uso de la API Exchange Online.](../../../images/numero20/nuevas-api-para-desarrolladores-en-office-365-parte-i/imagen5.png)
+
+Al pulsar sobre cada opción: Calendar, Mail o Contact, se mostrarán las distintas vistas añadidas donde visualizamos la información solicitada a la API correspondiente.
+
+![Imagen 6.- Resultados Obtenidos al pulsar sobre Calendar.](../../../images/numero20/nuevas-api-para-desarrolladores-en-office-365-parte-i/imagen6.png)
+
+![Imagen 7.- Resultados obtenidos al pulsar sobre Mail.](../../../images/numero20/nuevas-api-para-desarrolladores-en-office-365-parte-i/imagen7.png)
+
+![Imagen 8.- Resultados obtenidos al pulsar sobre Contact.](../../../images/numero20/nuevas-api-para-desarrolladores-en-office-365-parte-i/imagen8.png)
+
+Dejo a la curiosidad de los lectores, añadir muchas más funcionalidades a este ejemplo base, como las operaciones CRUD sobre Calendar, Mail o Contacts.
+
+**Conclusiones**
+
+Office 365 es una plataforma que está creciendo cada vez más. Microsoft,  piensa que el futuro es el "CLOUD" y que más pronto que tarde todas las empresas darán el salto. Personalmente, creo que hay productos que aún les falta cierta evolución para que las empresas se planteen dar el salto completo a la nube. Pero con novedades como las presentadas en Las Vegas, entre las que se encuentran estas APIs, cada vez hacen que la alternativa del cloud sea una opción más seria y más viable.
+
+El poder utilizar las APIs desde aplicaciones fuera del entorno Office 365, es un gran adelanto y algo que facilitará la adopción de la plataforma. Hoy en día, hay muchas empresas que requieren de aplicaciones para el envío de mails, para consultar información del directorio activo, o incluso gestionar calendarios entre los integrantes de su organización. Ahora mismo,  el obtener esta información mediante desarrollo es muy complejo y para solventar este inconveniente se planteaban escenarios híbridos. Pero esta solución es más cara y en algunos escenarios no dispones ni de las ventajas del cloud ni las ventajas de las infraestructuras propias. Con estas APIs todos estos requerimientos se podrán abordar de una forma simple y transparente.
+
+En el siguiente número de CompartiMOSS desgranaremos las opciones que dispondremos para facilitar el trabajo con ficheros y carpetas en SharePoint/OneDrive como con el Active Directory.
+
+**Referencias:**
+
+- [http://msdn.microsoft.com/es-ES/library/office/dn605901](http&#58;//msdn.microsoft.com/es-ES/library/office/dn605901)
+- [http://msdn.microsoft.com/library/office/dn605893](http&#58;//msdn.microsoft.com/library/office/dn605893)
+- [http://blogs.msdn.com/b/officeapps/archive/2014/03/12/announcing-office-365-api-tools-for-visual-studio-preview.aspx](http&#58;//blogs.msdn.com/b/officeapps/archive/2014/03/12/announcing-office-365-api-tools-for-visual-studio-preview.aspx)
+
+
+
+**Adrián Diaz Cervera**
+SharePoint Architect at Encamina
+MVP SharePoint Server
+[http://blogs.encamina.com/desarrollandosobresharepoint](http&#58;//blogs.encamina.com/desarrollandosobresharepoint)
+[http://geeks.ms/blogs/adiazcervera](http&#58;//geeks.ms/blogs/adiazcervera)        
+[adiaz@encamina.com](mailto&#58;adiaz@encamina.com)
+@AdrianDiaz81
+

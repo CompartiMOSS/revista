@@ -1,0 +1,22 @@
+---
+id: sergio-hernandez-mancebo
+title: Sergio Hernandez Mancebo
+jobTitle: Team Leader en Encamina
+slug: /autores/sergio-hernandez-mancebo
+photo: ../../../images/Autores/sergiohernandez.jpg
+twitter: 
+blog: 
+type: author
+content: >-
+    ​Sergio Hernández es Ingeniero Técnico por la Universidad Complutense de Madrid y  MCPD de SharePoint 2010.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "sergio-hernandez-mancebo"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

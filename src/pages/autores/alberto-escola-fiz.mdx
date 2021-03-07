@@ -1,0 +1,22 @@
+---
+id: alberto-escola-fiz
+title: Alberto Escola
+jobTitle: Consultor técnico
+slug: /autores/alberto-escola-fiz
+photo: ../../../images/Autores/AlbertoEscola.jpg
+twitter: 
+blog: 
+type: author
+content: >-
+    ​A lo largo de los 15 años de experiencia profesional en la informática he estado siempre ligado a las tecnologías de Microsoft bien en la faceta de desarrollador con .Net o como ingeniero de sistemas con distintas plataformas y productos (SharePoint, Exchange, Lync, SQL Server, AD…) orientado al ámbito de la movilidad en mi etapa en el Centro de Innovación en Movilidad de Microsoft.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "alberto-escola-fiz"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

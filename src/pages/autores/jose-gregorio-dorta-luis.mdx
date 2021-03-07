@@ -1,0 +1,23 @@
+---
+id: jose-gregorio-dorta-luis
+title: José Gregorio Dorta Luis
+jobTitle: SharePoint Developer
+slug: /autores/jose-gregorio-dorta-luis
+photo: ../../../images/Autores/JoseGregorioDorta.png
+twitter: https://twitter.com/grydl
+blog: 
+type: author
+content: >-
+    ​José Gregorio Dorta Luis es Ingeniero en Informática por la Universidad de La Laguna y MCTS en desarrollo de aplicaciones sobre SharePoint 2007 (WSS 3.0) y SharePoint 2010. LLeva algo más de 6 años trabajando como desarrollador en la empresa General de Software (GSC) y dedicando los últimos 4 años al desarrollo sobre SharePoint 2007, 2010 y 2013 además de participar en otros proyectos de desarrollo basados en tecnologías Microsoft.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "jose-gregorio-dorta-luis"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

@@ -1,0 +1,23 @@
+---
+id: darwin-castro-marin
+title: Darwin Castro
+jobTitle: CEO En  Ancadia™
+slug: /autores/darwin-castro-marin
+photo: ../../../images/Autores/darwincastro.jpg
+twitter: https://twitter.com/solomicrosoft
+blog: http://www.solomicrosoft.com/
+type: author
+content: >-
+    Ingeniero Microsoft especialista en Infraestructura basada en Windows Server
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "darwin-castro-marin"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

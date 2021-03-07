@@ -1,0 +1,23 @@
+---
+id: gonzalo-marcos-ansoain
+title: Gonzalo Marcos Ansoain
+jobTitle: Technical Solutions Professional en AvePoint
+slug: /autores/gonzalo-marcos-ansoain
+photo: ../../../images/Autores/gonzalo-marcos.jpg
+twitter: 
+blog: 
+type: author
+content: >-
+    ​Gonzalo Marcos es Ingeniero Superior de Telecomunicaciones por la Universidad Pública de Navarra (UPNA). Cuenta con más de 6 años de experiencia en tecnologías Microsoft, trabajando en diversos roles, como administrador y consultor SharePoint. Siempre centrado en tecnologías SharePoint 2007/2010/2013 y cloud, especialmente en el área de infraestructuras (SQL Server, Active Directory y Windows Server), posee las certificaciones de MCTS en SharePoint 2010 y 2013.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "gonzalo-marcos-ansoain"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

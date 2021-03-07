@@ -1,0 +1,22 @@
+---
+id: alberto-pascual
+title: Alberto Pascual
+jobTitle: MVP Office365
+slug: /autores/alberto-pascual
+photo: ../../../images/Autores/AlbertoPascual.JPG
+twitter: https://twitter.com/guruxp
+blog: http://blogs.itpro.es/guruxp
+type: author
+content: >-
+    ​Alberto Pascual es actualmente MVP de Office365 en España, además de ser MCSA en Windows Server 2008, MCITP 2008 Server Enterprise Administrator, MCTS, Microsoft Specialist en Administración de Office365 para pequeña empresa e IT Manager de Xion Media S.L.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "alberto-pascual"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

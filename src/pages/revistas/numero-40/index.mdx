@@ -1,0 +1,49 @@
+---
+title: Número 40 - Junio 2019
+slug: /revistas/numero-40/
+date: 2020-03-29
+magazine: 40
+type: number
+content: >-
+    ​​​​​​​​​​​​​​Este número de la revista es especial, hemos alcanzado las 40 publicaciones y lamentablemente en el mes de Marzo falleció un gran amigo, un hermano, Ricardo Muñoz, el mae como lo llamábamos nosotros. Esta triste noticia nos ha dejado a los que hacemos la revista, muy tristes, ya que "el mae" era un colaborador activo y autor, es por esto que hemos decidido recordarlo publicando la entrevista que le hicimos. Pero sabemos que fue una persona muy querida dentro de la comunidad de habla hispana de SharePoint, dado lo que significaba Ricardo hemos recopilado palabras de agradecimientos y en este número encontraras una sección con todo este contenido, para que puedas leer lo que significaba para todos nosotros.
+    <br /><br />
+    Desde la redacción de la revista, te damos las gracia mae por todo lo que hiciste por la comunidad, compartir conocimiento y hacerle llegar nuestro servidor favorito, SharePoint a todos los de habla hispna, GRACIAS......
+    <br /><br />
+    <b>El Equipo Editorial de CompartiMOSS​​​​​​​​</b>
+---
+
+import LayoutNumber from '../../../components/layout-number'
+import { graphql } from "gatsby";
+import ViewArticles from "../../../components/view-articles"
+import DownloadPDF from "../../../components/download-pdf"
+import ViewPartners from '../../../components/view-partners'
+import NumberHeader from '../../../components/number-header'
+
+<NumberHeader frontmatter={props.pageContext.frontmatter} />
+
+<ViewArticles articles={props.data.allMdx} title="Índice" />
+
+<ViewPartners />
+
+export const pageQuery = graphql`
+    query {
+        allMdx(    
+            sort: {
+                fields: frontmatter___title
+            }
+            filter: {
+                frontmatter: {magazine: {eq: 40}, type: {ne: "number"}}
+            }) 
+            {
+                edges {
+                    node {
+                        frontmatter {
+                            title, author, slug, authorId
+                        }      
+                    }
+                }
+            }
+    }
+`
+
+export default LayoutNumber

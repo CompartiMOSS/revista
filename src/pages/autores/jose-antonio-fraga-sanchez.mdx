@@ -1,0 +1,23 @@
+---
+id: jose-antonio-fraga-sanchez
+title: José Antonio Fraga
+jobTitle: Director Técnico en Online Tic
+slug: /autores/jose-antonio-fraga-sanchez
+photo: ../../../images/Autores/JoseAntonioFraga.png
+twitter: 
+blog: http://onlineticsharepoint.blogspot.com.es/
+type: author
+content: >-
+    ​José Antonio Fraga es Ingeniero Informático por la Universidad Carlos III de Madrid. Lleva más de 5 años dedicado únicamente a tecnología SharePoint en la que ha desempeñado papeles de programador en sus orígenes pasando por analista, arquitecto y jefe de proyecto. En 2011 fundó Online Tic (http://www.onlinetic.es) empresa experta en SharePoint donde actualmente ejerce como Director Técnico y socio.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "jose-antonio-fraga-sanchez"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

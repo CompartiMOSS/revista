@@ -1,0 +1,23 @@
+---
+id: jorge-castaneda-cano
+title: Jorge Castañeda Cano
+jobTitle: Consultant / Cloud ☁️ | Microsoft MVP | Speaker
+slug: /autores/jorge-castaneda-cano
+photo: ../../../images/Autores/JorgeCastanedaCano.jpg
+twitter: https://twitter.com/jcastanedacano
+blog: http://jorgecastanedac.com/
+type: author
+content: >-
+    ​Jorge Castañeda es Microsoft MVP Office Server & Services y Enterprise Mobility. Él ayuda a los equipos de negocios sean más productivos! Como consultor, que ayuda a las organizaciones que adoptan Office 365 & Azure. Como Co-Organizador del MUG de Lima y escritor técnico en tecnologías relacionadas con Office 365 y Enterprise Mobility + Security.​
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "jorge-castaneda-cano"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

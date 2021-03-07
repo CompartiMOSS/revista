@@ -1,0 +1,154 @@
+---
+title: Guardar firma desde la entrada de escritura manual de PowerApps en una lista de SharePoint
+slug: /revistas/numero-39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint
+date: 26/02/2019
+magazine: 39
+author: Sergio Ramos
+authorId: sergio-ramos
+keywords: ['PowerApps','SharePoint Online']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+**Creando un conector genérico con Flow para guardar un archivo**
+
+Vamos a crear un conector genérico que luego podremos usar en PowerApps para subir la imagen. Para ello iremos a nuestro sitio de Flow y crearemos un flujo desde cero, a la hora de buscar conectores y desencadenadores seleccionaremos "request/response" (traducido a Flow en español como "solicitud").
+
+![Imagen 1.- Conector de solicitud.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image1.png)
+La url que pide para el post la dejaremos, ya veremos que se rellena automáticamente, vamos primero a agregar otro paso más a nuestro Flow, de las acciones de operaciones de datos vamos a quedarnos con "compose" (traducido como "Redactar").
+![](file&#58;///c&#58;/users/adiaz/appdata/local/temp/msohtmlclip1/01/clip_image002.png)
+![Imagen 2.- Componer la llamada.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image2.png)
+
+A continuación, vamos a configurar la entrada de esta acción con la expresión Trigger() la cual si nos fijamos en su descripción permite derivar la salida de un desencadenador en tiempo de ejecución, es decir, el desencadenador anterior "cuando se recibe una solicitud HHTP".
+
+![Imagen 3.- Configurar el trigger.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image3.png)
+Dejamos la configuración de esta manera, indicamos un nombre al flujo y al pulsar sobre guardarle veremos que la dirección url que antes hemos dejado vacía se ha rellenado
+![Imagen 4.- Url de solicitud.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image4.png)
+Vamos a probar esta url para ver más claro que y como necesitamos enviarle al flujo todo lo necesario para que se guarde una imagen, que será el nombre de la imagen y la imagen en sí. Para verlo vamos a usar la aplicación postman ("https://www.getpostman.com"):
+- Indicamos la Url anterior como Url de la solicitud http.
+- En la pestaña body de postman indicamos que la petición será form-data.
+- Como key file seleccionamos una imagen cualquiera de nuestro pc.
+- En la url agregamos el parámetro para el nombre de imagen.
+
+![](file&#58;///c&#58;/users/adiaz/appdata/local/temp/msohtmlclip1/01/clip_image007.jpg)
+![Imagen 5.- Testeando las peticiones con postman.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image5.png)
+
+Después de enviar la petición de postman veremos en el historial de ejecuciones de nuestro flujo el resultado, donde en el JSON resultante, dentro de "outputs" tenemos "queries" con el nombre de la imagen que pasamos como parámetro y el "$content" dentro de "body" con la imagen en base64
+
+![Imagen 6.- Ejemplo de respuesta.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image6.png)
+Vamos a editar nuestro flujo y coger primero el nombre que tendrá la imagen configurando el paso de redactar:
+**trigger()**['outputs']['queries']['NombreImagen']
+
+![Imagen 7.- Configuración de compose.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image7.png)
+![](file&#58;///c&#58;/users/adiaz/appdata/local/temp/msohtmlclip1/01/clip_image012.jpg)
+Para obtener la imagen en sí, tendremos que añadir otro paso de "redactar". En este caso lo que queremos es el contenido en base64 de la imagen que contiene el body del resultado de la petición y que, como podemos ver en el JSON anterior, es de tipo "multipart/form-data" así que usaremos la expresión TriggermultipartBody().
+
+Como posteriormente queremos que esta imagen se quede guardada en SharePoint aquí será necesario transformar esa imagen en base64 a binario y subir la imagen, vamos a verlo en la imagen como queda.
+
+**base64**To**Binary(triggerMultipartBody(**0**)**['$content']**)**
+
+![Imagen 8.- Obtención de la imagen.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image8.png)
+Ya solo nos quedaría la parte de guardar en una biblioteca de SharePoint vamos entonces a agregar un paso más a nuestro flujo para ello, los pasos anteriores les cambié el nombre para que resulte más fácil de identificar
+![Imagen 9.- Guardar imagen.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image9.png)
+
+
+Una vez guardado, si todo ha ido bien podremos probarlo llamándolo otra vez desde postman y visualizar el resultado en el sitio de SharePoint.
+![](file&#58;///c&#58;/users/adiaz/appdata/local/temp/msohtmlclip1/01/clip_image018.jpg)
+
+**![Imagen 10.- Resultado obtenido.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image10.png)**
+
+**Guardar imagen desde la entrada de escritura manual de PowerApps**
+Vamos a ver como adjuntar una firma manual insertada desde una aplicación de PowerApps, para el ejemplo vamos a partir de una aplicación para los repartidores de paquetes de una empresa en la que firme el destinatario y los datos de la entrega con su firma se queden reflejados en una lista, vamos a ello, lo primero la lista de ejemplo con el destinatario dirección, etc. y un número de seguimiento del paquete.
+![](file&#58;///c&#58;/users/adiaz/appdata/local/temp/msohtmlclip1/01/clip_image020.jpg)
+![Imagen 11.- Creación de lista.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image11.png)
+
+A partir de una aplicación PowerApps de lienzo en blanco, nos conectaremos a los datos de la lista, agregaremos una pantalla de formulario y haremos una conexión a la lista. Al formulario también habrá que cambiarle la propiedad de modo predeterminado a "nuevo", también elimine el campo título que no tiene mucho sentido y agregamos el control de entrada para la firma.
+
+![Imagen 12.- PowerApp creada.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image12.png)
+
+
+Hasta aquí bien, el problema es que si intentamos guardar la imagen que contiene el control veremos algo del estilo "blob:https://create.PowerApps.com/……" y nos informará que eso no existe, es aquí donde haremos uso del workflow creado anteriormente. Para lo que queremos hacer, generaremos una plantilla para la llamada haciendo uso de la página [http://specgen.apistudio.io/](http&#58;//specgen.apistudio.io/) con la url de la petición del post del http (la url que obtuvimos en el Flow).
+
+![Imagen 13.- Generar llamada.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image13.png)
+
+El paso siguiente de "program info" permite indicar datos de contacto, el título de la API, etc. Cambiamos el título a SubirArchivo, el e-mail de contacto y el puerto para la API. Dejamos el resto de los datos con los valores por defecto.
+En el paso de "API Info" configuramos el parámetor API Base Path para que aparezca el valor "/workflows" e indicamos un nombre en "Operation id".
+![](file&#58;///c&#58;/users/adiaz/appdata/local/temp/msohtmlclip1/01/clip_image032.jpg)
+![Imagen 14.- Paso &quot;API Info&quot;.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image14.png)
+
+Los siguientes pasos los dejaremos como están hasta llegar al paso "Open API Spec" que nos permitirá descargar el JSON Que se ha formado. Este JSON puede contener valores "null" por lo que será necesario editarlo para realizar las correcciones necesarias que nos eviten errores posteriormente.
+
+![Imagen 15.- Arreglar el código generado.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image15.png)
+
+
+En el json en la sección "parameters" podemos ver la definición de los parámetros de la petición http del workflow, a estos les tenemos que agregar los valores default que ya tenemos, y eliminar todo el parámetro content-type, se quedarían así
+![](file&#58;///c&#58;/users/adiaz/appdata/local/temp/msohtmlclip1/01/clip_image036.jpg)
+![Imagen 16.- Agregando propiedades al JSON.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image16.png)
+
+También agregamos nuestro contenido de la imagen con lo que se quedaría esta parte así
+
+![Imagen 17.- Agregando propiedades.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image17.png)
+
+
+Volvemos al entorno de creación de PowerApps PowerApps y hacemos clic en la parte de conexiones. Crearemos una nueva conexión en conectores personalizados, donde importaremos el archivo JSON que acabamos de modificar.
+
+![Imagen 18.- Creando una nueva conexión.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image18.png)
+
+
+
+Tras esto en el paso 2 de autenticación lo dejaremos sin autenticación y en el 3 veremos el id de operación que será el que usemos más adelante.
+
+![Imagen 19.- Configuración de la conexión.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image19.png)
+
+
+
+Y también podemos ver los parámetros que se enviarán, tendremos que editar api-version, sp,sv,sig y ponerlos como de visibilidad interna para que se oculten al usuario.
+
+![Imagen 20.- Parámetros adicionales en la configuración de la conexión.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image20.png)
+
+Tras esto ya podremos guardarlo, y agregarlo como conexión
+
+![Imagen 21.- Conexión configurada y disponible para su uso.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image21.png)
+
+En la PowerApp creada, el control de entrada de escritura que se ha agregado se llama PenInput3 y tiene la propiedad Image. En la imagen de "tick" de la app en su OnSelect vamos a llamar a subirArchivo, tendrá de nombre el número de seguimiento y subiremos la imagen del recibí que dibujemos, esta llamada la voy a hacer directamente y antes del submit para no andar poniendo validaciones etc, pero no es la forma más correcta
+![](file&#58;///c&#58;/users/adiaz/appdata/local/temp/msohtmlclip1/01/clip_image048.jpg)
+![Imagen 22.- Configurando el control penInput.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image22.png)
+
+Y la prueba:
+
+**![Imagen 23.- Prueba del Control penInput y de cómo la imagen generada se guarda en SharePoint.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image23.png)**
+
+**Agregar imagen como adjunto con Flow**
+
+En este último paso vamos a ver como agregar como adjunto la imagen de firma que guardamos desde la aplicación creada anteriormente, en el teníamos una lista "paquetes entregado" y una biblioteca que almacena las firmas, vamos entonces a la biblioteca de firmas y crearemos un Flow desde cero para ella con el desencadenador "cuando se crea un archivo".
+
+![Imagen 24.- Trigger de inicio del Flow.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image24.png)
+
+
+Obtendremos el contenido del archivo y crearé una variable para el nombre, o podría coger del mismo nombre del archivo, pero ni se por qué de esa manera no me funcionaba bien
+![Imagen 25.- Procesado del contenido del archivo.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image25.png)
+
+
+
+Obtendremos los elementos de la lista:
+![](file&#58;///c&#58;/users/adiaz/appdata/local/temp/msohtmlclip1/01/clip_image059.png)
+![Imagen 27.- Obtención de los elementos de la lista.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image26.png)
+
+Y en el último paso le damos el nombre de la imagen y le decimos que el contenido es el que hemos recuperado anteriormente
+**![Imagen 26.- Paso final del Flow.](../../../images/numero39/guardar-firma-desde-la-entrada-de-escritura-manual-de-powerapps-en-una-lista-de-sharepoint/image27.png)
+
+
+Conclusión**
+En este artículo hemos podido ver como interconectando los diferentes productos, Flow PowerApps y SharePoint podemos construir soluciones de negocio versátiles sin necesidad de código
+
+**Sergio Ramos**
+
+Sekai Cloud Co-Founder
+ [sramos@sekaicloud.es](mailto&#58;sramos@sekaicloud.es)
+ linkedin: https://www.linkedin.com/in/sergioramosmarquez/
+ http://sekaicloud.es/
+

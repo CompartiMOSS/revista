@@ -1,0 +1,88 @@
+---
+title: Skype for Business Ethical Wall
+slug: /revistas/numero-34/skype-for-business-ethical-wall
+date: 29/11/2017
+magazine: 34
+author: Rodolfo Castro
+authorId: rodolfo-castro
+keywords: ['Skype for Business']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+Cuantas veces un cliente les pide restringir la comunicación entre OU’s , o que nadie pueda enviar IM al CIO. O en las compañías bancarias y financieras solamente permitir que los cajeros o usuarios reciban IM únicamente, que no hagan otra acción.
+
+La solución a esto es una herramienta de 3ros llamada ETHICAL WALL. Con una solución de este tipo, lo que se pretende es evitar fuga de información basándonos en políticas para limitar la comunicación entre nuestros usuarios. Así que nosotros como administradores seremos capaces de restringir las características y funcionalidades que los usuarios pueden utilizar entre ellos. Desde bloquear quien puede ver presencia y enviar mensajes, sino hasta quien puede enviar archivos, Audio y Video o compartir el escritorio.
+
+Les mostrare como un Ethical Wall puede ayudarnos a cumplir con el objetivo.
+
+Lo primero que vemos es que tenemos dos diferentes endpoints, y las diferentes funcionalidades que podemos habilitar\deshabilitar entre ellos. Y no son restrictivas en ambos sentidos, sino que podemos seleccionar que únicamente el punto A no pueda ver la presencia del punto B. Pero el punto B si podrá ver la presencia del A. Es decir, no son mutuamente excluyentes.
+
+![Imagen 1.- EndPoints the Ethical Wall.](../../../images/numero34/skype-for-business-ethical-wall/image1.png)
+
+Un Endpoint no solamente es un usuario, un endpoint puede ser una OU, un dominio Federado, un número de teléfono, etc. Aquí está la lista con todas las posibilidades de Endpoint.
+
+![Imagen 2.- Posibilidades de EndPoint.](../../../images/numero34/skype-for-business-ethical-wall/image2.png)
+
+![Imagen 2.- Posibilidades de EndPoint.](../../../images/numero34/skype-for-business-ethical-wall/image3.png)
+
+Ahora les mostraré como Ethical Wall trabaja.
+
+**Ejemplo1.**
+
+![Imagen 3.- Ejemplo de configuración de Ethical Wall.](../../../images/numero34/skype-for-business-ethical-wall/image4.png)
+
+En la imagen previa pueden ver que tenemos dos usuarios internos, Endpoint A ( user1@ucblogmx.mvp ) y Endpoint B ( user2@ucblogmx.mvp ) . Se bloqueo al usuario 2 la posibilidad de llamar, compartir escritorio y transferencia de archivos al usuario 1.
+
+Si el usuario 2 trate de enviar un archivo al usuario 1, recibe el siguiente mensaje de error.
+
+![Imagen 4.- Error al transferir archivos por parte del usuario 2.](../../../images/numero34/skype-for-business-ethical-wall/image5.png)
+
+Pero el usuario 1 puede enviar archivos sin problema.
+
+![Imagen 5.- Experiencia del primer usuario compartiendo un archivo.](../../../images/numero34/skype-for-business-ethical-wall/image6.png)
+
+**EJEMPLO 2.**
+
+Ahora les mostraré como bloquear comunicaciones de usuarios de bajo nivel a los Gerentes/Administradores/CIO:
+
+·       Tengo dos Ou's Managers y Mortals
+
+·       El usuario 1 es miembro de la OU Managers
+
+![Imagen 6.- Usuario “User 1” miembro de la OU Managers.](../../../images/numero34/skype-for-business-ethical-wall/image7.png)
+
+El usuario 2 es miembro de la OU Mortals
+
+![ Imagen 7.- Usuario “User 2” miembro de la OU Mortals.](../../../images/numero34/skype-for-business-ethical-wall/image8.png)
+
+Ahora, la regla del Ethical wall quedo de la siguiente manera.
+
+![Imagen 8.- Regla del Ethical Wall.](../../../images/numero34/skype-for-business-ethical-wall/image9.png)
+
+Donde solamente los usuarios de la OU Managers, pueden comunicarse con los usuarios de la OU Mortals. A continuación, se muestra como un Gerente puede comunicarse con un usuario normal.
+
+![Imagen 9.- Comunicación entre User 1 y User 2.](../../../images/numero34/skype-for-business-ethical-wall/image10.png)
+
+Pero cuando un normal intenta buscar a un Gerente, se ve lo siguiente.
+
+![Imagen 10.- Experiencia cuando se busca un gerente.](../../../images/numero34/skype-for-business-ethical-wall/image11.jpeg)
+
+![Imagen 10.- Experiencia cuando se busca un gerente.](../../../images/numero34/skype-for-business-ethical-wall/image12.png)
+
+La presencia del usuario1 no se muestra al usuario2, y cuando intenta enviar IM, el ethical wall rechaza la comunicación. Esto fue solamente un ejemplo de como funciona, pero pueden definir políticas a niveles mas avanzados no solamente de usuario a usuario.
+
+**NOTA:** Agradezco a fabbricadigitale por la oportunidad y apoyo para probar Ethical Wall.
+
+Si deseas tener mayor información sobre Ethical Wall o cualquier tema relacionado con Skype for Business o Microsoft Teams, no dudes en contactarme.
+
+**Rodolfo Castro Aguilar**
+ MVP Office Server and Services
+ SFB User Group: [https://www.facebook.com/groups/S4BUGIberoamerica/](https&#58;//www.facebook.com/groups/S4BUGIberoamerica/)
+Twitter : @ucblogmx
+ http://ucblogmx.com ​
+

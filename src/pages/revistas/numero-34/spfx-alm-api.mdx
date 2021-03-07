@@ -1,0 +1,187 @@
+---
+title: SPFx Application Lifecycle Management (ALM) API’s
+slug: /revistas/numero-34/spfx-alm-api
+date: 27/11/2017
+magazine: 34
+author: Adrian Diaz Cervera
+authorId: adrian-diaz-cervera
+keywords: ['ALM','SharePoint Framework']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+Como hemos visto en anteriores artículos, el SharePoint Framework ha venido para quedarse. El equipo de producto ha realizado muchos esfuerzos en unificar el modelo de desarrollo, por un lado, para poder personalizar SharePoint Online de una forma asumible y durable en el tiempo. Y por otro lado intentar unificar el modelo de desarrollo tanto en SharePoint Online como OnPremise. Sin embargo, todos estos esfuerzos, tenían un freno y es que todo este modelo de desarrollo no tenia un ciclo de vida acorde para que las empresas que lo utilizan lo puedan adoptar de una forma natural sin tener que recurrir a utilizar herramientas manuales para poder utilizarlo y desplegarlo en entornos productivos.
+
+Ahora bien, el equipo de producto lleva tiempo hablando que estaban trabajando en una API para poder incorporarla en el ciclo de desarrollo. Pues bien, durante la pasada European SharePoint Conference se anunció que esta API iba a estar disponible.
+
+**¿Qué tiene esta API?**
+
+La API de ALM proporciona una serie de API simples para administrar la implementación de las soluciones del SharePoint FrameWork. Esta API admite las siguientes capacidades:
+
+·       Añadir soluciones de SPFX y/o SharePoint Add-in al catálogo de aplicaciones de nuestro tenant
+·       Activar/Desactivar soluciones de SPFX y/o SharePoint Add-in que están instaladas en nuestro catálogo de aplicaciones
+·       Instalar/Desinstalar soluciones de SPFX y/o SharePoint Add-in que están disponibles en nuestro catalogo de aplicaciones en nuestro sitio
+·       Actualizar la solución de SPFX y/o SharePoint Add-in en nuestro sitio con la versión más reciente que hay en nuestro catálogo de aplicaciones.
+
+Esta API naturalmente la podemos consultar mediante servicios REST, utilizando CSOM o PnP.
+
+**Métodos disponibles**
+
+Añadir solución al Catálogo de aplicación:
+
+```
+/_api/web/tenantappcatalog/Add(overwrite=true, url='test.txt')";
+```
+
+```
+method: POST
+```
+
+```
+binaryStringRequestBody: true
+```
+
+```
+body: 'byte array of the file'​
+```
+
+
+
+Desplegar la solución en el cátalo de Aplicaciones:​
+
+```
+/_api/web/tenantappcatalog/AvailableApps/GetById('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx')/Deploy";​
+```
+
+
+
+Eliminar la solución del catálogo de aplicaciones:​
+
+```
+/_api/web/tenantappcatalog/AvailableApps/GetById('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx')/Retract";​
+```
+
+
+
+
+
+Mostrar las soluciones disponibles en el catálogo de aplicaciones:
+
+```
+url: /_api/web/tenantappcatalog/AvailableApps​
+```
+
+
+
+Mostrar los detalles de una solución que está en el catálogo de aplicaciones:
+
+```
+url: /_api/web/tenantappcatalog/AvailableApps/GetById('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx')​
+```
+
+
+
+
+
+Instalar el paquete de solución en el Sitio de SharePoint:
+
+```
+url: /_api/web/tenantappcatalog/AvailableApps/GetById('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx')/Install";method: POST​
+```
+
+
+
+Actualizar el paquete de solución en el sitio de SharePoint:
+
+```
+url: /_api/web/tenantappcatalog/AvailableApps/GetById('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx')/Upgrade";​
+```
+
+
+
+
+
+Desinstalar la solución en el sitio de SharePoint:
+
+```
+/_api/web/tenantappcatalog/AvailableApps/GetById('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx')/uninstall";method: POST​
+```
+
+
+
+
+
+
+
+**Métodos en PnP PowerShell**
+
+Junto con estos servicios REST, el equipo de PnP ha añadido dentro de su repositorio de PowerShell una serie de cmldets para poder integrarlo con el resto de procesos de automatización de los que dispone la herramienta. Estos cmdlets son los siguientes:
+
+Para agregar una solución al catálogo y tenerla activa:
+
+```
+Add-PnPApp -Path ./myapp.sppkg"Publish-PnPApp -Identity <app id> -SkipFeatureDeployment​
+```
+
+
+
+Para eliminar una app del catálogo:
+
+```
+Remove-PnPApp -Identity <app id>​
+```
+
+
+
+Utilizar la App en tu sitio de SharePoint Online:
+
+```
+Install-PnPApp -Identity <app id>​​
+```
+
+Modificar la App en tu sitio de SharePoint Online:
+
+```
+Update-PnPApp -Identity <app id>​
+```
+
+
+
+Eliminar la App en tu sitio de SharePoint Online:
+
+```
+Uninstall-PnPApp -Identity <app id>​​
+```
+
+
+
+
+
+
+
+**¿Qué aspectos le faltan a esta API ALM?**
+
+Lo único que le quedaría a esta API es el despliegue de las Extensions, es decir tener unos métodos para poder activar/desplegar las extensions dentro de los artefactos en los que le hemos implementado. Pero si tenemos en cuenta que las Extensión aún no se pueden utilizar en entornos productivos podemos esperar que estos comandos salgan a la luz una vez se puedan utilizar las Extensions en entornos de producción.
+
+
+
+**Resumen**
+
+La aparición de esta API es una gran noticia para los Desarrolladores de Office 365/SharePoint Online que por fin van a poder automatizar la gran parte de su desarrollo sin necesidades de intervención manual. Es de esperar que esta API evolución al compás de los nuevos artefactos que vayan apareciendo en la plataforma.
+
+En futuros artículos veremos cómo incluir esta API dentro de nuestro proceso de desarrollo.
+
+
+
+
+**Adrián Diaz Cervera**
+MVP Office Development
+[http://blogs.encamina.com/desarrollandosobresharepoint](http&#58;//blogs.encamina.com/desarrollandosobresharepoint)
+[http://geeks.ms/blogs/adiazcervera](http&#58;//geeks.ms/blogs/adiazcervera)
+
+adiaz@encamina.com @AdrianDiaz81​
+

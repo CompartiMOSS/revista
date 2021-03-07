@@ -1,0 +1,23 @@
+---
+id: israel-urrea-carballo
+title: Israel Urrea Carballo
+jobTitle: Arquitecto de SharePoint
+slug: /autores/israel-urrea-carballo
+photo: ../../../images/Autores/IsraelUrrea.jpg
+twitter: https://twitter.com/israurrea
+blog: 
+type: author
+content: >-
+    ​Arquitecto SharePoint con más de 10 años en proyectos de tecnologías Microsoft.  Actualmente trabaja como consultor en ENCAMINA en proyectos de Azure, SharePoint, Directorio Activo o SQL Server.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "israel-urrea-carballo"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

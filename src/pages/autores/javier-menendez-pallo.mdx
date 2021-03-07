@@ -1,0 +1,23 @@
+---
+id: javier-menendez-pallo
+title: Javier Menendez Pallo
+jobTitle: MCSE, MCSA, MCDBA, MCITP, MCTS
+slug: /autores/javier-menendez-pallo
+photo: ../../../images/Autores/JavierMenendezPallo.JPG
+twitter: https://twitter.com/JavierPallo
+blog: http://blogs.encamina.com/everyware/
+type: author
+content: >-
+    ​Javier Menendez Pallo es Doctor en Investigación (PhD) e Ingeniero Superior en Informática por la universidad de Montevideo (Uruguay), y posee más de 170 certificaciones, entre ellas MCSE y MCSA de SharePoint 2010 y Windows Server, MCDBA de SQL Server 2005, 2008 y 2012, y MCITP y MCTS en otros productos y plataformas. Fue uno de los primeros profesionales que tomaron contacto con uno de los productos considerados origen de SharePoint llamado Digital Dashboard y trabaja en implementaciones SharePoint y Business Intelligence desde hace más de 15 años.  
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "javier-menendez-pallo"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

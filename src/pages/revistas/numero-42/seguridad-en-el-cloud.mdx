@@ -1,0 +1,99 @@
+---
+title: Seguridad en el Cloud
+slug: /revistas/numero-42/seguridad-en-el-cloud
+date: 27/11/2019
+magazine: 42
+author: Alberto Andrés Rodríguez
+authorId: alberto-andrés-rodríguez
+keywords: ['Cloud','Seguridad']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+A lo largo de estos años de transformación al Cloud, nos encontramos que la ciberseguridad es ámbito al que no se le suele prestar mucha atención. Creemos que como nuestros datos están en el Cloud (sea del proveedor que sea), la seguridad, ya no es problema como tal. Sin embargo, nos equivocamos, ya que estamos observando que a medida que más empresas mueven toda su infraestructura y datos al Cloud, los ataques contra este tipo de sistemas incrementan a la par.
+
+Da igual que estemos puramente Cloud o bien sea una pieza de hardware, nosotros somos los responsables de la seguridad del dato, por lo que este artículo vamos a tratar algunas de las opciones de cómo podemos afrontar la seguridad al movernos al Cloud.
+
+Las recomendaciones de seguridad que vamos a tratar en este artículo están basadas en:
+
+1. **Preparar:** Debemos de crear una cultura que no tenga puntos débiles
+2. **Proteger:** La protección es crítica, invertir dinero en mecanismos de protección reduce el riesgo de sufrir un ataque
+3. **Persistir:** Hay que ser persistente y vigilantes, ya que hasta la infraestructura que parece más segura puede tener una brecha de seguridad.
+
+
+**Securiza tus dispositivos físicos**
+
+Que nuestros datos estén en el Cloud, no quita que no debamos de proteger el acceso a la información, ya sea en un PC, móviles u otros endpoints. Es una obligación disponer de más visibilidad y conocimiento, adelantándonos así a cualquier tipo de comportamiento anómalo que podamos detectar.
+
+Por ejemplo, nos encontramos que los inicios de sesión y descarga de aplicaciones, terminan siendo un indicativo del comienzo de una posible brecha de seguridad. Por lo que vamos a necesitar de herramientas, un equipo experto que sepa identificar la actividad, sin importar la localización de nuestros datos.
+
+¿Cómo puedo proteger mis dispositivos? Podríamos empezar mencionando como algo tan sencillo como Windows Hello, que nos permite utilizar un dispositivo biométrico (ya sea la huella o la cara) para iniciar sesión en el equipo, con lo que ya estamos yendo hacia un mundo passwordless.
+
+Así mismo, debemos gestionar nuestros dispositivos mediante un MDM como Intune, de manera que en caso de robo/perdida, podamos hacer un wipe de la información y así evitar que la información caiga en manos no deseadas. En el caso de que dejemos que nuestros usuarios traigan su propio dispositivo siempre podemos utilizar MAM y tener ese pedazo de información siempre controlado.
+
+Ahora bien, si lo que queremos es proteger el contenido de los dispositivos, no podemos olvidarnos la protección endpoint que nos ofrece Windows Defender ATP, o bien el cifrado de los dispositivos mediante BitLocker
+
+No quiero dejar de lado la nuestra infraestructura que tengamos desplegada en Azure, para ello podemos seguir las buenas prácticas recomendadas en el Cloud Operations Framework. Aquí podremos encontrar recomendaciones para evitar males mayores.
+
+Por lo que, debemos de tener en cuenta, que proteger estos endpoints, debe de ser un componente esencial a la hora de desplegar nuestra estrategia de seguridad.
+
+**Protege tu información**
+
+Por norma general, y antes de embarcarnos con un proveedor Cloud, miramos que cumpla con nuestros estándares de seguridad, y nos solemos fijar en detalles como:
+
+- ¿Dispongo de un backup de mi información?
+- ¿Quién tiene acceso a mis datos?
+- ¿Está cifrada en tránsito y en descanso?
+
+
+Pero ello, provoca una cortina de humo, que hace que dejemos de fijarnos en lo que realmente importa, la información a la que accede el usuario final.
+
+Primero de todo, debemos de controlar la información, sobre todo aquella que es sensible para la compañía, para ello podemos utilizar soluciones como Azure Information Protection, identificando y clasificando toda aquella información, bien resida en el Cloud u OnPremises, y nos permita controlar quien tiene acceso en todo momento y si hiciera falta revocar remotamente los permisos que un usuario tiene a la documentación.
+
+El uso de sistemas de cifrado nativo, permiten que otra persona que no sea el destinatario, no pueda abrir los correos. O bien mediante el uso de políticas de DLP que permiten controlar que cierta información sensible no salga de la organización, resida en Exchange, SharePoint o OneDrive.
+
+Algo tan sencillo como ATP en Exchange Online, nos puede ayudar a evitar algún que otro susto de phishing en el correo, ya sea evitando posibles ataques o bien analizando las URLs adjuntas que nos llegan en los mismos.
+
+Para aquellas empresas que necesitan almacenar credenciales de usuarios en repositorios, certificados u otros datos de carácter importante, siempre pueden disponer de soluciones como Azure Key Vault para almacenar toda esta información sensible de manera segura.
+
+**¿Cómo de segura está la identidad de mis usuarios?**
+
+Hemos llegado a un punto crítico, hasta ahora hemos estado hablando de dispositivos e información, pero por mucho que securizemos nuestros entornos y dispositivos con herramientas, el punto débil de las organizaciones, seguimos siendo los usuarios.
+
+Ya no es necesario instalar un Malware en nuestros dispositivos, basta con conocer el usuario y password para causar estragos en nuestra organización. Por lo que no debemos de dejar de lado el uso de passwords fuertes, incluso si estamos en un entorno Cloud.
+
+Uso de tecnologías como Azure Identity Protection, que nos permite detectar comportamiento inusual en nuestros tenant, por ejemplo, podemos detectar múltiples inicios de sesión desde diferentes localizaciones en un corto período de tiempo.
+
+Debemos de empezar a plantearnos el uso de herramientas de seguridad como Acceso condicional junto con MFA, con lo que podemos controlar como nuestros usuarios acceden a aplicaciones Cloud, y en el caso que sea necesario que deban de introducir un segundo factor de autenticación (por ejemplo, con App Authenticator).
+
+Cuando pasamos al terreno de la administración, el primer punto a tener en cuenta es que; debemos de disponer cuentas de administración separadas de las cuentas nominales de los usuarios, con ello empezamos a segmentar el entorno y securizarlo un poquito más.
+
+Otra tecnología que podemos usar es PIM, que nos permite la habilidad de asignar a los usuarios un administrador temporal, lo que nos permite tener controlado quien tiene permisos y durante cuánto.
+
+**Gobierna tu Cloud**
+
+Parece que hemos llegado al final del camino, pero no, como en toda estrategia, debemos de gobernarla una vez establecida. Para ello disponemos de diferentes herramientas que nos ayudarán a conseguirlo
+
+Durante este artículo no hemos prestado mucha atención a Azure, pero disponemos de un centro llamado Azure Security Center, en el cual se nos van a presentar recomendaciones de seguridad para todos aquellos recursos que hemos desplegado sobre la plataforma.
+
+Hablamos de ASC para Azure, pero en O365 tenemos su hermano gemelo, Secure Score, que nos proporcionará recomendaciones para incrementar la seguridad de nuestro tenant, balanceando siempre entre la productividad y la seguridad. Algo que hay que destacar, que nos permitirá conocer nuestra puntuación junto con una puntuación media de otras empresas de nuestro sector, lo cual ayuda a establecer una línea base en torno a la seguridad.
+
+Hay algo que hasta ahora no hemos comentado, y es el temido Shadow IT, que no es más ni menos el hecho de utilizar dispositivos, servicios Cloud y aplicaciones que no están gestionadas por IT, lo cual supone un riesgo de exposición para la compañía. Todo esto lo podemos controlar mediante el uso de herramientas como Microsoft Cloud App Security, que nos ayudará a identificar y remediar todos estos casos.
+
+Por ultimo y no menos importante, forma a tus usuarios, esto promueve una cultura de seguridad en la organización, de forma que los usuarios sean capaces de identificar ataques de phishing. Por ejemplo, en O365 disponemos de herramientas que permiten simular este tipo de ataques y a partir de ahí crear campañas de concienciación. Hay que tener paciencia con este punto, ya lleva tiempo el educar y entender el comportamiento humano en las organizaciones.
+
+**Conclusiones**
+
+Durante este artículo hemos visto algunas de las opciones que tenemos para protegernos frente a posibles ataques, pero no debemos de olvidarnos que la productividad del usuario final es algo que debemos dejar de lado a la hora de implementar estas herramientas.
+
+Pero lo más importante y debemos grabarlo a fuego, es que, una vez tenemos una brecha de seguridad, no importa donde estuvieran almacenados los datos, solo importa el impacto negativo que pueda tener en el negocio.
+
+Sin embargo, somos responsables de que nuestros estén debidamente securizados, identificando cuando los datos no están siendo compartidos con alguien que no se debiera, bien cuando detectamos que hay algún uso inadecuado, y sobre todo aplicando políticas de cumplimento y gobierno
+
+**Alberto Andrés Rodríguez** <br />
+ Cloud Architect <br />
+ @albandrod

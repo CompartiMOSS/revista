@@ -1,0 +1,48 @@
+---
+title: Número 47 - Marzo 2020
+slug: /revistas/numero-47/
+date: 2021-03-01
+magazine: 47
+type: number
+content: >-
+    Aunque la pandemia del COVID-19 sigue marcando nuestro día a día y el de nuestras familias en muchos aspectos positivos o negativos, también lo está haciendo desde el punto de vista de la tecnología acelerando el ritmo de innovación y de nuevos productos que las grandes compañías tecnológicas están lanzando al mercado. En esta línea, está claro que Microsoft durante los últimos meses ha sacado a la luz novedades a un ritmo mucho más rapido que si el dichoso bicho no estuviese dando guerra. Una buena prueba de esto es Microsoft VIVA, la gran novedad del momento y que supondrá un antes y un después en lo que a la Experiencia de Empleado Conectado se refiere y que va a ser el nuevo caballo de batalla en el que todas las grandes van a estar y en la que como profesionales del sector tendremos mucho que aportar y que decir. 
+    <br /><br />
+    En CompartiMOSS la vida sigue igual y les presentamos un nuevo número que ha sido posible gracias al trabajo en equipo de Autores, Editorial y de nuestros lectores. Esperamos que este nuevo número, lleno de nuevo de artículos de calidad sea de su agrado y sobre todo deseamos que estén bien y que se cuiden. 
+    <br /><br />
+    <b>​El Equipo Editorial de CompartiMOSS</b>
+---
+
+import LayoutNumber from '../../../components/layout-number'
+import { graphql } from "gatsby";
+import ViewArticles from "../../../components/view-articles"
+import ViewPartners from '../../../components/view-partners'
+import NumberHeader from '../../../components/number-header'
+
+<NumberHeader frontmatter={props.pageContext.frontmatter} />
+
+<ViewArticles articles={props.data.allMdx} title="Índice" />
+
+<ViewPartners />
+
+export const pageQuery = graphql`
+    query {
+        allMdx(    
+            sort: {
+                fields: frontmatter___title
+            }
+            filter: {
+                frontmatter: {magazine: {eq: 47}, type: {ne: "number"}}
+            }) 
+            {
+                edges {
+                    node {
+                        frontmatter {
+                            title, author, slug, authorId
+                        }      
+                    }
+                }
+            }
+    }
+`
+
+export default LayoutNumber

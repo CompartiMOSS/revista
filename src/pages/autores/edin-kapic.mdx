@@ -1,0 +1,23 @@
+---
+id: edin-kapic
+title: Edin Kapic
+jobTitle: MVP SharePoint Server
+slug: /autores/edin-kapic
+photo: ../../../images/Autores/EdinKapic.jpg
+twitter: https://twitter.com/ekapic
+blog: http://spblogedin.blogspot.com.es/
+type: author
+content: >- 
+    ​Edin Kapic es Arquitecto de SharePoint en Spenta (Barcelona, España). MVP y MCT, co-fundador y presidente del Grupo de Usuarios de SharePoint de Cataluña (SUG.CAT), escribe y habla sobre SharePoint en numerosas publicaciones y evenetos. En sus ratos libres le gusta navegar a vela.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "edin-kapic"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

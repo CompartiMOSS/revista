@@ -1,0 +1,203 @@
+---
+title: Trae los datos de Office 365 a tus aplicaciones con Microsoft Graph Data Connect
+slug: /revistas/numero-38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect
+date: 29/11/2018
+magazine: 38
+author: Rubén Ramos Mateo
+authorId: rubén-ramos-mateo
+keywords: ['Office 365','Graph']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+Estamos acostumbrados a crear aplicaciones centradas en personas que acceden a sus datos de Office 365 con Microsoft Graph API, pero ¿qué ocurre si queremos utilizar todos los datos de Office 365 para crear, por ejemplo, analíticas o incluso aplicaciones inteligentes? ¿Y si pudiésemos llevar toda esa información a Azure para poder trabajar con ella?
+
+**Introducción a Microsoft Graph Data Connect**
+
+En el último Ignite, Microsoft anunció la disponibilidad de Microsoft Graph Data Connect en preview pública. Graph Data Connect es un servicio que nos permite obtener información de Office 365 a través de un pipeline de Azure Data Factory y copiarla en un contenedor de Azure para luego poder interactuar con ella.
+
+Por ahora se puede obtener este conjunto de datasets:
+
+
+| **Data set** | **Descripción** |
+| --- | --- |
+| **BasicDataSet\_v0.Contact\_v0** | Contiene información sobre los contactos de cada usuario.<br /><br />https://docs.microsoft.com/en-us/graph/api/resources/contact?view=graph-rest-1.0 |
+| **BasicDataSet\_v0.Event\_v0** | Contiene información sobre los eventos del calendario de cada usuario.<br /><br />https://docs.microsoft.com/en-us/graph/api/resources/event?view=graph-rest-1.0 |
+| **BasicDataSet\_v0.Message\_v0** | Contiene información sobre los mensajes del buzón de cada usuario.<br /><br />https://docs.microsoft.com/en-us/graph/api/resources/message?view=graph-rest-1.0 |
+| **BasicDataSet\_v0.SentItem\_v0** | Contiene información sobre los mensajes enviados por cada usuario.<br /><br />https://docs.microsoft.com/en-us/graph/api/resources/message?view=graph-rest-1.0 |
+| **BasicDataSet\_v0.User\_v0** | Contiene información de usuarios.<br /><br />https://docs.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0 |
+| **BasicDataSet\_v0.MailboxSettings\_v0** | Contiene información de la configuración del buzón de cada usuario<br /><br />https://docs.microsoft.com/es-es/graph/api/user-get-mailboxsettings?view=graph-rest-1.0 |
+| **BasicDataSet\_v0.MailFolder\_v0** | Contiene información sobre las carpetas del buzón de cada usuario<br /><br />https://docs.microsoft.com/en-us/graph/api/resources/mailfolder?view=graph-rest-1.0 |
+
+
+
+
+**Preparando el entorno**
+
+Antes de empezar a utilizar Graph Data Connect debemos realizar una serie de pasos para poder configurar el entorno:
+
+1.       Crear un grupo de aprobadores de solicitudes de petición de datos: Todas las peticiones de datos de Office 365 a través de Graph Data Connect necesita que un usuario las apruebe, por lo que lo primero que tenemos que hacer es crear un grupo de aprobadores de estas solicitudes. Este grupo que creemos debe ser un grupo de seguridad habilitado para correo.
+
+Una vez creado el grupo tenemos que añadir los usuarios aprobadores de estas peticiones, por lo que añadiremos algún usuario a este grupo. Estos usuarios deben tener el rol de Administrador Global en Office 365 y deben tener activada la autenticación multifactor. En caso de no ser así, cuando se apruebe la solicitud, dará un error
+
+2.       Activar Graph Data Connect en el tenant de Office 365: Para poder utilizar Graph Data Connect primero debemos activar el servicio. Para ello accedemos al Centro de Administración de Microsoft 365 ([https://admin.microsoft.com](https&#58;//admin.microsoft.com/)) y dentro de Configuración -&gt; Servicios y complementos selecciona Versión preliminar de la conexión de datos de Microsoft Graph
+
+![Imagen 1.- Acceso a la activación de Graph Data Connect.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image1.png)
+
+Activa el servicio y selecciona el grupo de aprobadores que hemos creado en el paso anterior.
+
+![Imagen 2.- Activación de Microsoft Graph Data Connect.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image2.png)
+
+Con estos pasos ya tendríamos configurado nuestro entorno para poder utilizar Graph Data Connect.
+
+**Extrayendo datos de Office 365 a un blob de Azure Storage**
+
+1. Crear aplicación en Azure AD: Lo primero que tenemos que hacer es crear una aplicación en Azure AD que se utilizará como contexto de seguridad en la extracción de los datos. Para ello accederemos al portal de Azure ([https://portal.azure.com](https&#58;//portal.azure.com/)) y dentro de Azure Active Directory -&gt; Registro de aplicaciones seleccionamos Nuevo registro de aplicaciones
+
+
+![Imagen 3.- Creación de una aplicación en Azure AD.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image3.png)
+
+En la siguiente pantalla pondremos un nombre a la aplicación, como tipo de aplicación seleccionamos Aplicación web o API y pondremos como url de inicio de sesión https://[tenant].onmicrosoft.com/[aplicacion].
+
+![Imagen 4.- Datos de registro de la aplicación en Azure AD.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image4.png)
+
+Copia el Id de aplicación, lo necesitaremos más adelante:
+
+![Imagen 5.- Id. De Aplicación.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image5.png)
+
+Ahora necesitamos crear una clave para la aplicación, para ello dentro de la aplicación que hemos creado vamos a Configuración -&gt; Claves y creamos una nueva clave. Copia la clave que se genera ya que sólo se muestra cuando se genera y después no podrás recuperarla.
+
+![Imagen 6.- Generación de la clave para la aplicación.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image6.png)
+
+Tienes que asegurarte que la aplicación tiene propietario, para ello vete a Propietarios y asegúrate que tiene un propietario y ese usuario es Administrador Global dentro de Office 365. Si no es así añádelo a la lista de propietarios.
+
+![Imagen 7.- Configuración de los propietarios de la aplicación.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image7.png)
+
+
+
+2. Crear Azure Storage Blob: Ahora debemos crear un blob de Azure Storage para almacenar los datos que vamos a extraer de Office 365. Para ello accedemos al portal de Azure ([https://portal.azure.com](https&#58;//portal.azure.com/)) y creamos un nuevo recurso de tipo Cuenta de almacenamiento: blob, archivo, tabla, cola. En la siguiente pantalla seleccionamos la suscripción, grupo de recursos y añadimos los siguientes valores:
+
+- Nombre de la cuenta de almacenamiento: nombre único que pondremos al storage.
+- Ubicación: Oeste de Europa.
+- Rendimiento: Estándar.
+- Tipo de cuenta: BlobStorage.
+- Replicación: Almacenamiento con redundancia local (LRS).
+
+
+Una vez creado el storage debemos dar permisos de contribución a la aplicación que hemos creado antes. Para ello dentro del storage que hemos creado vamos a Control de acceso (IAM) y Agregar asignación de roles
+![Imagen 8.- Asignación de roles al Blob Storage.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image8.png)
+
+Añadimos los siguientes valores:
+
+- Rol: Colaborador de datos de blobs de almacenamiento.
+- Asignar acceso a: Usuario, grupo o entidad de servicio de Azure AD.
+- Seleccionar: seleccionamos la aplicación que hemos creado en el paso anterior.
+
+
+Ahora necesitamos un nuevo contenedor en el storage, para ello dentro de la cuenta de almacenamiento seleccionamos Blobs y añadir contenedor
+
+![Imagen 9.- Creación del contenedor en el Storage.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image9.png)
+
+Añadimos un nombre al contenedor y dentro de Nivel de acceso público seleccionamos Privada (sin acceso anónimo). Guardamos el contenedor y ya tendríamos preparado el contenedor para almacenar la información que vamos a obtener de Office 365.
+
+3. Crear Azure Data Factory Pipeline: Una vez que hemos creado la aplicación en Azure AD y el contenedor crearemos un pipeline en Azure Data Factory para extraer la información de Office 365.
+
+Para ello dentro del portal de Azure creamos un nuevo Azure Data Factory, introducimos el nombre, suscripción, grupo de recursos, región y nos aseguramos de que sea de tipo Data Factory (V2). Una vez creado selecciona Crear y supervisar para acceder al editor de Azure Data Factory.
+
+![Imagen 10.- Creación del Azure Data Factory.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image10.png)
+
+En el menú seleccionamos Author y creamos un nuevo pipeline.
+
+![Imagen 11.- Creación del Pipeline.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image11.png)
+
+Dentro del pipeline añadimos una nueva actividad Copy Data:
+
+![Imagen 12.- Añadiendo una actividad “Copy Data”.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image12.png)
+
+Ahora debemos configurar el origen y destino de la copia, para ello seleccionamos la actividad y en el panel inferior seleccionamos Source.
+
+![Imagen 13.- Configuración del origen y destino de la copia.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image13.png)
+Pulsamos sobre el botón New para añadir un nuevo origen y seleccionamos Office 365 (Preview)
+
+![Imagen 13.- Selección del dataset de tipo Office 365 (Preview).](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image14.png)
+
+Al insertar se abrirá una nueva pestaña en la que podemos configurar el dataset. Dentro de esa pestaña, en el panel inferior, seleccionamos Connection y pulsamos sobre New para añadir una nueva conexión.
+
+![Imagen 14.- Acceso a la configuración del Dataset.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image15.png)
+
+En esta pantalla es donde vamos a configurar la conexión para que utilice la aplicación de Azure AD que hemos creado anteriormente, por lo que añadiremos el Id de aplicación dentro de Service Principal ID y la clave que hemos generado en Service Principal Key.
+
+![Imagen 15.- Parámetros de configuración del Dataset.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image16.png)
+
+Una vez creada la conexión debemos seleccionar que datos queremos copiar, los seleccionaremos en el desplegable Table.
+
+![Imagen 16.- Selección de los datos a copiar.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image17.png)
+
+Una vez creada la conexión vamos a la pestaña Schema y pulsamos sobre Import Schema. Se importará el schema de los datos que se van a obtener y es en esta pantalla donde podremos elegir qué información queremos sacar.
+
+![Imagen 17.- Importación del esqumea.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image18.png)
+
+Con esto ya tenemos configurado el origen de la copia, ahora nos queda configurar el destino. Volvemos a la pestaña del pipeline y seleccionamos Sink.
+
+![Imagen 18.- Configuración del destino.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image19.png)
+
+Añadimos un nuevo destino y seleccionamos Azure Blob Storage. Al igual que cuando configuramos el origen, se abrirá una nueva pestaña para configurar la conexión al destino.
+
+En el panel inferior añadimos un nuevo Linked Service.
+
+![Imagen 18.- Añadiendo un nuevo servicio vinculado.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image20.png)
+
+En esta pestaña configuramos la conexión. Para la conexión utilizaremos la aplicación de Azure AD que hemos creado antes por lo que seleccionaremos como método de autenticación Service Principal y añadiremos el Id de aplicación y la clave que hemos generado antes. También seleccionaremos la cuenta de almacenamiento que hemos generado en pasos anteriores.
+
+![Imagen 19.- Parámetros de configuración del nuevo Linked Service.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image21.png)
+
+Ahora debemos seleccionar el contenedor de destino para ello pulsamos Browse dentro de File Path y seleccionamos el contenedor que hemos creado antes.
+
+![Imagen 20.- Selección del contenedor de destino.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image22.png)
+
+Los datos que devuelve se envían en formato JSON, por lo que tendremos que seleccionamos JSON Format en el desplegable File Format y Set of objects en el desplegable File pattern.
+
+![Imagen 21.- Selección del formato de los datos.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image23.png)
+
+![Imagen 22.- Validación del Pipeline y publicación.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image24.png)
+
+4. Ejecutar Azure Data Factory Pipeline: Ya tenemos creado el pipeline para copiar los datos, ahora vamos a ejecutarlo y probar que funciona correctamente. Para esto dentro de la pestaña del pipeline vamos a Trigger y seleccionamos Trigger Now​
+
+![Imagen 23.- Ejecución del Azure Data Factory Pipeline.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image25.png)
+
+Pulsamos sobre finalizar y comenzará la ejecución del pipeline. Dentro de la opción Monitor podremos ver la ejecución de las actividades del pipeline. La primera vez que ejecutamos el pipeline, pedirá consentimiento para obtener los datos. El proceso se quede en espera hasta que un usuario que pertenezca al grupo que hemos creado al principio autorice esa petición.
+
+![Imagen 24.- Monitorización de la ejecución del Azure Data Factory Pipeline.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image26.png)
+
+En este punto se envía un e-mail al aprobador informando que existe una petición de acceso a datos que tiene que aprobar.​
+
+![Imagen 25.- E-Mail enviado al aprobador.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image27.png)
+
+Para aprobar o rechazar esta solicitud el usuario debe acceder a la página de Privileged Access Management (PAM). Para acceder tiene que ir a [https://portal.office.com/adminportal/home#/Settings/PrivilegedAccess](https&#58;//portal.office.com/adminportal/home#/Settings/PrivilegedAccess)
+
+En esta página se muestra todas las solicitudes realizadas. Seleccionamos la petición que nos interesa y aprobamos.
+
+![Imagen 26.- Listado de solicitudes realizadas en la configuración de PAM.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image28.png)
+
+Una vez aprobada el flujo del pipeline continuará. Una vez que el pipeline termina la ejecución revisamos que los datos se han copiado correctamente. Para ello iremos al contenedor que hemos creado y vemos los datos que se han copiado.
+
+![Imagen 26.- Visualización de los datos copiados.](../../../images/numero38/trae-los-datos-de-office-365-a-tus-aplicaciones-con-microsoft-graph-data-connect/image29.png)
+
+**Conclusión**
+
+Está claro que en Office 365 se almacena muchísima información sobre sus usuarios, como se comunican, interactúan entre ellos, etc. Microsoft Graph Data Connect nos da la posibilidad de extraer esos datos y crear aplicaciones para explotarlos.
+
+Aún está en fase de preview pública y necesita mejorar, sobre todo echo en falta poder sacar otra información además de los datasets que hoy en día están disponibles, pero esperemos que sigan añadiendo más.
+
+Podéis encontrar más información dentro de su GitHub, [https://github.com/OfficeDev/MS-Graph-Data-Connect](https&#58;//github.com/OfficeDev/MS-Graph-Data-Connect)
+
+
+
+**Rubén Ramos Mateo**
+ Technical Architect en Ricoh España
+ [ruben\_rm@outlook.com](mailto&#58;ruben_rm@outlook.com)
+

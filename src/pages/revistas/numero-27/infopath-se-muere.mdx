@@ -1,0 +1,62 @@
+---
+title: ¿InfoPath se muere?
+slug: /revistas/numero-27/infopath-se-muere
+date: 10/02/2016
+magazine: 27
+author: Gonzalo Marcos Ansoain
+authorId: gonzalo-marcos-ansoain
+keywords: ['Infopath','Forms']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+​Por todos es ya conocido que InfoPath tiene sus días contados. Con sus amantes y detractores, hay quien no ve el momento de que InfoPath desaparezca definitivamente, mientras que para otros es la peor de las noticias. Sea como fuere, InfoPath tenía su espacio dentro del ecosistema SharePoint y Office y para muchos supone un hueco que habrá que cubrir a corto-medio plazo. La pregunta es, por tanto, cómo reemplazarlo. Aquí os dejo una breve reflexión sobre por dónde empezar a buscar esa pieza de recambio.
+
+**Desde el principio: ¿Qué es realmente un formulario?**
+
+Antes de nada, establezcamos las bases y definamos bien qué es un formulario y para qué lo utilizamos. Un formulario o form puede significar varias cosas, dependiendo a quién se le pregunte. A día de hoy, según mi experiencia, el concepto formulario tiene cuatro tipos de uso.
+
+- *Documento Estructurado*: Un formulario puede ser entendido como un tipo de documento en el que la información mostrada es información almacenada en listas de SharePoint. Digamos que sería una manera elegante de mostrar los datos de una lista, más orientada a formato documento.
+- *Data UI o Interfaz gráfica de acceso a datos:* Nuestros datos pueden estar contenidos en una base de datos, una lista SharePoint o cualquier otro repositorio. Un formulario nos permite acceder a cada fila/tabla de una base de datos o a cada elemento de una lista y mostrarlo de una manera mucho más atractiva para el usuario; más fácil de entender y de editar.
+- *Interfaz de Solución:*En general, toda aplicación, sea código personalizado, un workflow o un entorno CRM, necesitara mostrar datos al usuario y recibir datos del de alguna manera. El formulario, en esta casuística, será la interfaz gráfica de estos escenarios.
+- *Aplicación Standalone:*Algunos formularios pueden ser un documento y una solución completa en sí. En estos casos, el formulario almacena datos, recoge/envía otros datos, los transforma, hace cálculos con ellos y finalmente muestra el resultado. Todo ello puede estar contenido en el mismo formulario.
+
+
+**Entendido, entonces ¿InfoPath para qué servía?**
+
+Con todo esto en mente, analicemos cómo se ha venido utilizando InfoPath en todos estos años:
+
+InfoPath fue originalmente concebido como una herramienta de escritorio para crear documentos estructurados. En aquel tiempo (la era Office 2003), se apostaba por un modelo de trabajo basado en herramientas cliente. En 2007, InfoPath podía ser usado para crear formularios para workflows (interfaces de solución) y, en 2010, InfoPath añadió soporte para conectar datos de otras listas SharePoint en los formularios.
+
+En resumen, durante su ciclo de vida InfoPath ha ido "evolucionando" (si se puede considerar evolución), tratando de albergar todos los casos que veíamos anteriormente.
+
+**Pero, ¿realmente InfoPath servía para todo eso?**
+
+Aunque ya entramos en el terreno de valoraciones personales, intentemos ser objetivos: ¿Podemos decir que ha conseguido cumplir su función en todos estos casos? Veamos:
+
+- Utilizar InfoPath como interfaz de solución en teoría no parece mala idea, pero en realidad no hay nada en InfoPath Designer para controlar el resto de la solución, como puede ser el contexto de un workflow. Además, los recursos de la solución se tienen que desarrollar de forma independiente, de manera que, si se hace un cambio en los datos, en la lógica del workflow, etc. nos tenemos que asegurar de rediseñar el formulario acorde a estos cambios. Si, por desgracia, además se requiere código, cambiar estos formularios se convierte en una pesadilla.
+- Por esta razón, mucha gente que utilizaba InfoPath decidió que la mejor manera de evitar el problema anterior era llevar toda la lógica de la solución en el formulario y utilizar InfoPath para crear aplicaciones Standalone. En mi opinión, esto es un error. Y grave. Durante años nos han enseñado que el diseño de toda aplicación debe dividirse en tres capas: presentación, lógica y datos. La tecnología ha cambiado, pero creo que este modelo de diseño sigue siendo el adecuado. ¿Alguien de verdad considera que tener en el propio formulario toda la lógica de control y el acceso a datos es una buena idea? Espero que no. En cualquier caso, a los que estén en duda, les invito a intentar entender un formulario InfoPath con vistas, reglas de validación y código embebido; buena suerte y luego hablamos.
+- En cuanto a solución Data UI o interfaz de acceso a datos, tengo que decir que InfoPath no me parece tan mala solución, hace su trabajo si tenemos la posibilidad de usar los InfoPath Form Services, lo que requiere la licencia SharePoint Enterprise. Eso sí, espero que no sea este el único motivo de adquirirla.
+- Por último, para la generación de Documentos Estructurados, en realidad InfoPath es una gran herramienta. Es para lo que originalmente fue creado, eso sí, antes de que todos los documentos office pasasen a ser documentos XML en 2007.
+
+
+**Conclusión**
+
+¿Entonces, con todo esto en contexto, como reemplazamos InfoPath? Teniendo todo lo anterior en cuenta parece claro que lo que necesitamos no es un recambio o alternativa sino tres:
+
+- Si lo que necesitamos es una herramienta para diseñar formularios de apps en SharePoint mi recomendación es decantarse por algún producto vinculado a soluciones de workflow. Obviamente yo tengo mi favorito, pero este no es el ámbito. En general, todas las compañías dedicadas a soluciones de workflow proporcionan soluciones para la creación y edición de formularios. Si nuestras apps no tienen que ver con workflow entonces Visual Studio o Access son herramientas a considerar, por ejemplo.
+- Si lo que en realidad necesitamos es crear Documentos Estructurados basta decir que cualquier documento Word o Excel es ya un documento estructurado. Incluso los PDFs.
+- Por último, para tener una solución de Data UI o interfaz de acceso a datos las opciones son múltiples, el mismo Visual Studio nos puede servir.
+
+
+Sí, lo sé, he mencionado cuatro casos de uso y alternativa solo para tres. Creo que la mejor alternativa para los formularios como solución standalone es directamente no planteárselos, ganaremos todos en salud.
+
+
+
+**Gonzalo Marcos Ansoain**
+Nintex Technical Evangelist - EMEA
+

@@ -1,0 +1,149 @@
+---
+title: Integración continua en SharePoint con Team Services y PnP
+slug: /revistas/numero-30/integracion-continua-en-sharepoint-con-team-services-y-pnp
+date: 29/11/2016
+magazine: 30
+author: Luis Mañez
+authorId: luis-manez
+keywords: ['PnP','SharePoint Online','TFS','Team Services']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+![](../../../images/numero30/integracion-continua-en-sharepoint-con-team-services-y-pnp/image1.png)
+
+En el siguiente artículo veremos cómo podemos hacer uso del framework del<br />PnP junto a Visual Studio Team Services, para configurar una Build de<br />Integración Continua en proyectos de SharePoint. La mayor parte de lo comentado<br />en este artículo, es igualmente válido para SharePoint On Premises, si bien las<br />diferentes imágenes o fragmentos de código, están orientados a SharePoint<br />Online.
+
+**Entornos en proyectos SharePoint Online**
+
+Históricamente, y sobre todo a estas alturas, todos tenemos claro cómo<br />trabajar a nivel de entornos con SharePoint On Premises. Para entornos de<br />desarrollo, cada developer dispone de una Máquina Virtual (en su desktop,<br />hospedada en Azure, en algún servidor de la organización, etc.). Además,<br />existirá otra granja específica para Integración Continua y QA.
+
+Sin embargo, con la llegada de SharePoint Online, este modelo no es todo lo<br />válido que nos gustaría, y tenemos que buscar otras opciones. Mi recomendación<br />pasa por algo parecido a la siguiente imagen, que explicare justo debajo de<br />ella:
+
+![Imagen 1.- Modelo de desarrollo para SharePoint Online.](../../../images/numero30/integracion-continua-en-sharepoint-con-team-services-y-pnp/image2.png)
+
+Para el entorno de desarrollo, contaremos con una Tenant de Office 365, en<br />un plan que sea suficiente para el proyecto que estamos desarrollando (E3,<br />etc.). Dentro de esa tenant, asignaremos una Site Collection específica a cada<br />Developer, pudiendo incluso crear una Site Collection para cada<br />Developer-Modulo/Producto, en el caso de que nuestro proyecto sea muy grande y<br />este dividido en diferentes Modulos o Productos, como, por ejemplo, un Módulo<br />específico para Noticias, o para Búsqueda, o para Localizaciones, etc. Haciendo<br />uso de herramientas como Gulp, podemos hacer fácilmente que cada desarrollador,<br />“apunte” a la Site Collection propia, y los cambios de un desarrollador, no<br />afecten a los de otro. Para esta tenant de desarrollo, podemos contar<br />únicamente con una licencia valida, que compartirán todos los desarrolladores.
+
+Para el entorno de QA, tendremos una tenant diferente de Office 365. En<br />este caso recomiendo que el plan contratado sea el mismo que tendrá la tenant<br />de Producción. Además, como será el entorno para el equipo de QA, lo<br />aconsejable será tener distintas licencias/usuarios, para que al menos se<br />puedan probar los diferentes roles que necesita nuestro proyecto (al menos 3,<br />para poder hacer pruebas con un usuario Visitor, Contributor y Admin). En la<br />tenant de QA, crearemos una Site Collection para cada módulo: Raiz, News,<br />Offices… lo que necesite nuestro proyecto. Además, es muy importante que<br />consigamos un juego de datos muy similar al que nos encontraremos en<br />producción, ya que será vital para las pruebas. Para esto, el propio PnP puede<br />ser de utilidad, ya que las plantillas pueden contener datos de prueba para<br />insertar ítems en listas, archivos, etc.
+
+Finalmente, el paso de desarrollo a QA, estará totalmente automatizado<br />usando una Build de Team Services. Así, la build estará programada para que, o<br />bien cada cierto tiempo (i.e: diaria), o bien en cada commit al Control de<br />código, se ejecute la build, actualizando así el entorno de QA con los últimos<br />cambios desarrollados.
+
+**Configurando la Build de CI para SharePoint Online**
+
+**Nota**: Este articulo asume cierta familiarización con<br />el Framework PnP, de no ser así, puedes leer alguno de mis artículos previos<br />referentes al PnP en la web de CompartiMOSS. Además, nada de esto es válido<br />para proyectos SharePoint en modo Farm Solutions.
+
+Llegados a este punto, veamos cómo podemos configurar una Build en Team<br />services que despliegue nuestra solución en una tenant de SharePoint Online.<br />Antes de continuar, para este ejemplo y las imágenes a continuación, podéis<br />descargar el siguiente proyecto desde mi repositorio de GitHub: [https://github.com/luismanez/sp-saturday-barcelona-2016](https&#58;//github.com/luismanez/sp-saturday-barcelona-2016).
+
+Antes de nada, lo primero que necesitamos en la solución, es un proyecto de<br />consola que utilice el Framework del PnP para desplegar nuestra plantilla o<br />plantillas. Esta acción es muy sencilla usando el PnP, y aquí tenéis el snippet<br />de código para hacerlo:
+
+![](../../../images/numero30/integracion-continua-en-sharepoint-con-team-services-y-pnp/image3.png)
+
+Llamaremos a esta aplicación de consola desde nuestra build, para lanzar el<br />proceso de provisioning remoto a través del PnP.
+
+**Nota**: Lo idea en este punto, seria utilizar los<br />propios comandos PowerShell del PnP. Sin embargo, dichos comandos necesitan una<br />instalación (o registro manual) dentro de la máquina. Desafortunadamente, en el<br />momento de escribir este artículo, no parece que haya manera de hacer algo así<br />en la maquina donde se ejecuta el Agente cloud, por lo que necesitamos ejecutar<br />nuestra propia aplicación para aplicar la plantilla PnP.
+
+**Creando una nueva Build en Team Services**
+
+Primero de todo, al pulsar en el botón de Nueva Build, tenemos disponibles<br />diferentes plantillas, según el tipo de proyecto que tengamos. Inicialmente,<br />trabajaremos con la plantilla de Visual Studio.
+
+![Imagen 1.- Creación de una definición de build.](../../../images/numero30/integracion-continua-en-sharepoint-con-team-services-y-pnp/image4.png)
+
+**Compilando nuestra solución de VS**
+
+Nuestro siguiente paso, será elegir con que control de código estamos<br />trabajando (GitHub, VSTS, Subversion…), así como la rama por defecto que<br />utilizaremos. Además, seleccionaremos el tipo de Agente que queremos utilizar.<br />El Agente es donde toda la magia sucede, y tenemos 2 opciones, podemos usar un<br />servidor local como Agente (este será el caso de trabajar con SharePoint On<br />Premises), o bien usar un Agente hospedado en el mismo Team Services (esto se<br />conoce con el nombre de Cloud Agent, ya que como TS, correrá en la nube).
+
+![Imagen 2.- Selección del gestor de código fuente.](../../../images/numero30/integracion-continua-en-sharepoint-con-team-services-y-pnp/image5.png)
+
+Una vez creada la Build, nuestro siguiente paso será configurar las<br />diferentes acciones a ejecutar.
+
+Nuestra primera acción, y que vendrá configurada por defecto por haber<br />elegido la plantilla de VS, será la de restaurar todos los paquetes Nuget<br />necesarios en nuestra Solución.
+
+![Imagen 3.- Restauración de los paquetes de NuGet.](../../../images/numero30/integracion-continua-en-sharepoint-con-team-services-y-pnp/image6.png)
+
+Dicha tarea no requiere ninguna configuración adicional a la que trae ya<br />por defecto (básicamente le decimos que archivo de tipo VS Solution queremos<br />utilizar). El siguiente Build step, será simplemente compilar todos los<br />proyectos de nuestra solución. Para ello, la plantilla también nos ha<br />configurado un Step de Build Solution.
+
+![Imagen 4.- Step de Build Solution generado en la plantilla.](../../../images/numero30/integracion-continua-en-sharepoint-con-team-services-y-pnp/image7.png)
+
+En nuestro caso, le<br />especificamos la Solution que queremos utilizar:
+
+![Imagen 5.- Configuración de la solución a utilizar.](../../../images/numero30/integracion-continua-en-sharepoint-con-team-services-y-pnp/image8.png)
+
+**Ejecutando Tareas de Gulp**
+
+El siguiente paso, será ejecutar ciertas tareas Gulp que tenemos en nuestro proyecto. Os aconsejo que reviséis el código del ejemplo utilizado en el artículo. Allí veréis que hacemos uso de Gulp para ciertas tareas, como por ejemplo, concatenar todos los ficheros JS en un único .min.js, y además, comprimirlo para mejorar el rendimiento. Además, tenemos otras tareas Gulp, como aplicar reemplazos de tokens en las plantillas XML del PnP, compilar SASS a CSS, etc.
+
+Por lo tanto, el primer paso para usar Gulp en nuestra Build, será restaurar los paquetes requeridos por Gulp. Para ello, usaremos el Step de NPM
+
+![Imagen 6.- Restauración de los paquetes de Gulp.](../../../images/numero30/integracion-continua-en-sharepoint-con-team-services-y-pnp/image9.png)
+
+Y configuraremos el Step para que apunte a nuestro proyecto (Working<br />directory) donde hacemos uso de Gulp:
+
+![Imagen 7.- Configuración del Step para hacer uso de Gulp.](../../../images/numero30/integracion-continua-en-sharepoint-con-team-services-y-pnp/image10.png)
+
+Una vez restaurados los paquetes que necesita Gulp, crearemos un nuevo Step<br />de Gulp:
+
+![Imagen 8.- Creación del nuevo Step de Gulp.](../../../images/numero30/integracion-continua-en-sharepoint-con-team-services-y-pnp/image11.png)
+
+Y lo configuraremos para ejecutar la tarea de Gulp que queremos, así como<br />la ubicación del proyecto que se require de Gulp:
+
+![Imagen 9.- Configuración del Step de Gulp.](../../../images/numero30/integracion-continua-en-sharepoint-con-team-services-y-pnp/image12.png)
+
+**Remote Provisioning usando el PnP**
+
+El último paso, será utilizar nuestra aplicación de consola para lanzar el<br />Provisioning remoto de nuestra plantilla PnP. Para ello, utilizaremos el Build<br />Step del Command Line:​
+
+![Imagen 10.- Uso del Build Step de Command Line.](../../../images/numero30/integracion-continua-en-sharepoint-con-team-services-y-pnp/image13.png)
+
+Y lo configuraremos para usar la aplicación de consola de nuestra solution,<br />además de pasar varios argumentos necesarios para la consola:
+
+![Imagen 11.- Configuración del Step de Command Line](../../../images/numero30/integracion-continua-en-sharepoint-con-team-services-y-pnp/image14.png)
+
+Donde:
+
+·       **Tool**: Es la ubicación de la aplicación de Consola ya<br />compilada en un paso previo. Aquí podemos hacer uso de diferentes Tokens que<br />nos proporciona Team Services. En este caso, necesitaremos:
+
+*$(Build.Repository.LocalPath)\SPSBcn.GulpAndPnp.DeployTool\bin\Release\SPSBcn.GulpAndPnp.DeployTool.exe*
+
+·      **Arguments**: Diferentes parámetros que necesita la aplicación de consola. En nuestro<br />caso, necesitamos los datos de conexión a SharePoint: Url, Usuario, Password, así<br />como la ubicación del fichero XML con la plantilla PnP.
+
+*$(SharePointUrl)<br />$(SharePointUser) $(SharePointPassword)<br />$(Build.Repository.LocalPath)\SPSBcn.GulpAndPnp.Package\dist\src\pnp\ProvisioningTemplate.Package.xml*
+
+En este caso, además de hacer uso de los Tokens predefinidos en Team<br />Services, hacemos uso de Variables definidas a nivel de Build. Podemos<br />configurarlas desde la Tab de Variables:
+
+![Imagen 12.- Parámetros requeridos en la aplicación de consola.](../../../images/numero30/integracion-continua-en-sharepoint-con-team-services-y-pnp/image15.png)
+
+Fijaros como podemos marcar una variable como tipo “Password” (icono del<br />candado), de tal forma que el valor no aparece en pantalla, pero Team Services<br />lo descifrará y enviará en la ejecución del Step.
+
+**Build Triggers**
+
+Como último paso, configuraremos de qué modo queremos ejecutar la Build.<br />Para ello iremos a la tab de Triggers, y elegiremos la opción que mejor se<br />adapte a nuestras necesidades:
+
+![Imagen 13.- Configuración de la ejecución de la build.](../../../images/numero30/integracion-continua-en-sharepoint-con-team-services-y-pnp/image16.png)
+
+Con estos sencillos pasos, y siempre haciendo uso del framework del PnP,<br />podemos tener rápidamente configurado un entorno de Integración Continua para<br />proyectos de SharePoint Online.
+
+**Seguimiento del programa PnP**
+
+Recordad las siguientes maneras de estar al día con el programa PnP, ya que<br />ha habido cambios respecto a lo publicado en artículos anteriores:
+
+·       **MS Tech<br />Community**: Pretende reemplazar la<br />red de Yammer previa. [https://techcommunity.microsoft.com/t5/SharePoint-Developer/bd-p/SharePointDev](https&#58;//techcommunity.microsoft.com/t5/SharePoint-Developer/bd-p/SharePointDev)
+
+·       **Canal<br />PnP en YouTube**: Reemplazando también<br />el canal existente en Channel 9. [https://www.youtube.com/channel/UC\_mKdhw-V6CeCM7gTo\_Iy7w](https&#58;//www.youtube.com/channel/UC_mKdhw-V6CeCM7gTo_Iy7w)
+
+·      **Blog del PnP**: [http://dev.office.com/blogs](http&#58;//dev.office.com/blogs)
+
+·       **Community<br />call**: [https://github.com/OfficeDev/PnP/wiki/Community-call](https&#58;//github.com/OfficeDev/PnP/wiki/Community-call)
+<br />Apunta esta cita en tu calendario. Cada mes el equipo de PnP hace un meeting<br />donde informa del estado del programa, el roadmap, muestra ejemplos, etc.
+
+
+
+**Luis<br />Mañez**
+
+**SharePoint / Cloud Solutions Architect en ClearPeople LTD**
+<br />@luismanez
+[http://geeks.ms/lmanez/](http&#58;//geeks.ms/lmanez/)
+

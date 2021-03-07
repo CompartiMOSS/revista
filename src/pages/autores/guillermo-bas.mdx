@@ -1,0 +1,23 @@
+---
+id: guillermo-bas
+title: Guillermo Bas
+jobTitle: SharePoint Developer en SolidQ
+slug: /autores/guillermo-bas
+photo: ../../../images/Autores/GuillermoBas.png
+twitter: https://twitter.com/guillebas
+blog: http://blogs.solidq.com/sharepoint
+type: author
+content: >-
+    ​Guillermo tiene más de cuatro años de experiencia con SharePoint, comenzó trabajando con la versión 2007 en varias empresas y actualmente trabaja con las versiones 2010 y 2013 en SolidQ. Además posee los títulos MCTS en desarrollo para WSS 3.0, Administración de SharePoint 2010 y MCPD SharePoint Developer 2010. Actualmente trabaja activamente con SharePoint Server 2010, 2013 y Office 365 además de ser colaborador habitual en los foros de desarrollo de SharePoint en MSDN (en inglés) y en el blog del SharePoint Team de SolidQ (http://blogs.solidq.com/sharepoint). Además es co-autor del libro SharePoint 2013 Apps: el nuevo modelo de desarrollo, descargable de forma gratuita http://bit.ly/SPpub.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "guillermo-bas"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

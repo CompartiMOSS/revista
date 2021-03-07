@@ -1,0 +1,24 @@
+---
+id: javier-villegas
+title: Javier Villegas
+jobTitle: IT Director at MSC Mediterranean Shipping Company - Microsoft MVP Data Platform
+slug: /autores/javier-villegas
+photo: ../../../images/Autores/javier-villegas.png
+twitter: https://twitter.com/javier_vill
+blog: http://sql-javier-villegas.blogspot.com/
+type: author
+content: >-
+    Liderar y coordinar sector de infraestructura y tecnología. Dirigir y gestionar proyectos relacionados con la tecnología informática. Utilizar y desarrollar mis aptitudes de investigación, decisión y liderazgo así como también mi amplia formación y experiencia adquirida en el área de IT.
+    <br/> <br />
+    Specialties: SQL Server / Windows Server / Networking / Infrastructura / Disaster Recovery 
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "javier-villegas"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

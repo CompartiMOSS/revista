@@ -1,0 +1,23 @@
+---
+id: david-sanchez-aguilar
+title: David Sánchez Aguilar
+jobTitle: Consultor y Desarrollador de Tecnologías Microsoft
+slug: /autores/david-sanchez-aguilar
+photo: ../../../images/Autores/DavidSanchez.jpg
+twitter: https://twitter.com/DavidSanchezA
+blog: http://davidsanchezaguilar.wordpress.com
+type: author
+content: >-
+    David Sánchez Aguilar, cuenta con varias certificaciones de Microsoft como MCP, MCTS, MCITP, Microsoft Specialist y Microsoft Certified Trainer. Graduado de la carrera de Ingeniería en Sistemas Computacionales de la Universidad Latina de Costa Rica. Cuenta con más de 5 años de experiencia trabajando con tecnologías Microsoft. Ha participado en distintos proyectos en Latinoamérica y Norteamérica con plataformas como SharePoint, Team Foundation, Office 365, SQL Server, System Center y también plataformas de desarrollo basadas en .NET Framework. Es instructor de tecnologías Microsoft en diferentes centros de capacitación en Costa Rica.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "david-sanchez-aguilar"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

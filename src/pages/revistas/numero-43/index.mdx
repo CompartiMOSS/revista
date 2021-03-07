@@ -1,0 +1,50 @@
+---
+title: Número 43 - Marzo 2020
+slug: /revistas/numero-43/
+date: 2020-03-29
+magazine: 43
+type: number
+content: >-
+    Un año más desde CompartiMOSS seguimos al pie del cañón comprometidos con nuestro objetivo de ser la revista de referencia en tecnologías y productos de Microsoft, aunque focalizados en Azure, Microsoft 365 y todas las plataformas asociadas (Microsoft Teams, Power Platform o SharePoint Online). En este nuevo año, en el que parece que se avecina una nueva crisis económica, Microsoft como el resto de los grandes jugadores del mercado del Software se enfocará cada vez más en el desarrollo de servicios y soluciones de Inteligencia Artificial disponibles y asentados sobre sus plataformas Cloud: Azure, Microsoft 365 y Dynamics 365.
+    <br /><br />
+    Como siempre, este nuevo número de la revista ha sido posible gracias a la inestimable colaboración de nuestros autores cuyo apoyo y dedicación número tras número resulta fundamental. Esperamos que los artículos incluidos en el número 43 sean de vuestro agrado y desde ya nos ponemos a trabajar en el próximo número que verá la luz en junio de 2020.
+    <br /><br />
+    <b>El Equipo Editorial de CompartiMOSS​​​​​​​​</b>
+---
+
+import LayoutNumber from '../../../components/layout-number'
+import { graphql } from "gatsby";
+import ViewArticles from "../../../components/view-articles"
+import DownloadPDF from "../../../components/download-pdf"
+import ViewPartners from '../../../components/view-partners'
+import NumberHeader from '../../../components/number-header'
+
+<NumberHeader frontmatter={props.pageContext.frontmatter} />
+
+
+<ViewArticles articles={props.data.allMdx} title="Índice" />
+
+<ViewPartners />
+
+export const pageQuery = graphql`
+    query {
+        allMdx(    
+            sort: {
+                fields: frontmatter___title
+            }
+            filter: {
+                frontmatter: {magazine: {eq: 43}, type: {ne: "number"}}
+            }) 
+            {
+                edges {
+                    node {
+                        frontmatter {
+                            title, author, slug, authorId
+                        }      
+                    }
+                }
+            }
+    }
+`
+
+export default LayoutNumber

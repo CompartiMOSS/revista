@@ -1,0 +1,23 @@
+---
+id: jose-angel-bolano
+title: José Ángel Bolaño
+jobTitle: Solutions Architect
+slug: /autores/jose-angel-bolano
+photo: ../../../images/Autores/JoseAngelBola%c3%b1o.png
+twitter: https://twitter.com/noradrex
+blog: https://jbolano.wordpress.com/
+type: author
+content: >-
+    Llevo más de 10 años solucionando problemas a través de la tecnología. Desde 2008, con los primeros pasos de Microsoft hacia la nube, trabajo principalmente con los servicios de Office 365 y Azure para dar respuesta a las necesidades de todo tipo de clientes, tanto públicos como privados. Actualmente trabajo en Madrid, para NexTReT, ayudando a generar nuevos productos basados en la nube de Microsoft y otros proveedores de servicios más especializados.​
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "jose-angel-bolano"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

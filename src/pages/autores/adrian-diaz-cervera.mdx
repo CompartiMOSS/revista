@@ -1,0 +1,23 @@
+---
+id: adrian-diaz-cervera
+title: Adrián Díaz
+jobTitle: MVP SharePoint Server
+slug: /autores/adrian-diaz-cervera
+photo: ../../../images/Autores/AdrianDiaz.png
+twitter: https://twitter.com/AdrianDiaz81
+blog: http://blogs.encamina.com/desarrollandosobresharepoint/
+type: author
+content: >-
+    ​Adrián Díaz es Ingeniero de Informática por la Universidad Politécnica de Valencia, MCPD de SharePoint 2010, MAP y MCC 2012. Cofundador del grupo de usuarios de SharePoint de Levante LevaPoint. Lleva desarrollando con tecnologías Microsoft más de 10 años y desde hace 3 años está centrado en el desarrollo sobre SharePoint. Actualmente trabaja en el departamento de desarrollo de ENCAMINA una consultora informática de Valencia que se destaca por realizar soluciones basadas en Tecnología Microsoft, principalmente en SharePoint.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "adrian-diaz-cervera"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

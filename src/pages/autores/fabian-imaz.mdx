@@ -1,0 +1,24 @@
+---
+id: fabian-imaz
+title: Fabian Imaz
+jobTitle: MVP SharePoint Server
+slug: /autores/fabian-imaz
+photo: ../../../images/Autores/FabianImaz.jpg
+twitter: https://twitter.com/FabianImaz
+blog: http://geeks.ms/blogs/fabianimaz/default.aspx
+type: author
+director: true
+content: >-
+    Fabián Imaz, MVP de SharePoint Server trabaja en el mundo del desarrollo de software desde hace más de 10 años, teniendo la suerte de trabajar en distintas arquitecturas y tecnologías Microsoft. Pertenece a la firma Siderys,
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "fabian-imaz"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

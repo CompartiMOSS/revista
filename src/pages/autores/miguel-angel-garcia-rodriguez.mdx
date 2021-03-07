@@ -1,0 +1,23 @@
+---
+id: miguel-angel-garcia-rodriguez
+title: Miguel Angel García Rodríguez
+jobTitle: Consultor Analista SharePoint
+slug: /autores/miguel-angel-garcia-rodriguez
+photo: ../../../images/Autores/MiguelGarcia.jpg?RenditionID=5
+twitter: 
+blog: http://es.linkedin.com/pub/miguel-angel-garcia-rodriguez/34/481/108
+type: author
+content: >-
+    ​Profesor de Matemáticas y Analista de Sistemas. Amplia experiencia en productos Microsoft en sus diferentes versiones: SQL Server, Dynamics NAV, SharePoint. Actualmente mi trabajo diario está relacionado con el análisis de soluciones en entornos colaborativos para entidades bancarias, apoyo en los despliegues y servicios de integración.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "miguel-angel-garcia-rodriguez"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

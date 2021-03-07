@@ -1,0 +1,23 @@
+---
+id: santiago-porras-rodriguez
+title: Santiago Porras Rodríguez
+jobTitle: UX Developer en SolidQ
+slug: /autores/santiago-porras-rodriguez
+photo: ../../../images/Autores/Santiago-Porras-Rodriguez.jpg
+twitter: https://twitter.com/saintwukong
+blog: http://geeks.ms/blogs/santypr
+type: author
+content: >-
+    ​UX Developer, experto en desarrollo de experiencias de usuario de soluciones de cualquier ámbito y tecnología, actualmente trabajando en ENCAMINA como Innovation Team Leader. Enamorado de SharePoint desde que pude tomar contacto por primera vez, me apasionan las nuevas tecnologías y actualmente mi interés se "centra" en Microsoft Azure, ASP.NET Core, Xamarin y HTML5. Además, compagino mi vida laboral con la difusión de conocimientos y ayuda tecnológica mediante mi participación en TenerifeDev, grupo de usuarios de .NET de Tenerife, como moderador de los foros de SharePoint en MSDN y TechNet y, escribiendo artículos tanto en mi blog personal en Geeks, como algunas veces aquí en la revista digital CompartiMOSS . También podrás encontrarme en Twitter “microparticipando” con el usuario @saintwukong
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "santiago-porras-rodriguez"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

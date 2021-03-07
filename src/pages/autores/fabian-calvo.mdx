@@ -1,0 +1,23 @@
+---
+id: fabian-calvo
+title: Fabián Calvo Valmorisco
+jobTitle: Gerente de Servicios Cloud
+slug: /autores/fabian-calvo
+photo: ../../../images/Autores/FabianCalvo.jpg
+twitter: https://twitter.com/rainfc
+blog: http://blogs.encamina.com/sextosharepoint/
+type: author
+content: >-
+    ​Fabián Calvo trabaja actualmente como Gerente de Servicios Cloud en Encamina, donde también ha ejercido como Team Leader del área de SharePoint centrado en diseño de Infraestructuras. A lo largo de su carrera ha trabajado en consultoría internacional desde el año 2002, y en varias gold partner de Microsoft, como arquitecto y consultor de SharePoint desde 2006. Apasionado de las tecnologías Microsoft, imparte conferencias y colabora en foros técnicos.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "fabian-calvo"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

@@ -1,0 +1,23 @@
+---
+id: robert-bermejo
+title: Robert Bermejo
+jobTitle: .Net Architect &amp; Cloud Lead
+slug: /autores/robert-bermejo
+photo: ../../../images/Autores/RobertBermejo.jpeg
+twitter: https://twitter.com/robertbemejo
+blog: http://www.robertbermejo.com/
+type: author
+content: >-
+    Robert Bermejo es Cloud Lead y .net architect en Sogeti España, liderando toda la parte de Azure a nivel nacional. Para la comunidad ha fundado CATzure (https://www.meetup.com/es-ES/CATzure/ ),un grupo de usuarios de  Barcelona donde se realizan sesiones mensuales para hablar y compartir conocimientos sobre la plataforma cloud de Microsoft Azure. Intenta participar como conferenciante en todas las conferencias a nivel nacional relacionadas con tecnologías Microsoft y Azure.​​
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "robert-bermejo"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

@@ -1,0 +1,22 @@
+---
+id: jose-manuel-redondo
+title: José Manuel Redondo
+jobTitle: Profesor Contratado Doctor del Dpto. de Informática en Universidad de Oviedo (EII) Miembro en Computational Reflection
+slug: /autores/jose-manuel-redondo
+photo: ../../../images/Autores/jose-manuel-redondo.png
+twitter:
+blog: https://www.researchgate.net/profile/Jose_Redondo8
+type: author
+content: >-
+    Profesor Contratado Doctor de la Universidad de Oviedo. Docente universitario desde el 2002. Especializado en Ciberseguridad y Lenguajes de Programación. Amante del Hardware y la historia de la informática. Divulgador.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "jose-manuel-redondo"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

@@ -1,0 +1,168 @@
+---
+title: Ejemplos de CAML en Client Object Model (JavaScript)
+slug: /revistas/numero-17/ejemplos-caml-client-object-model-javascript
+date: 19/08/2013
+magazine: 17
+author: Juan Pablo Pussacq
+authorId: juan-pablo-pussacq
+keywords: ['CSOM','CAML','JavaScript']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+El **modelo de objetos de cliente** de SharePoint ha sido una gran incorporación en SharePoint 2010. Nos permite consultar información de listas, utilizando sólo un poco de código **JavaScript**. No se requiere desarrollo a nivel de servidor, ni permisos especiales en la granja de SharePoint.
+
+Uno de los usos más comunes, que al menos yo le he dado, es **consultar información de listas**, para luego desplegarla  utilizando diferentes formas de presentación gráfica. Para ello, suelo utilizar consultas en lenguaje **CAML**. CAML tiene sus particularidades. En este breve artículo voy a presentar algunos ejemplos que me han resultado útiles.
+
+En caso que nunca hayan utilizado Client Objetc Model, quizá sea conveniente que lean una introducción: [http://surpoint.blogspot.com/2011/10/introduccion-al-modelo-de-objetos-de.html](http&#58;//surpoint.blogspot.com/2011/10/introduccion-al-modelo-de-objetos-de.html)
+
+**Caso 1: Empezando**
+
+En el primer ejemplo, vamos a mostrar un caso completo. En los siguientes mostraremos sólo las variaciones. Imaginemos que necesitamos hacer una consulta simple, en donde veremos:
+
+- Cómo **ordenar** elementos.
+- Cómo indicar **qué columnas mostrar.**
+- Cómo indicar que queremos traer sólo **una fila.**
+
+```
+function cargar_noticia_destacada() {
+    contexto = new SP.ClientContext.get_current();
+    var lista = contexto.get_site().get_rootWeb().get_lists().getByTitle('Noticias');
+    var query =new SP.CamlQuery();
+    var consulta =
+        '<View>' +
+        // Ordenada por fecha de creación (ID) descendente
+        '<Query><OrderBy><FieldRef Name ="ID" Ascending="FALSE"/></OrderBy></Query>' +
+        // Una sóla noticia
+        '<RowLimit>1</RowLimit>' +
+        '<ViewFields>' + 
+        '<FieldRef Name="ID"/><FieldRef Name="Title"/><FieldRef Name="Resumen"/><FieldRef Name="Imagen_x0020_destacada"/>' +
+        '</ViewFields>' +
+        '</View>';
+    query.set_viewXml(consulta);
+    this.items = lista.getItems(query);
+    contexto.load(items);
+    contexto.executeQueryAsync(Function.createDelegate(this, this.cargaok_noticia_destacada), Function.createDelegate(this, this.cargamal));
+}
+```
+
+En la siguiente función vemos  cómo procesar los ítems leídos. Esto por supuesto depende de nuestra página, pero lo muestro para que tengan un ejemplo de cómo se haría.
+
+```
+function cargaok_noticia_destacada(sender, args) {
+    var itemslista = this.items.getEnumerator();
+    while (itemslista.moveNext()) {
+        var elitem = itemslista.get_current();
+        var strHtmlImg  = elitem.get_item('Imagen_x0020_destacada').get_url();   
+        var strHtmlTxt  ='<span class="h1">&gt; ' + elitem.get_item('Title') + '</span><br /><br />' + elitem.get_item('Resumen');
+        var strHtmlBtn2 ='<a target="_self" href="javascript: AbrirVentanaModal(\'' + window.location.href.replace("/default.aspx","") + '/lists/Noticias/DispForm.aspx?ID=' + elitem.get_item('ID') + '&source=' + window.location.href + '\');"/>';   
+        var strHtmlBtn1 ="<a href='" + window.location.href.replace("/default.aspx","") + '/lists/Noticias/' + "'/>";   
+    }
+    // Imagen
+    $("#general_modulo1_img img").attr("src",strHtmlImg);
+    // Título y resumen
+    document.getElementById("general_modulo1_txt").innerHTML = strHtmlTxt  ;
+    // Noticia completa
+    $('#general_modulo1_btn td:nth-child(2) img').each(function() {
+        $(this).wrap(strHtmlBtn2);
+    });
+    // Más noticias
+    $('#general_modulo1_btn td:nth-child(1) img').each(function() {
+        $(this).wrap(strHtmlBtn1 );
+    });
+    $('#general_modulo1_btn td:nth-child(1) img').css("border","none");
+}
+```
+
+Y finalmente nuestra rutina de error:
+
+```
+function cargamal(sender, args) { 
+    alert('ERROR: ' + args.get_message() + '\n' + args.get_stackTrace()); 
+}
+```
+
+**Caso 2: Agregando una condición**
+
+En este segundo ejemplo, vamos a ver cómo agregar una condición de **igual** sobre un campo de tipo texto:
+
+```
+'<Query><Where><Eq><FieldRef Name="Mostrar_x0020_en_x0020_p_x00e1_g"/><Value Type="Text">Si</Value></Eq></Where><OrderBy><FieldRef Name ="ID" Ascending="FALSE"/></OrderBy></Query>'
+```
+
+**Caso 3: Filtro por fecha actual**
+
+Supongamos ahora que queremos filtrar un campo fecha, comparándolo con la fecha del sistema. Veremos que necesitamos indicar el tipo de campo, e indicarle que no compare usando la hora:
+
+```
+'<Query><Where><Eq><FieldRef Name="Fecha"/><Value Type="DateTime" IncludeTimeValue="FALSE"><Today /></Value></Eq></Where></Query>'
+```
+
+**Caso 4: Filtrando entre fechas**
+
+Nuevamente compararemos con la fecha de sistema, pero esta vez, una comparación entre dos fechas:
+
+```
+'<Query><Where><And><Leq><FieldRef Name="Desde"/><Value Type="DateTime" IncludeTimeValue="FALSE"><Today/></Value></Leq><Geq><FieldRef Name="Hasta"/><Value Type="DateTime" IncludeTimeValue="FALSE"><Today/></Value></Geq></And></Where><OrderBy><FieldRef Name ="ID" Ascending="FALSE"/></OrderBy></Query>'
+```
+
+**Caso 5: Filtro por campo calculado**
+
+En el siguiente ejemplo, mostraremos cómo filtrar cuando nuestra columna es un campo calculado:
+
+```
+'<Query><Where><Eq><FieldRef Name="Apellido_x0020_y_x0020_nombre" /><Value Type="Computed">'` `+ persona_seleccionada +``'</Value></Eq></Where></Query>'
+```
+
+**Caso 6: Filtro por campo de búsqueda**
+
+En este otro caso, vemos como filtrar en campos de búsqueda:
+
+```
+'<Query><Where><Eq><FieldRef Name="Usuario" LookupId="TRUE"/><Value Type="Lookup">'` `+ usuario_conectado +``'</Value></Eq></Where></Query>'
+```
+
+**Caso 7: Fecha ingresada por pantalla**
+
+Finalmente veremos un caso en donde necesitamos comparar contra una fecha ingresada por pantalla. El truco aquí es el formato de la fecha, el cual debemos formatear así:
+
+```
+var desde = ISODateString(Pdesde);
+var hasta = ISODateString(Phasta);
+```
+
+La función utilizada es:
+
+```
+function ISODateString(d) {
+    function pad(n){return n<10 ? '0' +n : n}
+        return d.getUTCFullYear() + '-'
+            + pad(d.getUTCMonth()+1) + '-'
+            + pad(d.getUTCDate()) + 'T'
+            + pad(d.getUTCHours()) + ':'
+            + pad(d.getUTCMinutes()) + ':'
+            + pad(d.getUTCSeconds()) + 'Z'
+}
+```
+
+Por último, el CAML para comparar las fechas ingresadas con las registradas en la lista:
+
+```
+'<Query><Where><And><Leq><FieldRef Name="Fecha"/><Value Type="DateTime" IncludeTimeValue="TRUE">'` `+ hasta +``'</Value></Leq><Geq><FieldRef Name="Fecha"/><Value Type="DateTime" IncludeTimeValue="FALSE">'` `+ desde +``'</Value></Geq></And></Where></Query>'
+```
+
+**Conclusión**
+
+La utilización de Client Object Model de JavaScript nos brinda una forma muy sencilla de consultar información y mostrarla en una página de diferentes formas. En este breve artículo hemos mostrado algunas variantes del lenguaje de consulta CAML para entender cómo se aplican diferentes condiciones. Espero que les haya resultado útil. Hasta la próxima!
+
+
+**Juan Pablo Pussacq Laborde**
+SharePoint MVP
+Blog: [http://surpoint.blogspot.com/](http&#58;//surpoint.blogspot.com/) 
+Facebook: [http://facebook.com/surpointblog/](http&#58;//facebook.com/surpointblog/) 
+Twitter: [http://twitter.com/jpussacq/](http&#58;//twitter.com/jpussacq/)
+

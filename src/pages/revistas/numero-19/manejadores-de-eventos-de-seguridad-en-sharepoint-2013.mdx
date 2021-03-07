@@ -1,0 +1,386 @@
+---
+title: Manejadores de Eventos de Seguridad en SharePoint 2013
+slug: /revistas/numero-19/manejadores-de-eventos-de-seguridad-en-sharepoint-2013
+date: 01/01/2014
+magazine: 19
+author: Gustavo Velez
+authorId: gustavo-velez
+keywords: ['Event Receiver','SharePoint 2013']
+---
+
+import ArticleHeader from '../../../components/article-header'
+
+<ArticleHeader frontmatter={props.pageContext.frontmatter} />
+
+
+
+​Aunque los Manejadores de Eventos existen en SharePoint desde su versión 2007, en SharePoint 2013 se introdujo una categoría totalmente nueva: los Manejadores de Eventos de Seguridad. La detección de estos eventos permiten iniciar acciones cuando se modifica la configuración de derechos: la herencia de permisos se ha roto o restituido, se han modificado los grupos de seguridad o los niveles de permisos, o se han modificado los usuarios que pueden interactuar con el sistema.
+
+**Seguridad dentro de SharePoint**
+
+SharePoint utiliza un modelo de seguridad que es, al mismo tiempo, poderoso, flexible y fácil de entender y mantener mientras se observen algunas reglas básicas de gobernabilidad. En principio, la misma configuración de seguridad se mantiene y hereda desde el nivel superior de estructura visible a los usuarios, la Colección de Sitios, hasta el nivel más básico, los elementos de Listas y los documentos de Bibliotecas. Esto significa que los grupos de seguridad definidos en el sitio de nivel superior de cualquier Colección de Sitios son transmitidos automáticamente cuando se crea cualquier objeto debajo de ella (sub-Sitios, Listas, Bibliotecas, elementos, documentos), y cuando se modifica la estructura de seguridad en el nivel más alto, los niveles más bajos reciben los cambios automáticamente y sin necesidad de que los usuarios o administradores realicen ninguna acción.
+
+La estructura de la autorización dentro de SharePoint se basa en algunos objetos sencillos de entender y manejar:
+
+1 - Permisos - SharePoint define una serie de Permisos por defecto que incluyen prácticamente todas las actividades de base que se pueden realizar en el sistema: "Agregar elementos", "Eliminar elementos", "Crear subsitios", "Administrar alertas", etc. SharePoint Foundation y Server disponen de 33 tipos de permisos divididos en tres secciones, y no es posible crear ni agregar nuevos tipos fuera de los por defecto
+
+2 - Niveles de Permisos - Los Permisos se pueden agrupar en "Niveles de Permisos". Cada Nivel permite definir que Permisos son aceptados y cuáles no. Por ejemplo, un Nivel de Permisos permite "Administrar Listas", "Agregar elementos", etc. (como en el Nivel de Permisos llamado "Editar" en un Sitio de Colaboración), mientras que otro Nivel permite solamente "Ver elementos" y 'Ver versiones" (como el Nivel de "Solo vista" de la misma plantilla).  Los Niveles de Permisos se pueden configurar y/o crear desde la página Administración de un Sitio yendo a "Permisos del sitio" - "Niveles de permisos", y cada plantilla para crear Sitios (o Colecciones de Sitios) crea su propia estructura en el momento de aprovisionamiento
+
+3 - Grupos de Seguridad - Es el contenedor que permite asignar un determinado grupo de Permisos (un Nivel de Permisos) a un determinado grupo de usuarios. Normalmente a un Grupo de Seguridad se le asocian Grupos de Usuarios del Directorio Activo o usuarios individuales. Un Grupo de Seguridad utiliza un solo Nivel de Permisos, pero un Nivel de Permisos puede ser utilizado por diferentes Grupos de Seguridad. SharePoint permite definir un máximo de 50.000 Grupos de Seguridad para una Lista, aunque Microsoft recomienda no utilizar más de 5.000 para no afectar el rendimiento del sistema.
+
+El mecanismo de "Herencia" asegura que la estructura creada en un nivel superior sea legada a los niveles inferiores. De esta forma, cuando, por ejemplo, se crea un Grupo de Seguridad en el Sitio de nivel superior de una Colección de Sitios, todos los Sitios, Listas y elementos creados posteriormente tendrán la misma estructura de derechos; y cuando se modifica a nivel de Colección de Sitios, todos los artefactos debajo de ella reconocen de inmediato y automáticamente los cambios.
+
+SharePoint, para flexibilizar la estructura de derechos, permite "romper la Herencia" en cualquiera de sus artefactos. Por ejemplo, para hacer que una Lista tenga permisos diferentes que el Sitio en donde reside, es posible ir desde la página de administración de la Lista a "Configuración de la lista" - "Permisos para esta lista" y utilizar el botón de "Dejar de heredar permisos" en el menú de Cinta. Desde este momento, aunque los grupos iniciales todavía existen en la Lista, es posible eliminarlos y/o crear nuevos que utilicen Niveles de Permisos propios. De la misma forma, en un artefacto de SharePoint en donde se ha roto la Herencia es posible utilizar el botón de "Eliminar permisos exclusivos" para reestablecer la Herencia (en cuyo caso los permisos individuales son eliminados automáticamente).
+
+Aunque esta estructura asegura una gran flexibilidad para configurar los derechos dentro de SharePoint, también existe el riesgo de que si no se toman algunas medidas, la organización se convierta en caos, haciendo el trabajo de mantenimiento del sistema muy difícil y, por lo tanto, muy costoso. Para evitar el caos, solamente es necesario tomar un par de medidas de gobierno:
+
+1 - Evite romper la Herencia lo más posible. Si los derechos están manejados única y exclusivamente desde el nivel superior de la Colección de Sitios, es posible mantener el control sobre que usuarios tienes acceso a cual información
+
+2 - Evite acoplar usuarios individuales a Grupos de Seguridad de SharePoint. En lugar de ello, cree grupos de Directorio Activo y acople los grupos de AD a los Grupos de Seguridad de SharePoint. Esto permite manejar los derechos de los usuarios a un nivel empresarial (el AD de la compañía) en lugar de a nivel local en SharePoint
+
+3 - Nunca asigne un Nivel de Permisos directamente a usuarios o Grupos de AD por fuera de uno de los Grupos de Seguridad de SharePoint. Aunque se puede hacer en SharePoint, es la forma más fácil de crear caos y perder totalmente el control sobre la seguridad del sistema
+
+**Manejadores de Eventos en SharePoint**
+
+SharePoint dispone de un sistema para detectar cambios en sus objetos, dando la oportunidad de crear software que reaccione a los cambios. Por ejemplo, es posible detectar cuando un nuevo documento es agregado a una Biblioteca, y crear software que envíe un Email o valide el nombre utilizado. Este sistema se denomina un "Manejador de Eventos".
+
+Desde las versiones anteriores de SharePoint existen Manejadores de Eventos para Elementos y Documentos (clase SPItemEventReceiver), Listas y Bibliotecas (clase SPListEventReceiver), Sitios y Colecciones de Sitios (clase SPWebEventReceiver), Flujos de Trabajo (clase SPWorkflowEventreceiver) e Emails (clase SPEmailEventReceiver). Los Manejadores están divididos a su vez en dos tipos principales:
+
+- Eventos síncronos, cuyo nombre termina en "ing" como por ejemplo "ItemAdding", que ocurren antes de que la acción del evento sea implementado, suspendiendo el proceso hasta que el código del Manejador ha terminado de ejecutar.
+- Eventos asíncronos, en los que el nombre termina en "ed" como por ejemplo "ItemAdded", que ejecutan después de que la acción ha tomado efecto.
+
+
+Visual Estudio, la herramienta por defecto para programar para SharePoint, dispone de plantillas con sus respectivos asistentes para crear Manejadores de Eventos. Básicamente, un Manejador de Eventos para SharePoint 2013 es una biblioteca de clases de código manejado en .NET Framework 4.5 utilizando CSharp o Visual Basic, que genera una dll que puede ser instalada utilizando una Solución de SharePoint (archivo .wsp) y su respectiva Característica para activarla/desactivarla.
+
+**Manejadores de Eventos de Seguridad en SharePoint 2013**
+
+SharePoint 2013 introduce un nuevo tipo de Manejadores de Eventos a los ya existentes en versiones anteriores: los que detectan cuando se ha modificado algo en el esquema de permisos (clase SPSecurityEventReceiver).
+
+Correspondiendo con la estructura de seguridad de SharePoint descrita al principio del artículo, los 24 nuevos Eventos reaccionan a las acciones que se pueden tomar al crear o modificar el esquema de seguridad:
+
+1. Para Niveles de Permisos -  por medio de los eventos "RoleDefinition [Added, Adding, Deleted, Deleting, Updated, Updating]".
+2. Para Grupos de Seguridad - por medio de los eventos "Group [Added, Adding, Deleted, Deleting, Updated, Updating]".
+3. Para la asignación de un Nivel de Permisos a un Grupo de Seguridad - utilizando los eventos "RoleAssignment [Added, Adding, Deleted, Deleting]".
+4. Para la asignación de usuarios a un Grupo de Seguridad - por medio de los eventos "GroupUser [Added, Adding, Deleted, Deleting]".
+5. Para la Herencia - con los eventos "Inheritance [Breaking, Broken, Reset, Resetting]".
+
+
+La clase SPSecurityEventReceiver se puede utilizar tanto en SharePoint Server como en Foundation.
+
+**Programación de Manejadores de Eventos de Seguridad**
+
+A diferencia con la programación de los Manejadores de Eventos tradicionales de SharePoint, ni Visual Studio 2012 ni 2013 disponen de plantillas o asistentes para la programación de Manejadores de Eventos de Seguridad.
+
+Para programar un Evento de Seguridad, utilice Visual Studio 2012 o 2013 siguiendo los pasos que se indican a continuación:
+
+1. En Visual Studio, cree un nuevo proyecto del tipo "SharePoint 2013 - Proyecto vacío" asignándole un nombre ("EventosSeguridad" en el siguiente ejemplo) y utilice como nivel de confianza "Implementar como solución de granja de servidores".
+2. Desde el Explorador de Soluciones de Visual Studio seleccione el proyecto y utilizando su menú contextual (botón derecho del ratón), seleccione "Agregar" - "Nuevo elemento".
+3. En la ventana de elementos nuevos seleccione "Clase" (de la categoría "Elementos de Visual C#" - "Código") y asígnele un nombre ("MisEventosSeguridad.cs" en el ejemplo).
+
+
+Reemplace todo el código generado automáticamente por el siguiente:
+
+```
+using System;
+```
+
+```
+using Microsoft.SharePoint;
+```
+
+```
+ 
+```
+
+```
+namespace EventosSeguridad
+```
+
+```
+{
+```
+
+```
+    public class MisEventosSeguridad : SPSecurityEventReceiver
+```
+
+```
+    {
+```
+
+```
+        public override void GroupUserAdded(SPSecurityEventProperties properties)
+```
+
+```
+        {
+```
+
+```
+            base.GroupUserAdded(properties);
+```
+
+```
+ 
+```
+
+```
+            SPUser usuarioAgregado = properties.Web.AllUsers.GetByID(properties.GroupUserId);
+```
+
+```
+            SPGroup grupoAgregado = properties.Web.Groups.GetByID(properties.GroupId);
+```
+
+```
+            string myMensaje = "GroupUserAdded - " + usuarioAgregado.LoginName + " - " + grupoAgregado.Name;
+```
+
+```
+            WriteToFile(myMensaje);
+```
+
+```
+        }
+```
+
+```
+ 
+```
+
+```
+        private void WriteToFile(string myMensaje)
+```
+
+```
+        {
+```
+
+```
+            using (System.IO.StreamWriter myFile = new System.IO.StreamWriter(@"C:\EventosSeguridad.txt", true))
+```
+
+```
+            {
+```
+
+```
+                myFile.WriteLine(DateTime.Now.ToString() + " - " + myMensaje);
+```
+
+```
+            }
+```
+
+```
+        }
+```
+
+```
+    }
+```
+
+```
+}
+```
+
+Note que la clase hereda de "SPSecurityEventReceiver". Dentro de la clase se ha creado inicialmente un método que sobrescribe a "GroupUserAdded", lo que significa que el código dentro del método se va a ejecutar cuando se agrega usuarios a un Grupo de Seguridad. El código utiliza el parámetro de "properties" para crear objetos que contienen la información tanto del usuario como del Grupo agregados. Finalmente se hace una llamada a un método auxiliar que simplemente agrega un mensaje en un archivo de texto (que se crea automáticamente si no existe).
+
+1. El Manejador de Eventos está listo para funcionar, pero todavía no tiene forma de ser instalado. Los Manejadores de Eventos tradicionales de SharePoint, creados con la plantilla correspondiente de Visual Studio crean el instalador automáticamente. Como Visual Studio no dispone de plantillas para este tipo de evento, es necesario crear el instalador manualmente. Hay diferentes maneras para instalar el Manejador de Eventos: se puede utilizar PowerShell, o crear un programa independiente de instalación, o utilizar los eventos de una Característica de SharePoint. Esta última posibilidad se utiliza a continuación.
+2. Seleccione "Features" en el Explorador de proyectos de Visual Studio, y "Agregar característica". Visual Studio crea una Característica llamada "Feature1" por defecto. Cámbiele el nombre a "InstalarEventosSeguridad".
+3. Seleccione la Característica y utilizando su menú contextual utilice "Agregar receptor de eventos".
+4. Agregue en el código generado una directiva using a "using System.Reflection;".
+5. Reemplace el código de la clase por el siguiente:
+
+
+```
+public class InstalarEventosSeguridadEventReceiver : SPFeatureReceiver
+```
+
+```
+    {
+```
+
+```
+        public override void FeatureActivated(SPFeatureReceiverProperties properties)
+```
+
+```
+        {
+```
+
+```
+            SPWeb myWeb = properties.Feature.Parent as SPWeb;
+```
+
+```
+            SPEventReceiverDefinition definicionGroupUserAdded = myWeb.EventReceivers.Add();
+```
+
+```
+            definicionGroupUserAdded.Name = "Manejador Evento GroupUserAdded";
+```
+
+```
+            definicionGroupUserAdded.Type = SPEventReceiverType.GroupUserAdded;
+```
+
+```
+            definicionGroupUserAdded.Assembly = Assembly.GetExecutingAssembly().FullName;
+```
+
+```
+            definicionGroupUserAdded.Class = "EventosSeguridad.MisEventosSeguridad";
+```
+
+```
+            definicionGroupUserAdded.Update();
+```
+
+```
+            myWeb.Update();
+```
+
+```
+        }
+```
+
+```
+ 
+```
+
+```
+        public override void FeatureDeactivating(SPFeatureReceiverProperties properties)
+```
+
+```
+        {
+```
+
+```
+            SPWeb myWeb = properties.Feature.Parent as SPWeb;
+```
+
+```
+ 
+```
+
+```
+            foreach (SPEventReceiverDefinition eventReceiver in myWeb.EventReceivers)
+```
+
+```
+            {
+```
+
+```
+                if (eventReceiver.Name.Equals("Manejador Evento GroupUserAdded"))
+```
+
+```
+                {
+```
+
+```
+                    eventReceiver.Delete();
+```
+
+```
+                    break;
+```
+
+```
+                }
+```
+
+```
+            }
+```
+
+```
+        }
+```
+
+Aquí se están utilizando dos eventos de la Característica:
+
+- "FeatureActivated" que ejecuta después de que la característica ha sido activada y que registra el Manejador de Eventos de Seguridad en SharePoint. Note que se utiliza un nombre específico y se indican el tipo de evento, su ensamblado y clase.
+- "FeatureDeactivating" que ejecuta en el momento que la Característica se está desactivando y elimina el Manejador de Eventos de Seguridad utilizando el nombre especifico utilizado para la activación.
+
+
+Importante en la activación es que el Evento de Seguridad se registra a nivel de Sitio (SPWeb), el único objeto de SharePoint que acepta este tipo de Manejadores (no es posible activarlos a nivel de Lista o de Colección de Sitios).
+
+1.       Compile y despliegue el proyecto. Vaya a una Lista o Biblioteca, abra su página de configuración y utilice el vínculo de "Permisos para esta biblioteca de documentos" (o "esta lista"). Seleccione uno de los Grupos de Seguridad y agréguele un usuario. Revise el archivo que el Manejador de Eventos crea ("C:\EventosSeguridad.txt"), el que debe contener una entrada del tipo:
+
+[fecha] [hora] - GroupUserAdded - i:0#.w|[dominio]\[usuario] - [Grupo Seguridad]
+
+También revise que en la página de Configuración del Sitio - "Administrar las características del sitio" se encuentra la Característica "EventosSeguridad Feature1" y que está activada.
+
+2.       Desactive la Característica mencionada en el punto anterior (lo que debe eliminar el Manejador de Eventos creado). Repita los pasos enumerados en el punto 10 para agregar otro usuario y revise que no existe una nueva entrada en el archivo.
+
+3.       En el código de ejemplo del Manejador de Eventos de Seguridad (punto 4) se muestra solamente como utilizar el evento de "GroupUserAdded", pero cualquiera de los eventos de la clase SPSecurityEventReceiver puede ser sobrescrito exactamente de la misma forma, y utilizando el mismo parámetro de entrada "SPSecurityEventProperty". A su vez, para instalar cualquier Manejador no es necesario más que crear un nuevo objeto del tipo "SPEventReceiverDefinition", asignarle un nombre único, definir su tipo, ensamblado y clase y añadirlo a la colección de eventos de la clase SPWeb. Para desinstalarlo se puede utilizar el nombre que se utilizó para su creación y removerlo de la colección de eventos de la misma forma que se ha indicado en el punto 9.
+
+4.       Como se describió en el punto 4, existen varias formas para registrar el Manejador de Eventos de Seguridad. Fuera de utilizar una Característica es posible utilizar también scripts de PowerShell de SharePoint. El siguiente script registra el Manejador después de que ha sido instalado utilizando su Solución .wsp de SharePoint:
+
+```
+$myWeb = Get-SPWeb -Identity "http://servidor"
+```
+
+```
+$definicionGroupUserAdded = $myWeb.EventReceivers.Add()
+```
+
+```
+$definicionGroupUserAdded.Name = "Manejador Evento GroupUserAdded"
+```
+
+```
+$definicionGroupUserAdded.Type = [Microsoft.SharePoint.SPEventReceiverType]::GroupUserAdded
+```
+
+```
+$definicionGroupUserAdded.Assembly = "EventosSeguridad, Version=1.0.0.0, Culture=neutral, PublicKeyToken=8413486149d08dcb" 
+```
+
+```
+$definicionGroupUserAdded.Class = EventosSeguridad.MisEventosSeguridad"
+```
+
+```
+$definicionGroupUserAdded.Update()
+```
+
+Substituya los valores necesarios para la identidad del Sitio SPWeb y el nombre, tipo, ensamblado y clase de la definición. Se tiene que utilizar el nombre completo del ensamblado en la propiedad "Assembly", incluyendo su token público.
+
+Para desinstalarlo se puede utilizar un script de PowerShell de SharePoint similar al siguiente:
+
+```
+foreach ($unManejador in $myWeb.EventReceivers) 
+```
+
+```
+{ if ($unManejador.Name.Equals("Manejador Evento GroupUserAdded")) 
+```
+
+```
+{ $unManejador.Delete() } }
+```
+
+**Problemas con los Manejadores de Eventos de Seguridad**
+
+Aunque los Manejadores de Eventos de Seguridad funcionan perfectamente y pueden ser programados fácilmente como se ha indicado, presentan dos problemas que es importante tener en cuenta cuando se está diseñando su uso.
+
+1. Por diseño, los Eventos de Seguridad solamente se pueden definir a nivel de Sitio (SPWeb). Esto significa que no es posible acoplar un manejador a solamente una Lista, por ejemplo, reduciendo su ámbito de trabajo. Tampoco es posible ampliar el ámbito a la Colección de Sitios. Esto es por diseño y no puede ser modificado programáticamente.
+2. Como se indicaba en la introducción sobre la estructura de seguridad en SharePoint, no es recomendable asignar un Nivel de Permisos directamente a usuarios o Grupos de AD, por fuera de uno de los Grupos de Seguridad de SharePoint. Aunque esto es una recomendación de gobernabilidad, si se decide hacerlo de esta forma, SharePoint lo acepta sin problemas. Pero cuando los derechos se asignan así, el evento que ejecuta es el "RoleAssignmentAdded", no el "GroupUserAdded" y, peor aún, el parámetro de propiedades de la sobrescritura no contiene ninguna información sobre el usuario, Nivel de Permisos o cualquier otro metadato que permita identificar qué fue lo que inicio el evento
+
+
+**Conclusión**
+
+SharePoint 2013 incluye la clase necesaria para detectar eventos que ocurren cuando se modifica la estructura de seguridad del sistema, algo que no existía en las versiones anteriores del producto. Desafortunadamente Visual Studio no incluye plantillas para la creación de Manejadores de eventos de Seguridad, pero eso no significa que no sea posible (ni difícil) crearlos. También existen algunas limitaciones de los eventos, las que hay que tener muy en cuenta cuando se están diseñando sistemas que los utilizan.
+
+
+
+**Gustavo Velez**
+ MVP SharePoint
+ [gustavo@](mailto&#58;gustavo@gavd.net)gavd.net 
+ [http://www.gavd.net](http&#58;//www.gavd.net/)
+

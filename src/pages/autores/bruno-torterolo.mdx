@@ -1,0 +1,22 @@
+---
+id: bruno-torterolo
+title: Bruno Torterolo
+jobTitle: Software Developer
+slug: /autores/bruno-torterolo
+photo: ../../../images/Autores/Bruno-Torterolo.jpg
+twitter: https://twitter.com/bruno_torterolo
+blog: 
+type: author
+content: >-
+    Finalizando la carrera de Ingeniería en Computación en la Facultad de Ingeniería (Udelar)
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "bruno-torterolo"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  
