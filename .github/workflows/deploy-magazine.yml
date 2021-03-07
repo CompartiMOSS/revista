@@ -17,7 +17,7 @@ jobs:
     - name: Run Gatsby 
       run: npm run build  
     - name: Publish artifacts
-      uses: actions/upload-artifacts@v1.0.0.
+      uses: actions/upload-artifacts@v2.2.2
       with: 
         name: site
         path: ${{ env.SITE_PUBLIC_PATH }}
@@ -30,7 +30,7 @@ jobs:
       
     steps:
     - name: Download build artifact
-      uses: actions/download-artifact@v2.0.7
+      uses: actions/download-artifact@v2.0.8
       with:
         name: site
     - name: Delete dev site
@@ -50,7 +50,7 @@ jobs:
       
     steps:
     - name: Download build artifact
-      uses: actions/download-artifact@v2.0.7
+      uses: actions/download-artifact@v2.0.8
       with:
         name: site
     - name: Delete pro site
