@@ -51,7 +51,7 @@ const StyledArticles = styled.ul`
 `;
 
 const ViewArticlesRandom = ({...props}) => {
-  const topArticles = _.sampleSize(props.articles.edges, 30)
+  const topArticles = props.articles.edges; //_.sampleSize(props.articles.edges, 30)
 
   return (
     <section>
