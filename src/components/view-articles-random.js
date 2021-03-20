@@ -76,7 +76,7 @@ function _getThumbnail(current) {
   {
     const style = {
       height: 200 + 'px',
-      backgroundImage: 'url(' + current.featuredImage.childImageSharp.gatsbyImageData.src + ')',
+      backgroundImage: 'url(' + current.featuredImage.childImageSharp.gatsbyImageData.images.fallback.src + ')',
       backgroundSize: 'cover'
     };
     return (
