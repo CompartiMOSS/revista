@@ -8,7 +8,7 @@ module.exports = {
     author: '@compartimoss_com',
     siteUrl: `https://www.compartimoss.com`,
   },
-  flags: { PRESERVE_WEBPACK_CACHE: true },
+  flags: { FAST_DEV: true },
   plugins: [
     {
       resolve: `gatsby-plugin-google-analytics`,
@@ -18,6 +18,9 @@ module.exports = {
     },
     `gatsby-plugin-sitemap`,
     `gatsby-plugin-robots-txt`,
+    `gatsby-plugin-image`,
+    `gatsby-plugin-sharp`,
+    `gatsby-transformer-sharp`,
     `gatsby-remark-images`,
     `gatsby-transformer-remark`,
     `gatsby-plugin-sharp`,
