@@ -40,36 +40,40 @@ const LandingContent = styled.div`
 `
 
 const HomePage = ({}) => {
-  const data = useStaticQuery(graphql`
-    query {
-      current: allMdx (    
-          filter: {
-            frontmatter: {magazine: {eq: 47}, type: {eq: "number"}}
-          }) 
-          {
-          edges {
-              node {
-                  frontmatter {
-                      title, slug, magazine
-                  }      
-              }
+  const data = useStaticQuery(graphql`{
+  current: allMdx(
+    filter: {frontmatter: {magazine: {eq: 47}, type: {eq: "number"}}}
+  ) {
+    edges {
+      node {
+        frontmatter {
+          title
+          slug
+          magazine
         }
-      }
-      articles: allMdx (    
-        filter: {
-          frontmatter: {magazine: {eq: 47}, type: {ne: "number"}}
-        }) 
-        {
-        edges {
-            node {
-                frontmatter {
-                    title, slug, author, featuredImage { childImageSharp { fluid(maxWidth: 400) { ...GatsbyImageSharpFluid } } }
-                }      
-            }
       }
     }
   }
-  `)
+  articles: allMdx(
+    filter: {frontmatter: {magazine: {eq: 47}, type: {ne: "number"}}}
+  ) {
+    edges {
+      node {
+        frontmatter {
+          title
+          slug
+          author
+          featuredImage {
+            childImageSharp {
+              gatsbyImageData(width: 400, layout: CONSTRAINED)
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`)
   return (
     <LayoutHome>
       <LandingBody>
