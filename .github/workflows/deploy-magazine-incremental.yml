@@ -1,0 +1,67 @@
+name: Deploy incremental magazine to PRE and PRO
+
+on:
+  workflow_dispatch:
+
+env: 
+  SITE_PUBLIC_PATH: ./public
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2      
+    - name: Run NPM INSTALL
+      run: npm install
+    - name: Gatsby Cache Folder
+      uses: actions/cache@v2
+      with: 
+        key: gatsby-cache-folder
+        path: .cache
+    - name: Gatsby Public Folder
+      uses: actions/cache@v2
+      with: 
+        key: gatsby-public-folder
+        path: public
+    - name: Run Gatsby 
+      run: npm run build:incremental  
+    - name: Publish artifacts
+      uses: actions/upload-artifact@v2.2.2
+      with: 
+        name: site
+        path: ${{ env.SITE_PUBLIC_PATH }}
+  
+  deploypre:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: pre
+      
+    steps:
+    - name: Download build artifact
+      uses: actions/download-artifact@v2.0.8
+      with:
+        name: site
+        path: ${{ env.SITE_PUBLIC_PATH }}
+    - name: Publish new version at PRE
+      uses: Azure/cli@1.0.4
+      with: 
+        inlineScript: az storage blob upload-batch -d '$web' -s ${{ env.SITE_PUBLIC_PATH }} --account-name ${{ secrets.ACCOUNT_NAME }} --account-key ${{ secrets.ACCOUNT_KEY }}
+
+  deploypro:
+    runs-on: ubuntu-latest
+    needs: deploypre
+    environment:
+      name: pro
+      
+    steps:
+    - name: Download build artifact
+      uses: actions/download-artifact@v2.0.8
+      with:
+        name: site
+        path: ${{ env.SITE_PUBLIC_PATH }}        
+    - name: Publish new version at PRO
+      uses: Azure/cli@1.0.4
+      with: 
+        inlineScript: az storage blob upload-batch -d '$web' -s ${{ env.SITE_PUBLIC_PATH }} --account-name ${{ secrets.ACCOUNT_NAME }} --account-key ${{ secrets.ACCOUNT_KEY }}
