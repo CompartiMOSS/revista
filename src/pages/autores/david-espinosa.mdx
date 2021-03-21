@@ -1,0 +1,23 @@
+---
+id: david-espinosa
+title: Arael David Espinosa Pérez
+jobTitle: Student at Universidad de las Ciencias Informáticas
+slug: /autores/david-espinosa
+photo: ../../../images/autores/david-espinosa.png
+twitter: https://twitter.com/cl8dep
+blog: 
+type: author
+director: false
+content: >-
+    Estudiante de Ingeniería Informática con más de 5 años en el mundo del desarrollo de software. Actualizando y mejorando constantemente mis conocimientos y habilidades sobre las últimas tecnologías y/o herramientas de desarrollo, principalmente en entornos web, Android y de escritorio. Promotor de Aprendizaje Creativo y de la Comunidad Scratch de Cuba. 
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "david-espinosa"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  
