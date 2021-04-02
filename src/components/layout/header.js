@@ -40,25 +40,41 @@ const useStyles = makeStyles({
         height: 100,
         margin: '20px 0'
     },
-    linkText: {
-        textDecoration: `none`,
-        color: `white`,
+    divNav: {
         width: 130,
         backgroundColor: '#f8922c',
+        margin: '0 2px',
+        position: 'relative',
+        '&:hover': {
+            backgroundColor: '#f90b39 !important'
+        }
+    },
+    linkNav: {
+        textDecoration: `none`,
+        color: `white`,
         fontSize: '27px',
         fontFamily: 'Segoe UI',
         fontWeight: 300,
-        textAlign: 'right',
-        margin: '0 2px'
+        width: 130,
+        height: 100,
+        position: 'absolute'
+    },
+    selectedNav: {
+      backgroundColor: '#f90b39 !important'
+    },
+    divLink: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        padding: 5
     }
 });
 
 const navLinks = [
-    { title: `Home`, path: `/` },
-    { title: `Revistas`, path: `/revistas` },
-    { title: `Autores`, path: `/autores` },
-    { title: `La revista`, path: `/la-revista` },
-    { title: `faq`, path: `/faq` },
+    { title: `Inicio`, path: `/`, icon: '../../images/icons/Menu-Home.png' },
+    { title: `Revistas`, path: `/revistas`, icon: '../../images/icons/Menu-Magazines.png' },
+    { title: `Autores`, path: `/autores`, icon: '../../images/icons/Menu-Autors.png' },
+    { title: `La revista`, path: `/la-revista`, icon: '../../images/icons/Menu-Magazine.png' }
 ]
 
 const Header = () => {
@@ -77,22 +93,17 @@ const Header = () => {
                                 <SideDrawer navLinks={navLinks} />
                             </Hidden>
                             <Hidden smDown>
-                                <div className={classes.navDisplayFlex}>
+                                <div id="mainMenu" className={classes.navDisplayFlex}>
                                     {navLinks.map(({ title, path }) => (
-                                        <Link to={path} className={classes.linkText}>
-                                            <span>{title}</span>
-                                        </Link>
+                                        <div className={classes.divNav} key={title}>
+                                            <Link to={path} className={classes.linkNav} activeClassName={classes.selectedNav}>
+                                                <div className={classes.divLink}>
+                                                    <span>{title}</span>
+                                                </div>
+                                            </Link>
+                                        </div>
                                     ))}                                    
                                 </div>
-                                {/* <List component="nav" aria-labelledby="main navigation" className={classes.navDisplayFlex}>
-                                    {navLinks.map(({ title, path }) => (
-                                        <Link to={path} className={classes.linkText}>
-                                            <ListItem button>
-                                                <ListItemText primary={title} />
-                                            </ListItem>
-                                        </Link>
-                                    ))}
-                                </List> */}
                             </Hidden>
                         </Container>
                     </Toolbar>
