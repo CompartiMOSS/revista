@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import Layout from './layout';
 import SEO from './seo'
-import './layout.css'
+// import './layout.css'
 
 const LayoutAuthor = ({ children, pageContext }) => {
   return (

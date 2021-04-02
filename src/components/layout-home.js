@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import Layout from './layout';
-import './layout.css'
+// import './layout.css'
 import styled from "styled-components";
 
 const HomeStyled = styled.section`

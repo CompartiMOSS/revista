@@ -9,7 +9,8 @@ import styled from "styled-components";
 
 const LandingBody = styled.section`
   color: #fff;
-
+  font-size: 18px;
+  
   h1 {
     color: #fff;
   }
