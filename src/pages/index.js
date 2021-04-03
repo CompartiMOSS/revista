@@ -1,46 +1,32 @@
 import React from 'react';
 import { useStaticQuery, graphql } from "gatsby";
+import { Grid, Container } from "@material-ui/core"
 import LayoutHome from '../components/layout-home';
 import SEO from '../components/seo';
 import ViewPartners from '../components/view-partners';
 import NumberImage from '../components/number-image';
 import ViewArticlesRandom from '../components/view-articles-random';
-import styled from "styled-components";
+import { makeStyles } from "@material-ui/core"
 
-const LandingBody = styled.section`
-  color: #fff;
-  font-size: 18px;
-  
-  h1 {
-    color: #fff;
-  }
-`
-
-const LandingContent = styled.div`
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: flex-start;
-  justify-content: space-between;
-
-  > * {
-    flex: 1 1 auto;
-
-  }
-  
-  .number-picture {
-    .divPicture {
-      flex: 1 1 380px;
-      max-width: 420px;
-      min-width: 400px;
-
-      img {
-        width: 100%;
-      }
+const useStyles = makeStyles({
+  divHeader: {
+    color: 'white',
+    '& h1': {
+      color: 'white'
+    },
+    '& p': {
+      fontSize: '19px'
+    }
+  },
+  divImage: {
+    '& img': {
+      width: '100%'
     }
   }
-`
+})
 
 const HomePage = ({}) => {
+  const classes = useStyles();
   const data = useStaticQuery(graphql`{
   current: allMdx(
     filter: {frontmatter: {magazine: {eq: 47}, type: {eq: "number"}}}
@@ -77,22 +63,24 @@ const HomePage = ({}) => {
 `)
   return (
     <LayoutHome>
-      <LandingBody>
-        <header>
-          <SEO title="Home" keywords={['gatsby', 'application', 'react']} />
+      <Grid container>
+        <Grid item xs={12} className={classes.divHeader}>
+          <SEO title="Home" keywords={['Microsoft', 'Microsoft 365', 'Azure']} />
           <h1>Bienvenidos al sitio de CompartiMOSS</h1>
           <p>La revista digital de habla hispana en la que se escribe sobre la tecnología Microsoft y todo lo relacionado con ésta</p>
-        </header>
-        <LandingContent>
-          <div className="number-picture">
+        </Grid>
+        <Grid container xs={12}>
+          <Grid item xs={12} md={3} xl={4} className={classes.divImage} >
             <NumberImage frontmatter={data.current.edges[0].node.frontmatter} />
-          </div>
-          <div>
+          </Grid>
+          <Grid item xs={12} md={9} xl={8}>
             <ViewArticlesRandom articles={data.articles} />
-            <ViewPartners />
-          </div>
-        </LandingContent>
-      </LandingBody>
+          </Grid>
+        </Grid>
+        <Grid container xs={12} alignItems="center" justify="center">
+          <ViewPartners />
+        </Grid>
+      </Grid>
     </LayoutHome>
   )
 }

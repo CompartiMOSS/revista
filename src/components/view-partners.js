@@ -34,20 +34,13 @@ const ViewPartners = () => {
       }
   `)
   return (
-    <section id="divPartners">
-      <Grid container spacing={2}>
+      <Grid container spacing={2} alignItems="center" justify="center">
         {data.allMdx.edges.map((partner) => (
             <Grid item key={partner.node.frontmatter.slug}>
               <PartnerItem current={partner.node} />
             </Grid>
         ))}
       </Grid>
-      {/* <ul>
-        {data.allMdx.edges.map((partner) => (
-          <PartnerItem current={partner.node} key={partner.node.frontmatter.slug} />
-        ))}
-      </ul> */}
-    </section>
   )
 }
 
