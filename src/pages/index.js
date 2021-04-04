@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStaticQuery, graphql } from "gatsby";
-import { Grid, Container } from "@material-ui/core"
+import { Grid } from "@material-ui/core"
 import LayoutHome from '../components/layout-home';
 import SEO from '../components/seo';
 import ViewPartners from '../components/view-partners';
@@ -69,7 +69,7 @@ const HomePage = ({}) => {
           <h1>Bienvenidos al sitio de CompartiMOSS</h1>
           <p>La revista digital de habla hispana en la que se escribe sobre la tecnología Microsoft y todo lo relacionado con ésta</p>
         </Grid>
-        <Grid container xs={12}>
+        <Grid container>
           <Grid item xs={12} md={3} xl={4} className={classes.divImage} >
             <NumberImage frontmatter={data.current.edges[0].node.frontmatter} />
           </Grid>
@@ -77,7 +77,7 @@ const HomePage = ({}) => {
             <ViewArticlesRandom articles={data.articles} />
           </Grid>
         </Grid>
-        <Grid container xs={12} alignItems="center" justify="center">
+        <Grid container alignItems="center" justify="center">
           <ViewPartners />
         </Grid>
       </Grid>
