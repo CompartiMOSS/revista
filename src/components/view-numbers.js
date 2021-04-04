@@ -8,11 +8,12 @@ const NumbersStyled = styled.ul`
   justify-content: space-around;
   align-items: top;
   margin: 0;
+  margin-top: 16px;
   padding: 0;
   list-style: none;
   
   li {
-    margin: 6px;
+    margin: 8px;
     padding: 0;
     box-shadow: 0px 0px 15px rgba(0,0,0, 0.45);
     transition: all 0.3s ease-in-out;
@@ -21,7 +22,6 @@ const NumbersStyled = styled.ul`
     width: 276px;
     height: 360px;
     overflow: hidden;
-    margin: 5px;
 
     a {
       display: block;
@@ -43,13 +43,11 @@ const NumbersStyled = styled.ul`
 
 const ViewNumbers = ({...props}) => {
   return (
-    <section className="section-container">
-      <NumbersStyled>
-        {props.numbers.edges.map((number) => (
-          <NumberItem current={number.node} key={number.node.frontmatter.slug} />
-        ))}
-      </NumbersStyled>
-    </section>
+    <NumbersStyled>
+      {props.numbers.edges.map((number) => (
+        <NumberItem current={number.node} key={number.node.frontmatter.slug} />
+      ))}
+    </NumbersStyled>
   )
 }
 

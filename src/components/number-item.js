@@ -22,6 +22,32 @@ const DivMagazine = styled.div`
     }
 `
 
+const DivOverlay = styled.div`
+    position: absolute;
+    z-index: 20;
+    top: 300px;
+    left: 0;
+    height: 350px;
+    width: 266px;
+    background-color: #f90b39;
+    color: #fff;
+    font-size: 11px;
+    transition: all .5s ease-in-out;
+
+    a {
+        color: #fff;
+        display: block;
+        height: 340px;
+        padding: 5px 10px;
+        text-decoration: none;        
+    }
+    h2 {
+        color: #fff;
+        font-weight: 400;
+        font-size: 15px;        
+    }
+`
+
 const NumberItem = ({current}) => {
     const [isShown, setIsShown] = useState(false);
     const overlayStyle = isShown ? {top:290+'px'} : {top:300+'px'};
@@ -34,11 +60,11 @@ const NumberItem = ({current}) => {
                         <img src={`../images/portadas/CompartiMOSS_${current.frontmatter.magazine}.jpg`} alt={`Portada número ${current.frontmatter.magazine}`} />
                     </Link>
                 </div>            
-                <div className="divOverlay" style={overlayStyle}>
+                <DivOverlay style={overlayStyle}>
                     <Link className="linkOverlay" to={current.frontmatter.slug} title={current.frontmatter.title}>
-                    <h2>{current.frontmatter.title}</h2>
+                        <h2>{current.frontmatter.title}</h2>
                     </Link>
-                </div>        
+                </DivOverlay>        
             </DivMagazine>
         </li>              
     )

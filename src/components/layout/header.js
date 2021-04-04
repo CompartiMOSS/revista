@@ -29,6 +29,13 @@ const useStyles = makeStyles({
     link: {
         alignSelf: 'center'
     },
+    linkMobile: {
+        alignSelf: 'center',
+        width: 200,
+        '& img': {
+            width: 200
+        }
+    },
     navbarDisplayFlex: {
         display: `flex`,
         height: '100%',
@@ -86,9 +93,16 @@ const Header = () => {
                 <AppBar position="fixed" className={classes.appBar}>
                     <Toolbar className={classes.toolbar}>
                         <Container maxWidth="xl" className={classes.navbarDisplayFlex}>
-                            <Link to="/" className={classes.link}>
-                                <img src={logo} alt="CompartiMOSS logo" />
-                            </Link>
+                            <Hidden mdUp>
+                                <Link to="/" className={classes.linkMobile}>
+                                    <img src={logo} alt="CompartiMOSS logo" />
+                                </Link>
+                            </Hidden>
+                            <Hidden smDown>
+                                <Link to="/" className={classes.link}>
+                                    <img src={logo} alt="CompartiMOSS logo" />
+                                </Link>
+                            </Hidden>
                             <Hidden mdUp>
                                 <SideDrawer navLinks={navLinks} />
                             </Hidden>
