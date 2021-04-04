@@ -23,6 +23,12 @@ const useStyles = makeStyles({
       textDecoration: 'none',
       fontSize: 20      
     }
+  },
+  info: {
+    '& a': {
+      textDecoration: 'none',
+      color: '#f8922c'
+    }
   }
 })
 
@@ -40,11 +46,11 @@ const ArticleHeader = ({ frontmatter, ...props }) => {
         <h1>
           {frontmatter.title}
         </h1>
-        <div id="divArticleInfo">
+        <div className={classes.info}>
           <span>Escrito por &nbsp;</span>
-          <span id="divArticleAuthor">
+          <span>
             <Link to={`/autores/${frontmatter.authorId}`}>{frontmatter.author}</Link>
-            </span>
+          </span>
         </div>
         <ArticleKeywords>{frontmatter.keywords}</ArticleKeywords>
         <SocialShare frontmatter={frontmatter} />

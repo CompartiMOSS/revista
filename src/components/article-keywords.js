@@ -21,7 +21,7 @@ const TagStyled = styled.li`
   padding-left: 25px;
   background: #f8922c url(${tagIcon}) no-repeat 5px center;
   color: #fff;
-  font-size: 20px;
+  font-size: 18px;
 
   &:first-child {
     margin-left: 0;

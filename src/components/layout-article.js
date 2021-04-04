@@ -10,7 +10,9 @@ import ArticleHeader from './article-header'
 const useStyles = makeStyles({
   section: {
     margin: 'auto auto 40px',
-    maxWidth: 700
+    maxWidth: 700,
+    fontSize: 21,
+    fontFamily: 'Calibri'
   }
 })
 
