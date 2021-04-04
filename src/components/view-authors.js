@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import AuthorItem from './author-item'
 import styled from "styled-components";
 
-const AuthorsStyled = styled.div`
+const AuthorsStyled = styled.ul`
   display: flex;
   flex-flow: row wrap;
   justify-content: space-between;
@@ -26,13 +26,11 @@ const AuthorsStyled = styled.div`
 class ViewAuthors extends PureComponent {
   render() {
     return (
-      <section className="section-container">
-        <AuthorsStyled>
-          {this.props.authors.edges.map((author) => (
-            <AuthorItem current={author.node} key={author.node.frontmatter.slug} />
-          ))}
-        </AuthorsStyled>
-      </section>
+      <AuthorsStyled>
+        {this.props.authors.edges.map((author) => (
+          <AuthorItem current={author.node} key={author.node.frontmatter.slug} />
+        ))}
+      </AuthorsStyled>
     );
   }
 }
