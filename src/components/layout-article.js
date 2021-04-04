@@ -4,9 +4,19 @@ import Layout from './layout';
 import SEO from './seo'
 // import './layout.css'
 import { DiscussionEmbed } from "disqus-react"
+import { makeStyles } from "@material-ui/core"
+import ArticleHeader from './article-header'
 
+const useStyles = makeStyles({
+  section: {
+    margin: 'auto auto 40px',
+    maxWidth: 700
+  }
+})
 
 const LayoutNumber = ({ children, pageContext }) => {
+  const classes = useStyles();
+
   const disqusConfig = {
     shortname: "CompartiMOSS",
     config: { identifier: pageContext.frontmatter.slug, title: pageContext.frontmatter.title }
@@ -21,7 +31,8 @@ const LayoutNumber = ({ children, pageContext }) => {
   return (
     <Layout pageContext={pageContext}>
       <SEO title={pageContext.frontmatter.title} keywords={pageContext.frontmatter.keywords} />
-      <section id="articleSection">
+      <ArticleHeader frontmatter={pageContext.frontmatter} />
+      <section className={classes.section}>
         {children}
       </section>
       {discussion}

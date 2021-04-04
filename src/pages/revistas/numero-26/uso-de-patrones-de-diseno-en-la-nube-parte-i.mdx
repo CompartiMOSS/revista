@@ -8,9 +8,7 @@ authorId: francisco-ricardo-gil-gonzalez
 keywords: ['Cloud','Patrones de Diseño']
 ---
 
-import ArticleHeader from '../../../components/article-header'
 
-<ArticleHeader frontmatter={props.pageContext.frontmatter} />
 
 
 
@@ -56,27 +54,36 @@ Consideraciones
 
 Hay que tener en<br />cuenta los siguientes puntos en el momento de decidir la forma de aplicar este<br />patrón:
 
-•        **Vida útil de los<br />datos almacenados en caché**. Muchos cachés implementan una directiva de caducidad que<br />hace que los datos sean invalidados y se eliminan de la memoria caché si no se<br />accede por un período determinado. Para que este patrón sea efectivo, asegúrate<br />de que la política de vencimiento coincide con el patrón de acceso para las<br />aplicaciones que utilizan los datos. Recuerda que el almacenamiento en caché es<br />más eficaz para los datos relativamente estáticos o datos que se leen con<br />frecuencia.
+•        
+**Vida útil de los<br />datos almacenados en caché**. Muchos cachés implementan una directiva de caducidad que<br />hace que los datos sean invalidados y se eliminan de la memoria caché si no se<br />accede por un período determinado. Para que este patrón sea efectivo, asegúrate<br />de que la política de vencimiento coincide con el patrón de acceso para las<br />aplicaciones que utilizan los datos. Recuerda que el almacenamiento en caché es<br />más eficaz para los datos relativamente estáticos o datos que se leen con<br />frecuencia.
 
-•        **El vaciado de Datos**. La mayoría de los<br />cachés tienen un tamaño limitado en comparación con el almacén de datos de<br />donde se originan los datos, y van a vaciar a los datos si es necesario. La<br />mayoría de los cachés adoptan una política de uso de utilización más reciente<br />para seleccionar los elementos a vaciar, pero esto se puede personalizar.<br />Configure la propiedad global de vencimiento y otras propiedades de la memoria<br />caché, y la propiedad de vencimiento de cada elemento almacenado en caché, para<br />ayudar a asegurar que el caché es rentable. No siempre puede ser adecuado<br />aplicar una política de vaciado global para todos los elementos de la caché.<br />Por ejemplo, si un elemento de la caché es muy costoso de recuperar del almacén<br />de datos, puede ser beneficioso mantenerlo en la memoria caché a expensas de<br />otros elementos a los que son accedidos con mayor frecuencia, pero son menos<br />costosos.
+•        
+**El vaciado de Datos**. La mayoría de los<br />cachés tienen un tamaño limitado en comparación con el almacén de datos de<br />donde se originan los datos, y van a vaciar a los datos si es necesario. La<br />mayoría de los cachés adoptan una política de uso de utilización más reciente<br />para seleccionar los elementos a vaciar, pero esto se puede personalizar.<br />Configure la propiedad global de vencimiento y otras propiedades de la memoria<br />caché, y la propiedad de vencimiento de cada elemento almacenado en caché, para<br />ayudar a asegurar que el caché es rentable. No siempre puede ser adecuado<br />aplicar una política de vaciado global para todos los elementos de la caché.<br />Por ejemplo, si un elemento de la caché es muy costoso de recuperar del almacén<br />de datos, puede ser beneficioso mantenerlo en la memoria caché a expensas de<br />otros elementos a los que son accedidos con mayor frecuencia, pero son menos<br />costosos.
 
-•        **Precargar la Caché**. Muchas soluciones<br />rellenan previamente la memoria caché con los datos que es probable que<br />necesite como parte del proceso de inicio de una aplicación. Este patrón puede<br />ser útil si algunos de estos datos expiran o son eliminados.
+•        
+**Precargar la Caché**. Muchas soluciones<br />rellenan previamente la memoria caché con los datos que es probable que<br />necesite como parte del proceso de inicio de una aplicación. Este patrón puede<br />ser útil si algunos de estos datos expiran o son eliminados.
 
-•        **Consistencia**. Implementar<br />este patrón no garantiza la coherencia entre el almacén de datos<br />y la memoria caché. Un elemento en el almacén de datos se puede cambiar en cualquier momento por<br />un proceso externo, y este cambio<br />no se refleja en la memoria caché<br />hasta la próxima vez que el elemento se<br />cargue en la memoria caché. En un sistema que replica datos a través de almacenes de datos,<br />este problema puede llegar a ser especialmente<br />grave si se produce la<br />sincronización con mucha frecuencia.
+•        
+**Consistencia**. Implementar<br />este patrón no garantiza la coherencia entre el almacén de datos<br />y la memoria caché. Un elemento en el almacén de datos se puede cambiar en cualquier momento por<br />un proceso externo, y este cambio<br />no se refleja en la memoria caché<br />hasta la próxima vez que el elemento se<br />cargue en la memoria caché. En un sistema que replica datos a través de almacenes de datos,<br />este problema puede llegar a ser especialmente<br />grave si se produce la<br />sincronización con mucha frecuencia.
 
-•        **Almacenamiento en<br />caché local (In-Memory)**. Una caché podría ser local a una<br />instancia de la aplicación y ser almacenada en memoria. El patrón puede ser<br />útil en este entorno si una aplicación accede repetidamente a los mismos datos.<br />Sin embargo, si una caché local es privada y las diferentes instancias de la<br />aplicación tienen una copia de los mismos datos en la caché, los datos podrían<br />convertirse rápidamente inconsistentes entre cachés, por lo que puede ser<br />necesario revisar las políticas de cuando expiran los datos almacenados en una<br />memoria caché privada y actualizarlos con mayor frecuencia. En estos escenarios<br />puede ser apropiado el uso de un mecanismo de caché distribuida.
+•        
+**Almacenamiento en<br />caché local (In-Memory)**. Una caché podría ser local a una<br />instancia de la aplicación y ser almacenada en memoria. El patrón puede ser<br />útil en este entorno si una aplicación accede repetidamente a los mismos datos.<br />Sin embargo, si una caché local es privada y las diferentes instancias de la<br />aplicación tienen una copia de los mismos datos en la caché, los datos podrían<br />convertirse rápidamente inconsistentes entre cachés, por lo que puede ser<br />necesario revisar las políticas de cuando expiran los datos almacenados en una<br />memoria caché privada y actualizarlos con mayor frecuencia. En estos escenarios<br />puede ser apropiado el uso de un mecanismo de caché distribuida.
 
 Cuando usar este patrón:
 
-•        La caché no facilita operaciones nativas de lectura y escritura.
+•        
+La caché no facilita operaciones nativas de lectura y escritura.
 
-•        La demanda de recursos es impredecible. Este modelo permite<br />a las aplicaciones cargar datos bajo demanda. Se<br />predicen qué datos de una<br />aplicación requerirá de antemano.
+•        
+La demanda de recursos es impredecible. Este modelo permite<br />a las aplicaciones cargar datos bajo demanda. Se<br />predicen qué datos de una<br />aplicación requerirá de antemano.
 
 Este patrón podría no ser adecuado:
 
-•        Cuando el conjunto de datos en<br />caché es estático
+•        
+Cuando el conjunto de datos en<br />caché es estático
 
-•        Para el<br />almacenamiento en caché de la<br />información de estado de sesión en una aplicación web<br />alojada en unagranja de servidores web. En<br />este entorno, se debe evitar la<br />introducción de dependencias basadas en<br />la afinidad de<br />cliente-servidor.
+•        
+Para el<br />almacenamiento en caché de la<br />información de estado de sesión en una aplicación web<br />alojada en unagranja de servidores web. En<br />este entorno, se debe evitar la<br />introducción de dependencias basadas en<br />la afinidad de<br />cliente-servidor.
 
 Ejemplo:
 
