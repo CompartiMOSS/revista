@@ -55,7 +55,6 @@ const AuthorLink = ({link, title, id}) => {
   const overlayStyle = isShown ? {top:10+'px'} : {top:70+'px'};
   const socialStyle = title === 'Twitter' ? {backgroundImage: `url(${twitter})`} : {backgroundImage: `url(${blog})`};
 
-  console.log("social " + socialStyle);
   return (    
       <div className={classes.links} style={socialStyle} onMouseEnter={() => setIsShown(true)} onMouseLeave={() => setIsShown(false)}>
         <a className={classes.linkSocial} href={link}>
