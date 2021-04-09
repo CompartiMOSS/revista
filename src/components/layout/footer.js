@@ -1,8 +1,6 @@
 import React from "react";
 import { Grid } from "@material-ui/core"
-
 import { makeStyles } from "@material-ui/core"
-import { MicNone } from "@material-ui/icons";
 
 const useStyles = makeStyles({
     footer: {
@@ -64,22 +62,6 @@ const Footer = () => {
                 </span>
             </Grid>
         </Grid>
-        // <div className={classes.footer}>
-        //   <div className={classes.footerSocial}>
-        //       <a href="http://www.linkedin.com/groups?gid=3776291&amp;trk=hb_side_g" target="linkedin">
-        //           <img src="/images/layout/LinkedIn.png" alt="Siguemos en LinkedIn" title="Siguemos en LinkedIn" />
-        //       </a>
-        //       <a href="http://twitter.com/CompartiMOSScom" target="twitter">
-        //           <img src="/images/layout/twitter.png" alt="Siguemos en Twitter" title="Siguemos en Twitter" />
-        //       </a>
-        //   </div>
-        //   <div className={classes.footerPowered}>
-            //   Powered by &nbsp;
-            //   <span id="spanPowered">
-            //       <a href="http://www.encamina.com">ENCAMINA</a>
-            //   </span>
-        //   </div>
-        // </div>
     )
 }
 

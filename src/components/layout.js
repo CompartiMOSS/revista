@@ -6,7 +6,6 @@ import Header from './layout/header'
 import Footer from './layout/footer';
 import { Container, CssBaseline } from "@material-ui/core"
 import { makeStyles } from "@material-ui/core"
-// import './layout.css'
 import './layout/layout.css'
 
 const useStyles = makeStyles({
