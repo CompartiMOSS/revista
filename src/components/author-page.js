@@ -7,10 +7,10 @@ import { Grid } from "@material-ui/core"
 const AuthorPage = ({ frontmatter, articles, ...props }) => {
   return (
     <Grid container>
-      <Grid item xs={12} md={2} xl={3}>
+      <Grid item xs={12} sm={5} md={4} lg={4} xl={3} justify="center" alignItems="center">
         <AuthorAside frontmatter={frontmatter} />
       </Grid>
-      <Grid item xs={12} md={10} xl={9}>
+      <Grid item xs={12} sm={7} md={8} lg={8} xl={9}>
         <AuthorHeader frontmatter={frontmatter} />
            <div id="divAuthorData">
             <p dangerouslySetInnerHTML={{ __html: frontmatter.content}} />
@@ -18,14 +18,6 @@ const AuthorPage = ({ frontmatter, articles, ...props }) => {
           </div>
       </Grid>
     </Grid>
-    // <section id="SectionAuthor">
-    //   <AuthorAside frontmatter={frontmatter} />      
-    //   <AuthorHeader frontmatter={frontmatter} />
-    //   <div id="divAuthorData">
-    //     <p dangerouslySetInnerHTML={{ __html: frontmatter.content}} />
-    //     <ViewArticlesAuthor articles={articles} title="Artículos" />
-    //   </div>
-    // </section>
   );
 };
 
