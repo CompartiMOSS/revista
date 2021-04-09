@@ -1,5 +1,8 @@
 import React from "react";
+import { Grid } from "@material-ui/core"
+
 import { makeStyles } from "@material-ui/core"
+import { MicNone } from "@material-ui/icons";
 
 const useStyles = makeStyles({
     footer: {
@@ -9,28 +12,31 @@ const useStyles = makeStyles({
         fontWeight: 200,
         width: "100%",
         backgroundColor: "rgba(223, 223, 223, 0.85)",
-        textAlign: "center",
         height: 70,
-        boxSizing: "border-box"
+        boxSizing: "border-box",
+        display: 'flex',
+        flexDirection: 'column',
+        alignSelf: 'center',
+        justifyContent: 'center',
+        marginTop: 24
     },
     footerSocial: {
-        height: 32,
-        margin: 6,
-        display: "inline-block",
-        marginLeft: 20,
-        marginRight: 20,
-        textAlign: "left",
-        fontSize: "1.3em",
-        float: "left"     
+        marginLeft: 10,
+        '& a': {
+            marginLeft: 10,
+            marginRight: 10    
+        }
     },
     footerPowered: {
         verticalAlign: "top",
-        display: "inline-block",
-        marginLeft: 20,
         marginRight: 20,
         textAlign: "right",
         fontSize: "1.3em",
-        float: "right"
+        float: "right",
+        '& a': {
+            color: '#ff6a00',
+            textDecoration: 'none'
+        }
     },
     spanPowered: {
         color: "#ff6a00",
@@ -42,22 +48,38 @@ const Footer = () => {
     const classes = useStyles();
 
     return (
-        <div className={classes.footer}>
-          <div className={classes.footerSocial}>
-              <a href="http://www.linkedin.com/groups?gid=3776291&amp;trk=hb_side_g" target="linkedin">
-                  <img src="/images/layout/LinkedIn.png" alt="Siguemos en LinkedIn" title="Siguemos en LinkedIn" />
-              </a>
-              <a href="http://twitter.com/CompartiMOSScom" target="twitter">
-                  <img src="/images/layout/twitter.png" alt="Siguemos en Twitter" title="Siguemos en Twitter" />
-              </a>
-          </div>
-          <div className={classes.footerPowered}>
-              Powered by &nbsp;
-              <span id="spanPowered">
-                  <a href="http://www.encamina.com">ENCAMINA</a>
-              </span>
-          </div>
-        </div>
+        <Grid container className={classes.footer}>
+            <Grid item className={classes.footerSocial}>
+                <a href="http://www.linkedin.com/groups?gid=3776291&amp;trk=hb_side_g" target="linkedin">
+                    <img src="/images/layout/LinkedIn.png" alt="Siguemos en LinkedIn" title="Siguemos en LinkedIn" />
+                </a>
+               <a href="http://twitter.com/CompartiMOSScom" target="twitter">
+                   <img src="/images/layout/twitter.png" alt="Siguemos en Twitter" title="Siguemos en Twitter" />
+               </a>
+            </Grid>
+            <Grid item className={classes.footerPowered}>
+                Powered by &nbsp;
+                <span id="spanPowered">
+                    <a href="http://www.encamina.com">ENCAMINA</a>
+                </span>
+            </Grid>
+        </Grid>
+        // <div className={classes.footer}>
+        //   <div className={classes.footerSocial}>
+        //       <a href="http://www.linkedin.com/groups?gid=3776291&amp;trk=hb_side_g" target="linkedin">
+        //           <img src="/images/layout/LinkedIn.png" alt="Siguemos en LinkedIn" title="Siguemos en LinkedIn" />
+        //       </a>
+        //       <a href="http://twitter.com/CompartiMOSScom" target="twitter">
+        //           <img src="/images/layout/twitter.png" alt="Siguemos en Twitter" title="Siguemos en Twitter" />
+        //       </a>
+        //   </div>
+        //   <div className={classes.footerPowered}>
+            //   Powered by &nbsp;
+            //   <span id="spanPowered">
+            //       <a href="http://www.encamina.com">ENCAMINA</a>
+            //   </span>
+        //   </div>
+        // </div>
     )
 }
 
