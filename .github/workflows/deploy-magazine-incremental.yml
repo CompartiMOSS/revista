@@ -24,6 +24,8 @@ jobs:
       with: 
         key: gatsby-public-folder
         path: public
+    - name: Node memory
+      run: set NODE_OPTIONS=--max_old_space_size=4096
     - name: Run Gatsby 
       run: npm run build:incremental  
     - name: Publish artifacts
