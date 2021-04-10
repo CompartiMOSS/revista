@@ -80,6 +80,7 @@ module.exports = {
         icon: 'src/images/compartimoss-icon.png'
       },
     },
+    'gatsby-plugin-offline',
     {
       resolve: 'gatsby-plugin-mdx-frontmatter'
     },
