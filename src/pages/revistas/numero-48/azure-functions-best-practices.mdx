@@ -1,0 +1,560 @@
+---
+title: Azure Functions Best Practices
+slug: /revistas/numero-48/azure-functions-best-practices
+date: 20/05/2021
+magazine: 48
+author: Sergio Parra Guerra
+authorId: sergio-parra
+keywords: ['Azure','Azure Functions']
+featuredImage: ../../../images/numero48/azure-functions-best-practices/image1.png
+---
+
+
+Has oído hablar de la potencia y versatilidad que tienen las
+aplicaciones serverless. Te han contado las maravillas de las Azure
+Functions. Ahora necesitas conocer las mejores prácticas para llevar al
+límite tus desarrollos. En el siguiente post veremos precisamente eso,
+qué mejores prácticas puedes emplear para implementar tus servicios
+serverless en la nube.
+
+**¿En qué consisten las mejores prácticas?**
+
+Para nosotros, las mejores prácticas en un desarrollo serverless
+consisten en procedimientos bien definidos y estructurados, tanto del
+diseño y codificación de la función como de su configuración en la nube.
+
+Las mejores prácticas las vamos a separar en 3 grupos de
+recomendaciones.
+
+-   De propósito general.
+
+-   De seguridad.
+
+-   De manejo de errores.
+
+**Mejores prácticas de propósito general**
+
+1.  Haz uso SIEMPRE del motor de inyección de dependencias.
+
+2.  Evita implementar funciones muy complejas y de larga duración. Cada
+    función debe tender al principio de responsabilidad única. En el
+    caso de una función muy grande debemos evaluar si se puede separar
+    en varias.
+
+3.  Evita comunicar una función con otra de forma directa por Http, lo
+    ideal es usar algún método de intercambio de mensajes o eventos como
+    Storage Queue, Service Bus, Event Hub.
+
+4.  Reutiliza componentes de comunicación de forma Singleton para tus
+    clientes Http en vez de crear uno en cada invocación a la función.
+
+5.  Programa siempre de forma asíncrona, evitas así bloqueos de llamadas
+    en tu código que puede incrementar el riesgo de tener ejecuciones
+    fallidas.
+
+6.  Separa la cuenta de almacenamiento de tus funciones de otras cuentas
+    de almacenamiento, así garantizas un escalado correcto de la misma.
+
+7.  En Azure Durable Functions cualquier método que hagas de forma
+    asíncrona usa por debajo una llamada a una actividad empleando el
+    contexto de ejecución para no llevarte sorpresas.
+
+8.  En Azure Durable Functions, toda llamada a una actividad que
+    necesite parámetros emplea tipos base o clases SERIALIZABLES.
+
+**Algo de código de estas mejores prácticas de propósito general**
+
+Para emplear el motor de inyección de dependencias, punto 1
+anteriormente descrito, sólo es necesario descargar este paquete Nuget
+Microsoft.Azure.Functions.Extensions e implementar una clase Startup que
+herede de **FunctionsStartup**. Expone varios métodos que se pueden
+sobrescribir como **Configure()** y **ConfigureAppConfiguration()**.
+
+```
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System.IO;
+
+[assembly: FunctionsStartup(typeof(Azbp.Async.Functions.Startup))]
+namespace Azbp.Async.Functions
+{
+public class Startup : FunctionsStartup
+{
+public override void Configure(IFunctionsHostBuilder builder)
+{
+ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
+var configuration = configurationBuilder
+.SetBasePath(Directory.GetCurrentDirectory())
+.AddJsonFile("local.settings.json", optional: true, reloadOnChange:
+true)
+.AddEnvironmentVariables()
+.Build();
+builder.Services.AddSingleton<IConfiguration>(configuration);
+builder.Services.AddHttpClient<ISwapiClient, SwapiClient>();
+builder.Services.AddSingleton<IQueueStorageRepository,
+QueueStorageRepository>();
+}
+}
+}
+```
+
+En este ejemplo vemos cómo existe un cliente Http que lo agregamos con
+el método de extensión AddHttpClient() que lo que hace es registrar
+dicho cliente en el motor de inyección de dependencias de forma
+Singleton, así el punto 4 anterior comprobamos que lo cumplimos.
+
+Vale, en el punto 2 os lo dejamos a vuestro criterio... ya sabéis,
+funciones pequeñas, que ejecuten una funcionalidad muy concreta y lo más
+rápidamente posible. Pensad que se cobra por tiempo de ejecución y
+memoria consumida, así que, si no queréis sorpresas en la factura,
+prestad mucha atención a este punto.
+
+El punto 3 es importante sobre todo por temas de desacoplamiento y de
+resiliencia. Los sistemas de intercambio de mensajes poseen modos de
+realizar reintentos.
+
+En este ejemplo se usa un repositorio para enviar mensajes a una cola,
+luego se implementa una función con un disparador que se ejecuta cuando
+en dicha cola se recibe un mensaje. En caso de que en esta función
+disparada se produjera alguna excepción, el gestor de colas volvería a
+procesar el evento varias veces.
+
+```
+private async Task CallAzureFunctionSendingMessage(ILogger log)
+{
+log.LogInformation($"Sending message to queue.");
+await queueStorageRepository.CreateMessageAsync("This is a test queue
+message");
+}
+
+[FunctionName(nameof(CallAzureFunctionQueue))]
+public async Task CallAzureFunctionQueue([QueueTrigger("demo",
+Connection = "ConnectionStrings:QueueDemo")] string myQueueItem,
+ILogger log)
+{
+log.LogInformation($"C# Queue trigger function processed:
+{myQueueItem}");
+throw new NotImplementedException();
+}
+```
+
+Pues sí, como se puede observar en el código siguiente, hay que emplear
+llamadas asíncronas para evitar cualquier tipo de bloqueo.
+
+```
+[FunctionName(nameof(CallAzureFunction))]
+public async Task<IActionResult> CallAzureFunction(
+[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)]
+HttpRequest req,
+ILogger log)
+{
+var parsed = Enum.TryParse(req.Query["commandType"], true, out
+CommandType commandType);
+if (parsed)
+{
+switch (commandType)
+{
+case CommandType.CallAzureFunctionDirectly:
+log.LogInformation($"Calling function directly.");
+await CallAzureFunctionDirectly(log);
+log.LogInformation($"Function called.");
+break;
+case CommandType.CallAzureFunctionSendingMessage:
+log.LogInformation($"Calling function using queue.");
+await CallAzureFunctionSendingMessage(log);
+log.LogInformation($"Function called.");
+break;
+}
+return new OkObjectResult("success");
+}
+return new BadRequestObjectResult("Invalid value in 'commandType'
+QueryString");
+}
+```
+
+Para las Azure Durable Functions, los puntos 7 y 8 son muy importantes
+ya que el motor de ejecución graba el estado de las actividades en un
+Table Storage asociado y para ello necesita realizar una serialización.
+Una vez que las orquestaciones procesan los mensajes correctamente, los
+registros de sus acciones resultantes se conservan en la tabla del
+Historial. Las entradas y salidas de orquestación, y los datos de estado
+personalizados también se conservan en la tabla de Instancias denominada
+Instances.
+
+Se muestra una lista de los diferentes tipos de datos que se
+serializarán y persistirán al usar las características de Durable
+Functions:
+
+-   Todas las entradas y salidas de las funciones de orquestador,
+    actividad y entidad, incluidos los identificadores y las excepciones
+    no controladas.
+
+-   Nombres de las funciones de orquestador, actividad y entidad.
+
+-   Nombres y cargas de eventos externos.
+
+-   Cargas de estado de la orquestación personalizada.
+
+-   Mensajes de finalización de orquestación.
+
+-   Cargas de temporizador duraderas.
+
+-   Direcciones URL, encabezados y cargas de solicitud y respuesta HTTP
+    duraderas.
+
+-   Cargas de llamadas y señales de entidades.
+
+-   Cargas de estado de entidades.
+
+Aquí vemos ejemplos de llamadas asíncronas empleando el contexto de
+ejecución de las Durable Function y sin usar el contexto.
+
+```
+[FunctionName(nameof(RunOrchestrator))]
+public async Task RunOrchestrator(
+[OrchestrationTrigger] IDurableOrchestrationContext context,
+ILogger log)
+{
+int maxNumberOfAttempts = 3;
+try
+{
+var commandType = Enum.Parse(typeof(CommandType),
+context.GetInput<string>());
+
+log.LogInformation($"Received command '{commandType}'.");
+
+switch (commandType)
+{
+case CommandType.CallAsyncWithActivity:
+log.LogInformation($"Calling async method using activity with retry
+options.");
+await CallAsyncWithActivity(context, maxNumberOfAttempts);
+log.LogInformation($"Async method using activity called.");
+break;
+case CommandType.CallAsyncWithoutActivity:
+log.LogInformation($"Calling async method in orchestrator
+directly.");
+await CallAsyncWithoutActivity();
+log.LogInformation($"Async method called.");
+break;
+case CommandType.PassingNonSerializableModel:
+log.LogInformation($"Passing Non Serializable parameter to
+Activity.");
+await PassingNonSerializableModel(context, maxNumberOfAttempts);
+log.LogInformation($"Async method called.");
+break;
+}
+}
+catch (Exception ex)
+{
+log.LogError($"Durable Function retried {maxNumberOfAttempts}
+attempts.");
+log.LogError($"Exception message: {ex.Message}.");
+}
+}
+
+[FunctionName(nameof(ActivityWithRetryAsync))]
+public async Task ActivityWithRetryAsync([ActivityTrigger] string
+item)
+{
+// call external Api
+await swapiClient.CallApiAsync();
+}
+
+[FunctionName(nameof(ActivityWithRetryAsyncNonSerializable))]
+public async Task
+ActivityWithRetryAsyncNonSerializable([ActivityTrigger] object item)
+{
+// call external Api
+await swapiClient.CallApiAsync();
+}
+
+private async Task
+PassingNonSerializableModel(IDurableOrchestrationContext context, int
+maxNumberOfAttempts)
+{
+var retryOptions = new RetryOptions(TimeSpan.FromSeconds(5),
+maxNumberOfAttempts);
+await
+context.CallActivityWithRetryAsync(nameof(ActivityWithRetryAsyncNonSerializable),
+retryOptions, new MemoryStream(100));
+}
+
+private async Task CallAsyncWithActivity(IDurableOrchestrationContext
+context, int maxNumberOfAttempts)
+{
+var retryOptions = new RetryOptions(TimeSpan.FromSeconds(5),
+maxNumberOfAttempts);
+await context.CallActivityWithRetryAsync(nameof(ActivityWithRetryAsync),
+retryOptions, context.GetInput<string>());
+}
+
+private async Task CallAsyncWithoutActivity()
+{
+// call external Api
+await swapiClient.CallApiAsync();
+}
+```
+
+**Mejores prácticas de seguridad**
+
+1.  Securiza los endpoints usando siempre HTTPS.
+
+2.  Toda clave de configuración que sea sensible debe de estar en un
+    Azure Key Vault.
+
+3.  Evita la configuración en archivo json, emplea variables de entorno
+    o Azure App Configuration.
+
+4.  Haz uso de las Managed Identities para securizar el acceso a
+    recursos.
+
+5.  Securiza tus funciones con Azure Active Directory y claves de
+    función.
+
+6.  Te recomendamos implementar un Azure Api Management para exponer tus
+    funciones.
+
+7.  Valida siempre tus inputs.
+
+8.  Restringe el acceso con CORS.
+
+9.  Deshabilita el acceso por FTP a tu Function App.
+
+10. Si es posible, emplea Private Links, Azure Application Gateway o
+    Azure FrontDoor.
+
+Todas estas recomendaciones se pueden realizar por ejemplo desde el
+portal de Azure o por comandos.
+
+**Mejores prácticas de manejo de errores**
+
+1.  Toda función debe ser implementada de forma idempotente, misma
+    entrada produce la misma salida, y sin guardar estados
+    (**stateless**). En una arquitectura serverless es necesario poder
+    aceptar solicitudes idénticas y de mantener la integridad de los
+    datos y la estabilidad del sistema, por lo que la idempotencia se
+    logra al garantizar que una acción determinada es posible y sólo se
+    ejecuta una vez.
+
+2.  Valida siempre tus inputs.
+
+3.  Usa manejadores de excepciones en cada función.
+
+4.  Implementa siempre políticas de reintentos tanto en tus Azure
+    Functions, como en las Azure Durable Functions al llamar a una
+    actividad.
+
+5.  Siempre debes programar de forma defensiva (no te fíes de nadie XD).
+
+6.  Monitoriza, monitoriza, ¿te hemos dicho que monitorices?
+
+**Algo de código de estas mejores prácticas de manejo de errores**
+
+Validar tus "inputs", es decir, hay que validar siempre el cuerpo de la
+petición recibida para no llevarnos sorpresas. Para ello vamos a suponer
+que se recibe una petición con este cuerpo.
+
+```
+public class Item
+{
+[JsonProperty("id")]
+[Required]
+public string Id { get; set; }
+[JsonProperty("name")]
+[Required]
+[StringLength(10)]
+public string Name { get; set; }
+}
+```
+
+Como se puede comprobar, se definen dos propiedades obligatorias y una
+de ellas el contenido debe de ser de 10 caracteres. Para realizar la
+validación de dicho contenido podemos implementarla de la siguiente
+forma (empleando la clase
+[System.ComponentModel.DataAnnotations.Validator](https://docs.microsoft.com/en-us/dotnet/api/system.componentmodel.dataannotations.validator?view=net-5.0))
+
+```
+[FunctionName(nameof(ValidateRequestBody))]
+public static async Task<IActionResult> ValidateRequestBody(
+[HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]
+HttpRequest req,
+ILogger log)
+{
+log.LogInformation("C# HTTP trigger function processed a request.");
+string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+var data = JsonConvert.DeserializeObject<Item>(requestBody);
+var validationResults = new List<ValidationResult>();
+var isValid = Validator.TryValidateObject(data, new
+ValidationContext(data, null, null), validationResults, true);
+string responseMessage = string.Empty;
+if (isValid)
+{
+responseMessage = "Model is valid";
+log.LogInformation(responseMessage);
+return new OkObjectResult(responseMessage);
+}
+else
+{
+responseMessage = $"Model is invalid: {string.Join(", ",
+validationResults.Select(s => s.ErrorMessage).ToArray())}";
+log.LogInformation(responseMessage);
+return new BadRequestObjectResult(responseMessage);
+}
+}
+```
+
+Como podéis ver, deserializamos la petición a nuestra clase con
+anotaciones y luego ejecutar la validación correspondiente.
+
+El punto 3 indicamos que todo código de una función debe de estar
+SIEMPRE dentro de un bloque try/catch como podemos ver en el siguiente
+ejemplo.
+
+```
+[FunctionName(nameof(Simplest))]
+public static async Task<IActionResult> Simplest(
+[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)]
+HttpRequest req,
+ILogger log)
+{
+log.LogInformation("C# HTTP trigger function processed a request.");
+try
+{
+var parsed = Enum.TryParse(req.Query["exceptionType"], true, out
+ExceptionType exceptionType);
+if (parsed)
+{
+Eval(exceptionType);
+}
+throw new InvalidCastException();
+}
+catch (Exception ex)
+{
+string responseMessage = string.Empty;
+switch (ex)
+{
+case ArgumentNullException t:
+responseMessage = nameof(ArgumentNullException);
+break;
+case ArgumentException t:
+responseMessage = nameof(ArgumentException);
+break;
+case InvalidOperationException t:
+responseMessage = nameof(InvalidOperationException);
+break;
+case OutOfMemoryException t:
+responseMessage = nameof(OutOfMemoryException);
+break;
+case InvalidCastException t:
+responseMessage = nameof(InvalidCastException);
+break;
+}
+
+log.LogError(responseMessage);
+return new OkObjectResult(responseMessage);
+}
+}
+```
+
+Para la parte de reintentos del punto 4 podemos decorar nuestras
+funciones con los siguientes atributos:
+
+-   **FixedDelayRetry**: Cada reintento se ejecuta en un determinado
+    espacio de tiempo fijo, en el ejemplo siguiente cada 5 segundos.
+
+-   **ExponentialBackoffRetry**: Cada reintento se ejecuta dentro de un
+    rango de tiempo establecido, en el ejemplo siguiente cada reintento
+    se ejecuta entre 5 segundos y 5 minutos.
+
+Los reintentos requieren el paquete NuGet
+[Microsoft.Azure.WebJobs](https://www.nuget.org/packages/Microsoft.Azure.WebJobs)
+>= 3.0.23.
+
+```
+[FunctionName(nameof(FixedDelayRetry))]
+[FixedDelayRetry(3, "00:00:05")]
+public static async Task<IActionResult> FixedDelayRetry(
+[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)]
+HttpRequest req,
+ILogger log)
+{
+log.LogInformation("C# HTTP trigger function processed a request.");
+log.LogInformation("FixedDelayRetry throwing exception");
+var exceptionMessage = "FixedDelayRetry thrown exception";
+throw new ApplicationException(exceptionMessage);
+}
+
+[FunctionName(nameof(ExponentialBackoffRetry))]
+[ExponentialBackoffRetry(3, "00:00:05", "00:05:00")]
+public static async Task<IActionResult> ExponentialBackoffRetry(
+[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)]
+HttpRequest req,
+ILogger log)
+{
+log.LogInformation("C# HTTP trigger function processed a request.");
+log.LogInformation("ExponentialBackoffRetry throwing exception");
+var exceptionMessage = "ExponentialBackoffRetry thrown exception";
+throw new ApplicationException(exceptionMessage);
+}
+```
+
+Veamos ahora cómo definir los reintentos en una Azure Durable Function
+al llamar a una Actividad, empleando RetryOptions y el método
+CallActivityWithRetryAsync(). En el ejemplo se define un máximo de 3
+reintentos al ejecutar una actividad y cada reintento se ejecuta cada 5
+segundos.
+
+```
+[FunctionName(nameof(RunOrchestrator))]
+public static async Task RunOrchestrator(
+[OrchestrationTrigger] IDurableOrchestrationContext context,
+ILogger log)
+{
+int maxNumberOfAttempts = 3;
+try
+{
+var item = context.GetInput<Item>();
+log.LogInformation($"Received new item in orchestration
+'{JsonConvert.SerializeObject(item)}'.");
+log.LogInformation($"Launch activity with retry options.");
+var retryOptions = new RetryOptions(TimeSpan.FromSeconds(5),
+maxNumberOfAttempts);
+await context.CallActivityWithRetryAsync(nameof(ActivityWithRetryAsync),
+retryOptions, item);
+}
+catch (Exception)
+{
+log.LogError($"Durable Function retried {maxNumberOfAttempts}
+attempts.");
+}
+}
+```
+
+NOTA: Algunos recursos de Azure como Azure Blob Storage, Azure Queue
+Storage, Azure Service Bus, Azure Cosmos DB, al emplear su SDK, se
+permite definir reintentos, a parte de los definidos a nuestras
+funciones.
+
+**¿Dónde puedo encontrar el código de ejemplo?**
+
+Podéis descargaros los proyectos de ejemplo en
+[https://github.com/sparraguerra/compartimoss/tree/master/AzureFunctionsBestPractices](https://github.com/sparraguerra/compartimoss/tree/master/AspNetCoreManageCookieInServer)
+
+**Conclusiones**
+
+Como conclusión diremos que deberías seguir este conjunto de buenas
+prácticas para que tus desarrollos serverless alcancen todo su
+potencial.
+
+Happy coding!
+
+**Sergio Parra Guerra** <br />
+Software & Cloud Architect at Encamina  <br />
+https://twitter.com/sparraguerra <br />
+
+**David Vidal Castillo** <br />
+Team Leader at Encamina <br />
+Microsoft MVP Developer Technologies <br />
+https://twitter.com/D_Vid_45 <br />

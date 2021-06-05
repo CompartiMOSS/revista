@@ -1,0 +1,466 @@
+**Event Grid Partner, publicando tu catálogo de Eventos**
+
+**Eventos con dos visiones, consumidor y publicador**
+
+Si recordamos el principal objetivo de Event Grid como servicio
+serverless, es "facilitar" la conectividad entre sistemas mediante una
+compleja arquitectura de Eventos.
+
+![Modelo de orígenes y controladores de Event
+Grid](c:\CompartiMOSS\convert\event-grid-partner-sergio-hernandez/media/image1.png){width="4.95in"
+height="2.7817552493438322in"}
+
+**Imagen** **1.- Event Grid schema.**
+
+Recodemos que en Event Grid tenemos que poner foco en el "cómo se
+publica", y en el cómo se "consume" un evento.
+
+Un publicador de eventos o desde este momento un "origen del evento",
+genera un mensaje o evento en un Topic, al cual tenemos suscriptos
+muchos controladores de eventos como pueden ser una Azure Function, una
+Logic App, un Services Bus o un Webhook personalizado de nuestro
+sistema.\
+\
+Event Grid nos proporcionaba todas las herramientas necesarias para
+asegurar el evento al Topic, y su posterior recepción en el controlador
+de eventos o handler, pero ¿Cómo gobernamos quien consume nuestros
+eventos? ¿Puedo separar esta relación entre el publicador y el
+consumidor?
+
+Todo esto lo vamos a conseguir con Event Grid Partner, que se centra en
+esa relación entre el suscriptor y el publicador, para hacerla mucho más
+amigable.
+
+**¿Qué es Event Grid Partner?**
+
+Event Grid Partner es una nueva "característica" de Event Grid, que
+actualmente está en preview y que nos permite publicar nuestros
+catálogos de eventos como si fuéramos un SaaS de terceros, con la
+concreta idea de que los sistemas que van a consumir estos eventos no
+tienen por qué conocer nada de la arquitectura de nuestros publicadores.
+
+Es decir, yo publico mis eventos en un único Topic o Tema Asociado en
+este caso, al cual se van a suscribir mis consumidores, sin tener
+conocimiento alguno de que hay por debajo, cosa que facilita mucho sobre
+todo al consumidor, pero también al publicador.
+
+-   **Como publicador**, esta nueva característica nos permite tener
+    nuestros eventos disponibles en Azure de forma global. Los usuarios
+    podrán filtrar además estos eventos y enrutarlos mediante el uso de
+    temas asociados, desde las suscripciones que son propiedad del
+    "consumidor", y nunca del publicador. En resumen, permite separar de
+    forma limpia la propiedad, administración y la facturación de los
+    recursos de los temas asociados, entre los publicadores y los
+    suscriptores.
+
+-   **Como consumidor,** vamos a recibir muchos más eventos, de estos
+    SaaS que no son de propiedad del consumidor, pero a los cuales vamos
+    a poder conectar nuestros sistemas, o lo que es lo mismo podemos
+    conectar por ejemplo servicios serverless como puede ser un Azure
+    Functions de nuestra suscripción, con un evento producido en la
+    suscripción de un cliente, o de un producto final como a futuro
+    puede ser un SharePoint, un Dynamics 365 o incluso de otros vendor
+    como podría ser una aplicación en Amazon Web Services.
+
+**¿Cómo funciona Event Grid Partner? ¿Cómo es el proceso de
+publicación?**
+
+Para poder profundizar un poco más en esta nueva funcionalidad de Event
+Grid, necesitamos conocer bien la arquitectura del servicio, y sobre
+todo el proceso de suscripción a un evento.
+
+Vale la pena recordar que tenemos las siguientes peculiaridades:
+
+-   Los eventos los vamos **a publicar al mundo**, de forma global
+    dentro de Azure, lo cual nuestra idea es que cualquiera desde el
+    Marketplace pueda llegar a esos eventos.
+
+-   **Tenemos que asegurarnos de hacer una publicación limpia** y muy
+    **informada**, ya que nuestros consumidores no les interesa conocer
+    el mecanismo de publicación de un evento, pero si conocer los datos
+    que van a recibir, que tipos de Topics pueden consumir desde sus
+    Handlers, y en consecuencia montar los mejores procesos posibles en
+    real time.
+
+-   **La trasmisión del mensaje de un evento para Event Grid Partner se
+    hace mediante el schema CloudEvents**, y no con el schema anterior
+    de Event Grid. Tiene sentido ya que CloudEvents se está convirtiendo
+    en un estándar de eventos como puede ser Open API en las API Rest.
+
+-   Todos los eventos los recoge el "consumidor" en un único Topic, o lo
+    que es lo mismo en una misma URL de Topic, donde podrá añadir las
+    suscripciones necesarias, los filtros y los enrutamientos.
+
+Una vez aclarado estos puntos clave, podemos empezar a "explicar el
+proceso de suscripción" a un evento asociado de Event Grid, y las piezas
+que tiene el sistema.
+
+![Eventos de asociado: flujo del plano de
+control](c:\CompartiMOSS\convert\event-grid-partner-sergio-hernandez/media/image2.png){width="4.783333333333333in"
+height="3.4913156167979005in"}
+
+**Imagen** **2.- Arquitectura de suscripción.**
+
+Como vemos en la figura anterior, por parte del "publicador tenemos las
+siguientes piezas":
+
+-   **Partner Registration:** Es un proceso en el cual debemos aportar a
+    Azure toda la información relativa al "publicador", para que el
+    equipo de producto pueda publicarnos en el menú de "Partners" de
+    Event Grid.\
+    Podemos deducir que, contra más información relativa a nuestros
+    eventos, procesos para suscribirse a los mismos e información de
+    nuestra compañía podamos aportar, será en beneficio de una más fácil
+    relación entre el publicador y el suscriptor.
+
+> Este paso al estar todavía el proceso en preview, requiere de una
+> "aprobación" por parte de Microsoft, que podemos obtener en el
+> siguiente
+> [enlace](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbRyGT9yd5Yv9CkUnhso_AhkRUMkpVOTlCRzc2TjJWRkcyVkVYNVg1QTkwSC4u&fswReload=1&fswNavStart=1621245707157).
+> Este paso es global y no está asociado a ninguna región de Azure en
+> concreto. Al crear hoy en día desde el portal de Azure el registro de
+> nuestro Partner evento, tendremos un resultado muy similar al de la
+> siguiente imagen.
+
+![Interfaz de usuario gráfica, Texto, Aplicación Descripción generada
+automáticamente](c:\CompartiMOSS\convert\event-grid-partner-sergio-hernandez/media/image3.png){width="5.905555555555556in"
+height="2.2784722222222222in"}
+
+**Imagen** **3.- Partner registration.**
+
+-   **Namespace:** El namespace es el punto de conexión a nuestro
+    "partner", y es un punto de conexión que en este caso si va
+    vinculado a una región. Podríamos decir que este es el punto de
+    entrada en el cual los "publicadores", van a ir dejando nuestros
+    eventos, y desde el cual vamos a ir enrutando vía "Topics", a los
+    distintos suscriptores los mismos.
+
+> Un namespace está siempre vinculado a un Partner, y en la práctica
+> podemos tener más de uno por Partner. Como vemos en la siguiente
+> imagen, esto nos recuerda muy mucho a "un Domain", en Event Grid, ya
+> que nos permite centralizar en una URL los eventos de nuestro sistema.
+
+![Imagen que contiene Gráfico Descripción generada
+automáticamente](c:\CompartiMOSS\convert\event-grid-partner-sergio-hernandez/media/image4.png){width="5.905555555555556in"
+height="2.654166666666667in"}
+
+**Imagen** **4.- Namespace EG.**
+
+-   **Channel:** El último paso es crear un "Channel" o varios,
+    asociados a un "Namespace". Este nivel ya de "channel", nos asociada
+    a un suscriptor con nuestro partner de Event Grid.
+
+![Aplicación Descripción generada automáticamente con confianza
+media](c:\CompartiMOSS\convert\event-grid-partner-sergio-hernandez/media/image5.png){width="5.905555555555556in"
+height="0.9375in"}
+
+**Imagen** **5.- Channels EG.**
+
+SI revisamos la imagen anterior, podemos ver que un "Namespace", en mi
+caso tiene 3 Canales para añadir, borrar y editar un elemento de mi
+catálogo de eventos. Esto nos recuerda mucho a la agrupación de Topics
+en un "Event Domain" de Event Grid.
+
+Donde antes teníamos un "conjunto" de topics, ahora tenemos un conjunto
+de "channels" asociados a un namespace, desde el cual con una única URL
+podemos centralizar todos los eventos, a los cuales se van a suscribir
+nuestros clientes.
+
+-   **Topic:** Es el nivel más bajo de nuestra arquitectura de eventos
+    para un partner, pero el único que nosotros no debemos crear. Ya que
+    cada "channel", tiene un Topic asociado, que es al que se van a
+    suscribir los distintos clientes de nuestros eventos.
+
+> La diferencia es que a este Topic no se le puede mandar eventos de
+> forma manual como hacíamos con un "Custom Topic", si no que siempre
+> los envía el Namespace vía el canal correspondiente.
+>
+> Podemos decir ahora revisando la figura siguiente, que un cliente se
+> va a suscribir a un "Channel" determinado, desde el cual tendrá un
+> topic y enrutados los eventos que nosotros decidamos enviar desde el
+> Namespace.
+
+![Eventos de asociado: flujo del plano de
+control](c:\CompartiMOSS\convert\event-grid-partner-sergio-hernandez/media/image2.png){width="2.788461286089239in"
+height="2.0352755905511812in"}
+
+**Imagen** **6.- Arquitectura suscripción.**
+
+**Consumiendo eventos de terceros, Auth0**
+
+Para probar esta funcionalidad, la forma más directa es "consumir" el
+primer SaaS que se ha subido al carro de los Partners Events. En este
+caso podemos conectarnos a los eventos de Auth0, una conocida plataforma
+para gestionar las identidades de tus aplicaciones y 100% disponible en
+modo SaaS.
+
+Para empezar a utilizar estos eventos necesitamos:
+
+-   Crear una licencia trial de Auth0, desde la cual podemos empezar
+    hacer nuestras pruebas ([Sign Up -
+    Auth0](https://auth0.com/signup?&signUpData=%7B%22category%22%3A%22docs%22%7D))
+
+-   Crear un Event Grid partner Topic de Auth0 y para ello podemos desde
+    el portal de Azure seguir los siguientes pasos:
+
+    1.  Buscar en el market place la opción "Event Grid Partner Topic" y
+        darle a Crear.
+
+    2.  Nos llevará al listado de Partner, que ahora mismo solo cuenta
+        con Auth0, pero en el cual pueden estar tus eventos si sigues el
+        proceso de publicación que hemos visto antes. Seleccionamos el
+        Topic de Auth0, y empezamos a crear la conexión entre Azure y
+        Auth0
+
+![Interfaz de usuario gráfica, Texto Descripción generada
+automáticamente](c:\CompartiMOSS\convert\event-grid-partner-sergio-hernandez/media/image6.png){width="3.1666666666666665in"
+height="3.2538024934383203in"}
+
+**Imagen** **7.- Auth0 Topic.**
+
+3.  El paso de creación de la suscripción y por tanto la creación del
+    Topic a Auth0 se hace 100% desde el portal propio de Auth0, y
+    podremos acceder desde el enlace "To Auth0 website", que vemos en la
+    imagen anterior.
+
+4.  Los pasos a seguir los tenemos en el siguiente enlace [Stream Logs
+    to Azure Event Grid
+    (auth0.com)](https://auth0.com/docs/logs/streams/stream-logs-to-azure-event-grid),
+    y en resumen nos crea un Stream de datos entre Event Grid y el
+    Partner de Auth0 como vemos en la siguiente imagen.
+
+![Interfaz de usuario gráfica, Texto, Aplicación Descripción generada
+automáticamente](c:\CompartiMOSS\convert\event-grid-partner-sergio-hernandez/media/image7.png){width="5.057692475940508in"
+height="2.4515299650043745in"}
+
+**Imagen** **8.- Auth0 streaming.**
+
+> Todo esto del lado de Auth0, del lado de Azure observaremos que en la
+> suscripción que hayamos escogido nos creará un "Topic", en el cual
+> Auth0 dejará todos los eventos de su sistema ([listado
+> eventos](https://auth0.com/docs/logs/log-event-type-codes)), y al cual
+> podremos añadir una suscripción de un webhook nuestro, como por
+> ejemplo podría ser un Azure Functions.
+
+![Texto Descripción generada automáticamente con confianza
+media](c:\CompartiMOSS\convert\event-grid-partner-sergio-hernandez/media/image8.png){width="5.1474354768153985in"
+height="2.2625962379702536in"}
+
+**Imagen** **9.- Topic Auth0 en Azure.**
+
+> Desde este momento, Auth0 enviará siempre un evento con un schema
+> CloudEvent cada vez que suceda algo en nuestra cuenta de Auth0
+> relacionado con uno de los muchos eventos existentes, como el
+> siguiente:
+>
+> {
+>
+> \"specversion\": \"1.0\",
+>
+> \"id\": \"90020200430183047601000053476708863112207860729269714946\",
+>
+> \"source\": \"urn:uuid:184d388d-16f3-4c1f-8bdb-35afc787cd12\",
+>
+> \"type\": \"com.auth0.Log\",
+>
+> \"datacontenttype\": \"application/json\",
+>
+> \"data\": {
+>
+> \"date\": \"2020-01-29T17:26:50.193Z\",
+>
+> \"type\": \"sapi\",
+>
+> \"description\": \"Create a log stream\",
+>
+> \"client_id\": \"\",
+>
+> \"client_name\": \"\",
+>
+> \"ip\": \"\",
+>
+> \"user_id\": \"\",
+>
+> \"log_id\":
+> \"90020200430183047601000053476708863112207860729269714946\"
+>
+> }
+>
+> }
+
+**Consumiendo nuestros Eventos CloudEvents con Azure Functions y desde
+Auth0**
+
+El último paso que tenemos que trabajar,es en el "suscribir" nuestros
+webhook, en este caso un Azure Functions a nuestro Topic de Event Grid
+Partner. Para ello lo primero es entender que como vamos a usar
+CloudEvents, no podemos usar los Triggers de Event Grid para Azure
+Functions, ya que no entendería el mensaje que manda Auth0, y debemos
+crear una function con un HTTP trigger.
+
+El código va a ser muy estándar, y lo único que debemos tener en cuenta
+es:
+
+-   Debemos hacer de forma manual la "suscripción" al Topic, y en
+    momento de creación del handler en el portal de Azure nuestro código
+    tiene que devolver lo siguiente:
+
+> if (req.Method == HttpMethod.Options)
+>
+> {
+>
+> // If the request is for subscription validation, send back the
+> validation code
+>
+> var response = req.CreateResponse(HttpStatusCode.OK);
+>
+> response.Headers.Add(\"Webhook-Allowed-Origin\",
+> \"eventgrid.azure.net\");
+>
+> return response;
+>
+> }
+
+-   El mapeo del "data" del evento no nos lo da el propio binding de
+    Event Grid, como con Event Grid Schema, y lo tenemos que hacer de
+    forma manual:
+
+> var requestmessage = await req.Content.ReadAsStringAsync();
+>
+> var message = JToken.Parse(requestmessage);
+>
+> // The request isn\'t for subscription validation, so it\'s for an
+> event.
+>
+> // CloudEvents schema delivers one event at a time.
+>
+> log.LogInformation(\$\"Source: {message\[\"source\"\]}\");
+>
+> log.LogInformation(\$\"Time: {message\[\"eventTime\"\]}\");
+>
+> log.LogInformation(\$\"Event data: {message\[\"data\"\]}\");
+
+El Código completo de nuestra Función es el siguiente:
+
+public static class AuthHandlerCustomPartnerTopic
+
+{
+
+static readonly HttpClient client = new HttpClient();
+
+\[FunctionName(\"AuthHandlerCustomPartnerTopic\")\]
+
+public static async Task\<HttpResponseMessage\> Run(
+
+\[HttpTrigger(AuthorizationLevel.Function, \"post\",
+\"options\",\"get\", Route = null)\] HttpRequestMessage req,
+
+ILogger log)
+
+{
+
+log.LogInformation(\"C\# HTTP trigger function processed a request.\");
+
+if (req.Method == HttpMethod.Options)
+
+{
+
+// If the request is for subscription validation, send back the
+validation code
+
+var response = req.CreateResponse(HttpStatusCode.OK);
+
+response.Headers.Add(\"Webhook-Allowed-Origin\",
+\"eventgrid.azure.net\");
+
+return response;
+
+}
+
+var requestmessage = await req.Content.ReadAsStringAsync();
+
+var message = JToken.Parse(requestmessage);
+
+log.LogInformation(\$\"Source: {message\[\"source\"\]}\");
+
+log.LogInformation(\$\"Time: {message\[\"eventTime\"\]}\");
+
+log.LogInformation(\$\"Event data: {message\[\"data\"\]}\");
+
+return req.CreateResponse(request.StatusCode);
+
+}
+
+}
+
+}
+
+Si publicamos esta función en Azure, y accedemos al Topic que se nos ha
+generado desde Auth0, podremos añadir una nueva "suscripción", y
+escogeremos en este caso un webhook con la URL de nuestra Azure
+Functions, ya que por el mismo motivo que hemos visto en el código, al
+ser un schema CloudEvents no nos deja elegir un Azure Functions en el
+portal.
+
+![Interfaz de usuario gráfica, Texto, Aplicación Descripción generada
+automáticamente](c:\CompartiMOSS\convert\event-grid-partner-sergio-hernandez/media/image9.png){width="2.2756408573928257in"
+height="1.6775623359580052in"}
+
+**Imagen** **10.- Suscipción EG.**
+
+Si todo ha ido de forma correcta nos debe aparecer la suscripción en el
+listado inferior de la página Overview de nuestro Topic. Si accedemos a
+la suscripción comprobaremos que es como cualquier otra suscripción a un
+Topic, y podremos aplicar enrutamiento, filtros o seguridad a la misma.
+
+![Interfaz de usuario gráfica, Texto, Aplicación, Correo electrónico
+Descripción generada
+automáticamente](c:\CompartiMOSS\convert\event-grid-partner-sergio-hernandez/media/image10.png){width="4.173077427821522in"
+height="1.832836832895888in"}
+
+**Imagen** **11.- Webhook con Fx.**
+
+Por último, para probar que todo funciona correctamente, abrimos la
+consola de nuestra Azure Functions por un lado y accedemos a nuestra
+cuenta de Auth0, y en la propia Home se nos ofrecerá hacer una prueba
+del servicio, y en concreto un formulario de login.
+
+![Interfaz de usuario gráfica, Aplicación Descripción generada
+automáticamente](c:\CompartiMOSS\convert\event-grid-partner-sergio-hernandez/media/image11.png){width="3.1282053805774277in"
+height="3.6821894138232723in"}
+
+**Imagen** **12.- Testing Login.**
+
+Si por ejemplo hacemos la prueba y el resultado de login es "erroneo",
+se generará un evento de login, con el detalle del error, y lo
+recepcionará nuestra Azure Function.
+
+![Interfaz de usuario gráfica, Texto, Aplicación Descripción generada
+automáticamente](c:\CompartiMOSS\convert\event-grid-partner-sergio-hernandez/media/image12.png){width="5.905555555555556in"
+height="2.6368055555555556in"}
+
+**Imagen** **13.- Testing Fx.**
+
+**El servicio avanza y no hay quien lo pare**
+
+Bueno pues el titular lo dice todo, esto no para, y si bien muchos
+pensarían que esto de Event Grid es para otros, o para arquitecturas
+complejas, no es así para nada. Cada vez tenemos más escenarios de
+ejecución, y no solo referidos a complejas arquitecturas EDA, donde
+requiere un coste y una inversión muy alta en servicios como Service Bus
+entre otros.\
+\
+Esta nueva visión de que SaaS de los que no somos propietarios, nos
+dejen en tiempo real un catálogo de eventos, desde los cuales podemos
+sacar mucha información y una integración mucha más limpia, nos va a
+permitir crecer mucho alrededor de productos, y no tanto invertir en
+extenderlos.
+
+Por otro lado, para los que ya usaramos Event Grid, se nos abre un
+escenario de gobierno muy interesante, pudiendo separar a publicadores y
+suscriptores, de tal forma que los recursos, los costes y el gobierno
+vaya por separado, permitiendo no "acoplarlos" unos a otros.
+
+Sergio Hernández Mancebo
+
+Azure MVP
