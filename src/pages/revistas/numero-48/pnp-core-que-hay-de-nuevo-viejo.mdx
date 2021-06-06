@@ -1,4 +1,14 @@
-**PnP Core -- ¿Qué hay de nuevo, viejo?**
+---
+title: PnP Core -- ¿Qué hay de nuevo, viejo?
+slug: /revistas/numero-48/pnp-core-que-hay-de-nuevo-viejo
+date: 20/05/2021
+magazine: 48
+author: Luis Mañez
+authorId: luis-manez
+keywords: ['PnP','Pnp Core']
+featuredImage: ../../../images/numero48/pnp-core-que-hay-de-nuevo-viejo/image1.png
+---
+
 
 A estas alturas, por todos es conocido el programa Patterns and
 Practices, también conocido como PnP, que se dedica a ayudarnos en
@@ -33,11 +43,8 @@ componente desde cero, quedando así 3 versiones, que en algún momento se
 espera se unifiquen. La siguiente imagen, del propio equipo del PnP
 trata de explicarlo.
 
-![PnP dotnet
-roadmap](c:\CompartiMOSS\convert\pnp-core-que-hay-de-nuevo-viejo-luis-manez/media/image1.png){width="6.268055555555556in"
-height="3.5256944444444445in"}
+![Imagen 1.- Versiones de PnP Core.](../../../images/numero48/pnp-core-que-hay-de-nuevo-viejo/image1.png)
 
-**Imagen 1.- Versiones de PnP Core.**
 
 -   **PnP-Sites-Core**: el componente "original", quedaría ya
     "Deprecated", así que se recomienda no usarlo. No se va a invertir
@@ -69,10 +76,8 @@ La siguiente tabla intenta explicar las principales diferencias entre
 versiones, sirviendo de apoyo a la hora de decidir qué versión es más
 apropiada para nuestra solución.
 
-![](c:\CompartiMOSS\convert\pnp-core-que-hay-de-nuevo-viejo-luis-manez/media/image2.png){width="6.268055555555556in"
-height="3.4833333333333334in"}
+![Imagen 2.- Diferencias entre las versiones de PnP Core.](../../../images/numero48/pnp-core-que-hay-de-nuevo-viejo/image2.png)
 
-**Imagen 2.- Diferencias entre las versiones de PnP Core.**
 
 Como resumen, mi consejo es que, si tu solución necesita hacer uso del
 framework de Provisioning, vas a necesitar usar el PnPFramework. Para
@@ -105,14 +110,12 @@ Una vez configurada nuestra aplicación en Azure AD, lo siguiente que
 necesitamos es añadir el paquete PnPCore a nuestro proyecto \*no lo
 agregues
 
-![](c:\CompartiMOSS\convert\pnp-core-que-hay-de-nuevo-viejo-luis-manez/media/image3.png){width="4.950534776902887in"
-height="0.3416666666666667in"}
+![](../../../images/numero48/pnp-core-que-hay-de-nuevo-viejo/image3.png)
 
 Como no queremos montarnos nuestra propia Auth, vamos a hacer uso del
 paquete de Auth que nos ofrece el PnP:
 
-![](c:\CompartiMOSS\convert\pnp-core-que-hay-de-nuevo-viejo-luis-manez/media/image4.png){width="4.968670166229221in"
-height="0.31666666666666665in"}
+![](../../../images/numero48/pnp-core-que-hay-de-nuevo-viejo/image4.png)
 
 Para el ejemplo, voy a utilizar una aplicación de consola. El PnP está
 basado en Inyección de Dependencias (algo que te será muy familiar si ya
@@ -120,8 +123,7 @@ trabajar con asp.net), y proporciona dos métodos principales para
 configurar el propio SDK de PnPCore, así como la parte de Auth. Para
 nuestra app de consola, el esqueleto principal del método Main, sería:
 
-![](c:\CompartiMOSS\convert\pnp-core-que-hay-de-nuevo-viejo-luis-manez/media/image5.png){width="4.1302384076990375in"
-height="3.8594028871391077in"}
+![](../../../images/numero48/pnp-core-que-hay-de-nuevo-viejo/image5.png)
 
 Toda esta configuración, se puede especificar desde un fichero de
 settings, cosa que tenéis documentada aquí:
@@ -130,8 +132,7 @@ para nuestro ejemplo, vamos a hacerlo desde código, estableciendo las
 opciones más habituales. Para la configuración del PnPCore, podemos
 hacer algo como:
 
-![](c:\CompartiMOSS\convert\pnp-core-que-hay-de-nuevo-viejo-luis-manez/media/image6.png){width="5.139064960629922in"
-height="2.4916666666666667in"}
+![](../../../images/numero48/pnp-core-que-hay-de-nuevo-viejo/image6.png)
 
 Fijaros como tenemos opciones para decidir si queremos usar Graph API
 siempre que sea posible (incluso si existe la opción de sacar esa misma
@@ -152,22 +153,19 @@ En nuestro caso, vamos a hacer uso del proveedor para Auth interactiva.
 Una vez definidos los proveedores, podemos asociar los Sites definidos
 en el apartado anterior, con el proveedor. En nuestro caso quedaría:
 
-![](c:\CompartiMOSS\convert\pnp-core-que-hay-de-nuevo-viejo-luis-manez/media/image7.png){width="5.9167104111986in"
-height="3.078147419072616in"}
+![](../../../images/numero48/pnp-core-que-hay-de-nuevo-viejo/image7.png)
 
 Una vez configurados tanto el SDK como la Auth, ya podemos sacar un
 contexto y acceder a la información deseada. En este caso vamos a sacar
 el título de la Site Collection
 
-![](c:\CompartiMOSS\convert\pnp-core-que-hay-de-nuevo-viejo-luis-manez/media/image8.png){width="5.390664916885389in"
-height="1.4323020559930009in"}
+![](../../../images/numero48/pnp-core-que-hay-de-nuevo-viejo/image8.png)
 
 Podemos obtener el contexto también a través del ID de un Group de
 Graph, o a través de una URL, por lo que no siempre es necesario
 configurar dicho Site en la sección de "*AddPnPCore*".
 
-![](c:\CompartiMOSS\convert\pnp-core-que-hay-de-nuevo-viejo-luis-manez/media/image9.png){width="3.635442913385827in"
-height="0.8593810148731409in"}
+![](../../../images/numero48/pnp-core-que-hay-de-nuevo-viejo/image9.png)
 
 A partir de aquí, ya podéis hacer uso de todo lo que ofrece PnPCore para
 acceder a la información de Listas, Páginas, Teams, Syntex, etc. Para
@@ -182,8 +180,8 @@ Nada más, espero que os sea de utilidad.
 
 ¡Hasta el próximo artículo!
 
-**Luis Mañez** -- Cloud Architect en ClearPeople LTD
-
-MVP Office Development\
-\@luismanez\
+**Luis Mañez** <br />
+Cloud Architect en ClearPeople LTD <br />
+MVP Office Development <br />
+@luismanez <br />
 <https://github.com/luismanez>

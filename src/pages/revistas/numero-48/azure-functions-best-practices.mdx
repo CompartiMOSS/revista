@@ -79,23 +79,23 @@ using System.IO;
 [assembly: FunctionsStartup(typeof(Azbp.Async.Functions.Startup))]
 namespace Azbp.Async.Functions
 {
-public class Startup : FunctionsStartup
-{
-public override void Configure(IFunctionsHostBuilder builder)
-{
-ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-var configuration = configurationBuilder
-.SetBasePath(Directory.GetCurrentDirectory())
-.AddJsonFile("local.settings.json", optional: true, reloadOnChange:
-true)
-.AddEnvironmentVariables()
-.Build();
-builder.Services.AddSingleton<IConfiguration>(configuration);
-builder.Services.AddHttpClient<ISwapiClient, SwapiClient>();
-builder.Services.AddSingleton<IQueueStorageRepository,
-QueueStorageRepository>();
-}
-}
+    public class Startup : FunctionsStartup
+    {
+        public override void Configure(IFunctionsHostBuilder builder)
+        {
+            ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
+            var configuration = configurationBuilder
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("local.settings.json", optional: true, reloadOnChange:
+                true)
+                .AddEnvironmentVariables()
+                .Build();
+            
+            builder.Services.AddSingleton<IConfiguration>(configuration);
+            builder.Services.AddHttpClient<ISwapiClient, SwapiClient>();
+            builder.Services.AddSingleton<IQueueStorageRepository, QueueStorageRepository>();
+        }
+    }
 }
 ```
 
@@ -123,19 +123,17 @@ procesar el evento varias veces.
 ```
 private async Task CallAzureFunctionSendingMessage(ILogger log)
 {
-log.LogInformation($"Sending message to queue.");
-await queueStorageRepository.CreateMessageAsync("This is a test queue
-message");
+    log.LogInformation($"Sending message to queue.");
+    await queueStorageRepository.CreateMessageAsync("This is a test queue message");
 }
 
 [FunctionName(nameof(CallAzureFunctionQueue))]
 public async Task CallAzureFunctionQueue([QueueTrigger("demo",
-Connection = "ConnectionStrings:QueueDemo")] string myQueueItem,
-ILogger log)
+    Connection = "ConnectionStrings:QueueDemo")] string myQueueItem,
+    ILogger log)
 {
-log.LogInformation($"C# Queue trigger function processed:
-{myQueueItem}");
-throw new NotImplementedException();
+        log.LogInformation($"C# Queue trigger function processed: {myQueueItem}");
+        throw new NotImplementedException();
 }
 ```
 
@@ -149,27 +147,25 @@ public async Task<IActionResult> CallAzureFunction(
 HttpRequest req,
 ILogger log)
 {
-var parsed = Enum.TryParse(req.Query["commandType"], true, out
-CommandType commandType);
-if (parsed)
-{
-switch (commandType)
-{
-case CommandType.CallAzureFunctionDirectly:
-log.LogInformation($"Calling function directly.");
-await CallAzureFunctionDirectly(log);
-log.LogInformation($"Function called.");
-break;
-case CommandType.CallAzureFunctionSendingMessage:
-log.LogInformation($"Calling function using queue.");
-await CallAzureFunctionSendingMessage(log);
-log.LogInformation($"Function called.");
-break;
-}
-return new OkObjectResult("success");
-}
-return new BadRequestObjectResult("Invalid value in 'commandType'
-QueryString");
+    var parsed = Enum.TryParse(req.Query["commandType"], true, out CommandType commandType);
+    if (parsed)
+    {
+        switch (commandType)
+        {
+        case CommandType.CallAzureFunctionDirectly:
+            log.LogInformation($"Calling function directly.");
+            await CallAzureFunctionDirectly(log);
+            log.LogInformation($"Function called.");
+            break;
+        case CommandType.CallAzureFunctionSendingMessage:
+            log.LogInformation($"Calling function using queue.");
+            await CallAzureFunctionSendingMessage(log);
+            log.LogInformation($"Function called.");
+            break;
+        }
+        return new OkObjectResult("success");
+    }
+    return new BadRequestObjectResult("Invalid value in 'commandType' QueryString");
 }
 ```
 
@@ -216,84 +212,75 @@ public async Task RunOrchestrator(
 [OrchestrationTrigger] IDurableOrchestrationContext context,
 ILogger log)
 {
-int maxNumberOfAttempts = 3;
-try
-{
-var commandType = Enum.Parse(typeof(CommandType),
-context.GetInput<string>());
+    int maxNumberOfAttempts = 3;
+    try
+    {
+        var commandType = Enum.Parse(typeof(CommandType),
+        context.GetInput<string>());
 
-log.LogInformation($"Received command '{commandType}'.");
+        log.LogInformation($"Received command '{commandType}'.");
 
-switch (commandType)
-{
-case CommandType.CallAsyncWithActivity:
-log.LogInformation($"Calling async method using activity with retry
-options.");
-await CallAsyncWithActivity(context, maxNumberOfAttempts);
-log.LogInformation($"Async method using activity called.");
-break;
-case CommandType.CallAsyncWithoutActivity:
-log.LogInformation($"Calling async method in orchestrator
-directly.");
-await CallAsyncWithoutActivity();
-log.LogInformation($"Async method called.");
-break;
-case CommandType.PassingNonSerializableModel:
-log.LogInformation($"Passing Non Serializable parameter to
-Activity.");
-await PassingNonSerializableModel(context, maxNumberOfAttempts);
-log.LogInformation($"Async method called.");
-break;
-}
-}
-catch (Exception ex)
-{
-log.LogError($"Durable Function retried {maxNumberOfAttempts}
-attempts.");
-log.LogError($"Exception message: {ex.Message}.");
-}
+        switch (commandType)
+        {
+            case CommandType.CallAsyncWithActivity:
+                log.LogInformation($"Calling async method using activity with retry options.");
+                await CallAsyncWithActivity(context, maxNumberOfAttempts);
+                log.LogInformation($"Async method using activity called.");
+                break;
+            case CommandType.CallAsyncWithoutActivity:
+                log.LogInformation($"Calling async method in orchestrator directly.");
+                await CallAsyncWithoutActivity();
+                log.LogInformation($"Async method called.");
+                break;
+            case CommandType.PassingNonSerializableModel:
+                log.LogInformation($"Passing Non Serializable parameter to Activity.");
+                await PassingNonSerializableModel(context, maxNumberOfAttempts);
+                log.LogInformation($"Async method called.");
+                break;
+        }
+    }
+    catch (Exception ex)
+    {
+        log.LogError($"Durable Function retried {maxNumberOfAttempts} attempts.");
+        log.LogError($"Exception message: {ex.Message}.");
+    }
 }
 
 [FunctionName(nameof(ActivityWithRetryAsync))]
 public async Task ActivityWithRetryAsync([ActivityTrigger] string
 item)
 {
-// call external Api
-await swapiClient.CallApiAsync();
+    // call external Api
+    await swapiClient.CallApiAsync();
 }
 
 [FunctionName(nameof(ActivityWithRetryAsyncNonSerializable))]
 public async Task
 ActivityWithRetryAsyncNonSerializable([ActivityTrigger] object item)
 {
-// call external Api
-await swapiClient.CallApiAsync();
+    // call external Api
+    await swapiClient.CallApiAsync();
 }
 
 private async Task
 PassingNonSerializableModel(IDurableOrchestrationContext context, int
 maxNumberOfAttempts)
 {
-var retryOptions = new RetryOptions(TimeSpan.FromSeconds(5),
-maxNumberOfAttempts);
-await
-context.CallActivityWithRetryAsync(nameof(ActivityWithRetryAsyncNonSerializable),
-retryOptions, new MemoryStream(100));
+    var retryOptions = new RetryOptions(TimeSpan.FromSeconds(5), maxNumberOfAttempts);
+    await context.CallActivityWithRetryAsync(nameof(ActivityWithRetryAsyncNonSerializable), retryOptions, new MemoryStream(100));
 }
 
 private async Task CallAsyncWithActivity(IDurableOrchestrationContext
 context, int maxNumberOfAttempts)
 {
-var retryOptions = new RetryOptions(TimeSpan.FromSeconds(5),
-maxNumberOfAttempts);
-await context.CallActivityWithRetryAsync(nameof(ActivityWithRetryAsync),
-retryOptions, context.GetInput<string>());
+    var retryOptions = new RetryOptions(TimeSpan.FromSeconds(5), maxNumberOfAttempts);
+    await context.CallActivityWithRetryAsync(nameof(ActivityWithRetryAsync), retryOptions, context.GetInput<string>());
 }
 
 private async Task CallAsyncWithoutActivity()
 {
-// call external Api
-await swapiClient.CallApiAsync();
+    // call external Api
+    await swapiClient.CallApiAsync();
 }
 ```
 
@@ -359,13 +346,14 @@ que se recibe una petición con este cuerpo.
 ```
 public class Item
 {
-[JsonProperty("id")]
-[Required]
-public string Id { get; set; }
-[JsonProperty("name")]
-[Required]
-[StringLength(10)]
-public string Name { get; set; }
+    [JsonProperty("id")]
+    [Required]
+    public string Id { get; set; }
+
+    [JsonProperty("name")]
+    [Required]
+    [StringLength(10)]
+    public string Name { get; set; }
 }
 ```
 
@@ -382,26 +370,26 @@ public static async Task<IActionResult> ValidateRequestBody(
 HttpRequest req,
 ILogger log)
 {
-log.LogInformation("C# HTTP trigger function processed a request.");
-string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-var data = JsonConvert.DeserializeObject<Item>(requestBody);
-var validationResults = new List<ValidationResult>();
-var isValid = Validator.TryValidateObject(data, new
-ValidationContext(data, null, null), validationResults, true);
-string responseMessage = string.Empty;
-if (isValid)
-{
-responseMessage = "Model is valid";
-log.LogInformation(responseMessage);
-return new OkObjectResult(responseMessage);
-}
-else
-{
-responseMessage = $"Model is invalid: {string.Join(", ",
-validationResults.Select(s => s.ErrorMessage).ToArray())}";
-log.LogInformation(responseMessage);
-return new BadRequestObjectResult(responseMessage);
-}
+    log.LogInformation("C# HTTP trigger function processed a request.");
+    string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+    var data = JsonConvert.DeserializeObject<Item>(requestBody);
+    var validationResults = new List<ValidationResult>();
+    var isValid = Validator.TryValidateObject(data, new
+    ValidationContext(data, null, null), validationResults, true);
+    string responseMessage = string.Empty;
+    if (isValid)
+    {
+        responseMessage = "Model is valid";
+        log.LogInformation(responseMessage);
+        return new OkObjectResult(responseMessage);
+    }
+    else
+    {
+        responseMessage = $"Model is invalid: {string.Join(", ",
+        validationResults.Select(s => s.ErrorMessage).ToArray())}";
+        log.LogInformation(responseMessage);
+        return new BadRequestObjectResult(responseMessage);
+    }
 }
 ```
 
@@ -419,42 +407,41 @@ public static async Task<IActionResult> Simplest(
 HttpRequest req,
 ILogger log)
 {
-log.LogInformation("C# HTTP trigger function processed a request.");
-try
-{
-var parsed = Enum.TryParse(req.Query["exceptionType"], true, out
-ExceptionType exceptionType);
-if (parsed)
-{
-Eval(exceptionType);
-}
-throw new InvalidCastException();
-}
-catch (Exception ex)
-{
-string responseMessage = string.Empty;
-switch (ex)
-{
-case ArgumentNullException t:
-responseMessage = nameof(ArgumentNullException);
-break;
-case ArgumentException t:
-responseMessage = nameof(ArgumentException);
-break;
-case InvalidOperationException t:
-responseMessage = nameof(InvalidOperationException);
-break;
-case OutOfMemoryException t:
-responseMessage = nameof(OutOfMemoryException);
-break;
-case InvalidCastException t:
-responseMessage = nameof(InvalidCastException);
-break;
-}
+    log.LogInformation("C# HTTP trigger function processed a request.");
+    try
+    {
+        var parsed = Enum.TryParse(req.Query["exceptionType"], true, out ExceptionType exceptionType);
+        if (parsed)
+        {
+            Eval(exceptionType);
+        }
+        throw new InvalidCastException();
+    }
+    catch (Exception ex)
+    {
+        string responseMessage = string.Empty;
+        switch (ex)
+        {
+            case ArgumentNullException t:
+                responseMessage = nameof(ArgumentNullException);
+                break;
+            case ArgumentException t:
+                responseMessage = nameof(ArgumentException);
+                break;
+            case InvalidOperationException t:
+                responseMessage = nameof(InvalidOperationException);
+                break;
+            case OutOfMemoryException t:
+                responseMessage = nameof(OutOfMemoryException);
+                break;
+            case InvalidCastException t:
+                responseMessage = nameof(InvalidCastException);
+                break;
+        }
 
-log.LogError(responseMessage);
-return new OkObjectResult(responseMessage);
-}
+        log.LogError(responseMessage);
+        return new OkObjectResult(responseMessage);
+    }
 }
 ```
 
@@ -469,8 +456,7 @@ funciones con los siguientes atributos:
     se ejecuta entre 5 segundos y 5 minutos.
 
 Los reintentos requieren el paquete NuGet
-[Microsoft.Azure.WebJobs](https://www.nuget.org/packages/Microsoft.Azure.WebJobs)
->= 3.0.23.
+[Microsoft.Azure.WebJobs](https://www.nuget.org/packages/Microsoft.Azure.WebJobs) >= 3.0.23.
 
 ```
 [FunctionName(nameof(FixedDelayRetry))]
@@ -480,10 +466,10 @@ public static async Task<IActionResult> FixedDelayRetry(
 HttpRequest req,
 ILogger log)
 {
-log.LogInformation("C# HTTP trigger function processed a request.");
-log.LogInformation("FixedDelayRetry throwing exception");
-var exceptionMessage = "FixedDelayRetry thrown exception";
-throw new ApplicationException(exceptionMessage);
+    log.LogInformation("C# HTTP trigger function processed a request.");
+    log.LogInformation("FixedDelayRetry throwing exception");
+    var exceptionMessage = "FixedDelayRetry thrown exception";
+    throw new ApplicationException(exceptionMessage);
 }
 
 [FunctionName(nameof(ExponentialBackoffRetry))]
@@ -493,10 +479,10 @@ public static async Task<IActionResult> ExponentialBackoffRetry(
 HttpRequest req,
 ILogger log)
 {
-log.LogInformation("C# HTTP trigger function processed a request.");
-log.LogInformation("ExponentialBackoffRetry throwing exception");
-var exceptionMessage = "ExponentialBackoffRetry thrown exception";
-throw new ApplicationException(exceptionMessage);
+    log.LogInformation("C# HTTP trigger function processed a request.");
+    log.LogInformation("ExponentialBackoffRetry throwing exception");
+    var exceptionMessage = "ExponentialBackoffRetry thrown exception";
+    throw new ApplicationException(exceptionMessage);
 }
 ```
 
@@ -512,23 +498,19 @@ public static async Task RunOrchestrator(
 [OrchestrationTrigger] IDurableOrchestrationContext context,
 ILogger log)
 {
-int maxNumberOfAttempts = 3;
-try
-{
-var item = context.GetInput<Item>();
-log.LogInformation($"Received new item in orchestration
-'{JsonConvert.SerializeObject(item)}'.");
-log.LogInformation($"Launch activity with retry options.");
-var retryOptions = new RetryOptions(TimeSpan.FromSeconds(5),
-maxNumberOfAttempts);
-await context.CallActivityWithRetryAsync(nameof(ActivityWithRetryAsync),
-retryOptions, item);
-}
-catch (Exception)
-{
-log.LogError($"Durable Function retried {maxNumberOfAttempts}
-attempts.");
-}
+    int maxNumberOfAttempts = 3;
+    try
+    {
+        var item = context.GetInput<Item>();
+        log.LogInformation($"Received new item in orchestration '{JsonConvert.SerializeObject(item)}'.");
+        log.LogInformation($"Launch activity with retry options.");
+        var retryOptions = new RetryOptions(TimeSpan.FromSeconds(5), maxNumberOfAttempts);
+        await context.CallActivityWithRetryAsync(nameof(ActivityWithRetryAsync), retryOptions, item);
+    }
+    catch (Exception)
+    {
+        log.LogError($"Durable Function retried {maxNumberOfAttempts} attempts.");
+    }
 }
 ```
 

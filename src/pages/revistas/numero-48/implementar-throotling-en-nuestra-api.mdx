@@ -1,16 +1,14 @@
-**Implementar Throttling en nuestra API en .NET Core**
+---
+title: Implementar Throttling en nuestra API en .NET Core
+slug: /revistas/numero-48/implementar-throotling-en-nuestra-api
+date: 20/05/2021
+magazine: 48
+author: Adrian Diaz
+authorId: adrian-diaz
+keywords: ['.NET Core','API']
+featuredImage: ../../../images/numero48/implementar-throotling-en-nuestra-api/image1.png
+---
 
-**Resumen**
-
-Muchas veces cuando implementamos una API Rest nos centramos en su
-diseño, el control de errores, la nomenclatura de los endpoints, la base
-de datos que vamos a utilizar, etc... pero muchas veces nos olvidamos de
-los aspectos de seguridad. En este articulo vamos a ver cómo añadir
-algunos elementos de seguridad a nuestra API: vamos a ver cómo podemos
-implementar un middleware de throttling, de una forma muy simple y
-sencilla.
-
-**Artículo**
 
 Muchas veces cuando implementamos una API Rest nos centramos en du
 diseño, el control de errores, la nomenclatura de los endpoints, la base
@@ -141,198 +139,115 @@ alternativa. Para ello dentro la carpeta Store nos crearemos las
 siguientes clases:
 
 ICounterStore.cs
-
+```
 using Compartimoss.Example.Throttling.Model;
-
 using System;
-
 using System.Threading;
-
 using System.Threading.Tasks;
-
 namespace Compartimoss.Example.AspNetCore.Throttling.Stores
-
 {
-
     public interface ICounterStore
-
     {
-
-        Task\<bool\> ExistsAsync(string id, CancellationToken cancellationToken = default);
-
-        Task\<Counter\> GetAsync(string id, CancellationToken cancellationToken = default);
-
+        Task<bool> ExistsAsync(string id, CancellationToken cancellationToken = default);
+        Task<Counter> GetAsync(string id, CancellationToken cancellationToken = default);
         Task RemoveAsync(string id, CancellationToken cancellationToken = default);
-
         Task SetAsync(string id, Counter entry, TimeSpan? expirationTime = null, CancellationToken cancellationToken = default);
-
     }
-
 }
+```
 
 IRuleStore.cs
-
+```
 using Compartimoss.Example.Throttling.Model;
-
 using System.Threading;
-
 using System.Threading.Tasks;
-
 namespace  Compartimoss.Example.AspNetCore.Throttling.Stores
-
 {
-
     public interface IRuleStore
-
     {
-
-        Task\<RuleCollection\> GetAsync(CancellationToken cancellationToken = default);
-
+        Task<RuleCollection> GetAsync(CancellationToken cancellationToken = default);
     }
-
 }
+```
 
 Ahora vamos a su implementación la Store de las Reglas, que directamente
 se las vamos a pasar dentro de la configuración de la propia WebApi:
 
+```
 using Compartimoss.Example.Throotling.Model;
-
 using Microsoft.Extensions.Options;
-
 using System.Threading;
-
 using System.Threading.Tasks;
-
 namespace Compartimoss.Example.AspNetCore.Throttling.Stores
-
 {
-
     internal class ConfigurationRuleStore : IRuleStore
-
     {
-
-        private readonly RuleCollection \_rules;
-
-        public ConfigurationRuleStore(IOptions\<RuleCollection\> options)
-
+        private readonly RuleCollection _rules;
+        public ConfigurationRuleStore(IOptions<RuleCollection> options)
         {
-
-            \_rules = options.Value;
-
+            _rules = options.Value;
         }
-
-        public Task\<RuleCollection\> GetAsync(CancellationToken cancellationToken = default)
-
+        public Task<RuleCollection> GetAsync(CancellationToken cancellationToken = default)
         {
-
-            return Task.FromResult(\_rules);
-
-        }
-
-        
-
-    }
-
+            return Task.FromResult(_rules);
+        }   
+   }
 }
+```
 
 Para la implementación de los Contadores, vamos a utilizar la
 [MemoryCache](https://docs.microsoft.com/es-es/dotnet/api/system.runtime.caching.memorycache?view=dotnet-plat-ext-5.0)
 
 MemoryCacheCounter.cs
-
+```
 using Compartimoss.Example.AspNetCore.Throttling.Stores;
-
 using Compartimoss.Example.Throotling.Model;
-
 using Microsoft.Extensions.Caching.Memory;
-
 using System;
-
 using System.Threading;
-
 using System.Threading.Tasks;
-
 namespace Lidl.Library.AspNetCore.Throttling.Stores
-
 {
-
     internal class MemoryCacheCounterStore : ICounterStore
-
     {
-
-        private readonly IMemoryCache \_cache;
-
+        private readonly IMemoryCache _cache;
         public MemoryCacheCounterStore(IMemoryCache cache)
-
         {
-
-            \_cache = cache;
-
+            _cache = cache;
         }
-
-        public Task\<bool\> ExistsAsync(string id, CancellationToken cancellationToken = default)
-
+        public Task<bool> ExistsAsync(string id, CancellationToken cancellationToken = default)
         {
-
-            return Task.FromResult(\_cache.TryGetValue(id, out \_));
-
+            return Task.FromResult(_cache.TryGetValue(id, out _));
         }
-
-        public Task\<Counter\> GetAsync(string id, CancellationToken cancellationToken = default)
-
+        public Task<Counter> GetAsync(string id, CancellationToken cancellationToken = default)
         {
-
-            if (\_cache.TryGetValue(id, out Counter stored))
-
+            if (_cache.TryGetValue(id, out Counter stored))
             {
-
                 return Task.FromResult(stored);
-
             }
-
             return Task.FromResult(default(Counter));
-
         }
-
         public Task RemoveAsync(string id, CancellationToken cancellationToken = default)
-
         {
-
-            \_cache.Remove(id);
-
+            _cache.Remove(id);
             return Task.CompletedTask;
-
         }
-
         public Task SetAsync(string id, Counter entry, TimeSpan? expirationTime = null, CancellationToken cancellationToken = default)
-
         {
-
             var options = new MemoryCacheEntryOptions
-
             {
-
                 Priority = CacheItemPriority.NeverRemove
-
             };
-
             if (expirationTime.HasValue)
-
             {
-
                 options.SetAbsoluteExpiration(expirationTime.Value);
-
             }
-
-            \_cache.Set(id, entry, options);
-
+            _cache.Set(id, entry, options);
             return Task.CompletedTask;
-
         }
-
     }
-
 }
+```
 
 **Servicio Throttling**
 
@@ -351,307 +266,168 @@ queremos. Vamos a implementar un servicio que tenga cuatro métodos:
 
 Para ellos nos quedaría un servicio de la siguiente forma:
 
+```
 using System.Collections. Generic;
-
 using System.Threading;
-
 using System.Threading.Tasks;
-
 using Compartimoss.Example.Throotling.Model;
-
 using Compartimoss.Example.Throttling.Model;
-
 namespace Compartimoss.Example.Throttling.Services
-
 {
-
     public interface IThrottlingService
-
     {
-
-        Task\<IEnumerable\<Rule\>\> GetMatchingRulesAsync(RequestIdentity identity, CancellationToken cancellationToken = default);
-
+        Task<IEnumerable<Rule>> GetMatchingRulesAsync(RequestIdentity identity, CancellationToken cancellationToken = default);
         RateLimitHeaders GetRateLimitHeaders(Counter counter, Rule rule, CancellationToken cancellationToken = default);
-
-        Task\<Counter\> ProcessRequestAsync(RequestIdentity requestIdentity, Rule rule, CancellationToken cancellationToken = default);
-
-        Task\<bool\> IsWhitelistedAsync(RequestIdentity requestIdentity, CancellationToken cancellationToken = default);
-
+        Task<Counter> ProcessRequestAsync(RequestIdentity requestIdentity, Rule rule, CancellationToken cancellationToken = default);
+        Task<bool> IsWhitelistedAsync(RequestIdentity requestIdentity, CancellationToken cancellationToken = default);
     }
-
 }
+```
 
 Su implementación queda de la siguiente forma:
 
+```
 using System;
-
 using System.Collections.Generic;
-
 using System.Globalization;
-
 using System.Linq;
-
 using System.Security.Cryptography;
-
 using System.Text;
-
 using System.Threading;
-
 using System.Threading.Tasks;
-
 using Compartimoss.Example.AspNetCore.Throttling.Stores;
-
 using Compartimoss.Example.Throotling.Model;
-
 using Compartimoss.Example.Throttling.Model;
-
 using Compartimoss.Example.Throttling.Utilities;
-
 namespace Compartimoss.Example.Throttling.Services
-
 {
-
     public class ThrottlingService : IThrottlingService
-
     {
-
         /// The key-lock used for limiting requests.
-
         private static readonly AsyncKeyLock AsyncLock = new AsyncKeyLock();
-
-        private readonly IRuleStore \_ruleStore;
-
-        private readonly ICounterStore \_counterStore;
-
-        private readonly ICounterKeyService \_counterKeyBuilder;
-
+        private readonly IRuleStore _ruleStore;
+        private readonly ICounterStore _counterStore;
+        private readonly ICounterKeyService _counterKeyBuilder;
         public ThrottlingService(IRuleStore ruleStore, ICounterStore counterStore, ICounterKeyService counterKeyBuilder)
-
         {
-
-            \_ruleStore = ruleStore;
-
-            \_counterStore = counterStore;
-
-            \_counterKeyBuilder = counterKeyBuilder;
-
+            _ruleStore = ruleStore;
+            _counterStore = counterStore;
+            _counterKeyBuilder = counterKeyBuilder;
         }
-
-        public async Task\<IEnumerable\<Rule\>\> GetMatchingRulesAsync(RequestIdentity identity, CancellationToken cancellationToken = default)
-
+        public async Task<IEnumerable<Rule>> GetMatchingRulesAsync(RequestIdentity identity, CancellationToken cancellationToken = default)
         {
-
-            var rules = await \_ruleStore.GetAsync(cancellationToken);
-
+            var rules = await _ruleStore.GetAsync(cancellationToken);
             if (rules?.Rules?.Any() == true)
-
             {
-
                 return rules.Rules
-
-                            .Where(item =\> (item.Ip == \"\*\" \|\| IpParser.ContainsIp(item.Ip, identity.Ip)) && RuleMatches(identity, rules, item))
-
-                            .GroupBy(l =\> l.Period)
-
-                            .Select(l =\> l.OrderBy(x =\> x.Limit))
-
-                            .Select(l =\> l.First())
-
-                            .OrderBy(l =\> l.PeriodTimespan)
-
+                            .Where(item => (item.Ip == "*" || IpParser.ContainsIp(item.Ip, identity.Ip)) && RuleMatches(identity, rules, item))
+                            .GroupBy(l => l.Period)
+                            .Select(l => l.OrderBy(x => x.Limit))
+                            .Select(l => l.First())
+                            .OrderBy(l => l.PeriodTimespan)
                             .ToList();
-
             }
-
-            return new Rule\[0\];
-
+            return new Rule[0];
         }
 
-        public async Task\<bool\> IsWhitelistedAsync(RequestIdentity requestIdentity, CancellationToken cancellationToken = default)
-
+        public async Task<bool> IsWhitelistedAsync(RequestIdentity requestIdentity, CancellationToken cancellationToken = default)
         {
-
-            var rules = await \_ruleStore.GetAsync(cancellationToken);
-
+            var rules = await _ruleStore.GetAsync(cancellationToken);
             if (rules==null)
-
             {
-
                 return false;
-
             }
-
             if (rules.IpWhitelist != null && IpParser.ContainsIp(rules.IpWhitelist, requestIdentity.Ip))
-
             {
-
                 return true;
-
             }
-
             if (rules.EndpointWhitelist != null && rules.EndpointWhitelist.Any())
-
             {
-
-                var path = rules.EnableRegexRuleMatching ? \$\".+:{requestIdentity.Path}\" : \$\"\*:{requestIdentity.Path}\";
-
-                return rules.EndpointWhitelist.Any(x =\> \$\"{requestIdentity.HttpMethod}:{requestIdentity.Path}\".IsUrlMatch(x, rules.EnableRegexRuleMatching))
-
-                       \|\| rules.EndpointWhitelist.Any(x =\> path.IsUrlMatch(x, rules.EnableRegexRuleMatching));
-
+                var path = rules.EnableRegexRuleMatching ? $".+:{requestIdentity.Path}" : $"*:{requestIdentity.Path}";
+                return rules.EndpointWhitelist.Any(x => $"{requestIdentity.HttpMethod}:{requestIdentity.Path}".IsUrlMatch(x, rules.EnableRegexRuleMatching))
+                       || rules.EndpointWhitelist.Any(x => path.IsUrlMatch(x, rules.EnableRegexRuleMatching));
             }
-
             return false;
-
         }
 
-        public async Task\<Counter\> ProcessRequestAsync(RequestIdentity requestIdentity, Rule rule, CancellationToken cancellationToken = default)
-
+        public async Task<Counter> ProcessRequestAsync(RequestIdentity requestIdentity, Rule rule, CancellationToken cancellationToken = default)
         {
-
             var counter = new Counter
-
             {
-
                 Timestamp = DateTime.UtcNow,
-
                 Count = 1
-
             };
-
             var counterId = BuildCounterKey(requestIdentity, rule);
-
             using (await AsyncLock.WriterLockAsync(counterId).ConfigureAwait(false))
-
             {
-
-                var entry = await \_counterStore.GetAsync(counterId, cancellationToken);
-
+                var entry = await _counterStore.GetAsync(counterId, cancellationToken);
                 if (entry != null)
-
                 {
-
                     // entry has not expired
-
-                    if (entry.Timestamp + rule.PeriodTimespan.Value \>= DateTime.UtcNow)
-
+                    if (entry.Timestamp + rule.PeriodTimespan.Value >= DateTime.UtcNow)
                     {
-
                         // increment request count
-
                         var totalCount = entry.Count + 1;
-
                         // deep copy
-
                         counter = new Counter
-
                         {
-
                             Timestamp = entry.Timestamp,
-
                             Count = totalCount
-
                         };
-
                     }
-
                 }
-
                 // stores: id (string) - timestamp (datetime) - total_requests (long)
-
-                await \_counterStore.SetAsync(counterId, counter, rule.PeriodTimespan.Value, cancellationToken);
-
+                await _counterStore.SetAsync(counterId, counter, rule.PeriodTimespan.Value, cancellationToken);
             }
-
             return counter;
-
         }
 
         public RateLimitHeaders GetRateLimitHeaders(Counter counter, Rule rule, CancellationToken cancellationToken = default)
-
         {
-
             var reset = (counter?.Timestamp ?? DateTime.UtcNow) + (rule.PeriodTimespan ?? rule.Period.ToTimeSpan());
-
             var remaining = rule.Limit - (counter?.Count ?? 0);
-
             return new RateLimitHeaders
-
             {
-
-                Reset = reset.ToUniversalTime().ToString(\"o\", DateTimeFormatInfo.InvariantInfo),
-
+                Reset = reset.ToUniversalTime().ToString("o", DateTimeFormatInfo.InvariantInfo),
                 Limit = rule.Period,
-
                 Remaining = remaining.ToString()
-
             };
-
         }
 
         private string BuildCounterKey(RequestIdentity requestIdentity, Rule rule)
-
         {
-
-            var key = \_counterKeyBuilder.Create(requestIdentity, rule);
-
+            var key = _counterKeyBuilder.Create(requestIdentity, rule);
             var bytes = Encoding.UTF8.GetBytes(key);
-
             using (var algorithm = new SHA1Managed())
-
             {
-
                 var hash = algorithm.ComputeHash(bytes);
-
                 return Convert.ToBase64String(hash);
-
             }
-
         }
 
         private bool RuleMatches(RequestIdentity identity, RuleCollection rules, Rule item)
-
         {
-
-            var path1 = rules.EnableRegexRuleMatching ? \$\".+:{identity.Path}\" : \$\"\*:{identity.Path}\";
-
-            var path2 = \$\"{identity.HttpMethod}:{identity.Path}\";
-
+            var path1 = rules.EnableRegexRuleMatching ? $".+:{identity.Path}" : $"*:{identity.Path}";
+            var path2 = $"{identity.HttpMethod}:{identity.Path}";
             if (path1.IsUrlMatch(item.Endpoint, rules.EnableRegexRuleMatching))
-
             {
-
-                // search for rules with endpoints like \"\*\" and \"\*:/matching_path\"
-
+                // search for rules with endpoints like "*" and "*:/matching_path"
                 return true;
-
             }
-
             if (path2.IsUrlMatch(item.Endpoint, rules.EnableRegexRuleMatching))
-
             {
-
-                // search for rules with endpoints like \"matching_verb:/matching_path\"
-
+                // search for rules with endpoints like "matching_verb:/matching_path"
                 return true;
-
             }
-
-            if (item.Endpoint == \"\*\")
-
+            if (item.Endpoint == "*")
             {
-
                 return true;
-
             }
-
             return false;
-
         }
-
     }
-
 }
+```
 
 **Implementación del Middleware**
 
@@ -662,283 +438,151 @@ que se tiene que ejecutar muy rápido y que una mala implementación de
 este puede provocar que nuestro desarrollo tenga un problema de
 performance. El middleware quedaría de la siguiente forma:
 
+```
 using Compartimoss.Example.Throotling.Model;
-
 using Compartimoss.Example.Throttling.Model;
-
 using Compartimoss.Example.Throttling.Services;
-
 using Compartimoss.Example.Throttling.Utilities;
-
 using Microsoft.AspNetCore.Http;
-
 using Microsoft.Extensions.Logging;
-
 using Microsoft.Extensions.Options;
-
 using System;
-
 using System.Collections.Generic;
-
 using System.Linq;
-
 using System.Threading.Tasks;
-
 namespace  Compartimoss.Example.Throttling
-
 {
-
     internal class ThrottlingMiddleware : IMiddleware
-
     {
-
-        private readonly ThrottlingOptions \_options;
-
-        private readonly IThrottlingService \_processor;
-
-        private readonly IRequestIdentityService \_requestIdentityService;
-
-        private readonly ILogger\<ThrottlingMiddleware\> \_logger;
-
-        public ThrottlingMiddleware(IOptions\<ThrottlingOptions\> options, IThrottlingService processor, IRequestIdentityService requestIdentityService, ILogger\<ThrottlingMiddleware\> logger)
-
+        private readonly ThrottlingOptions _options;
+        private readonly IThrottlingService _processor;
+        private readonly IRequestIdentityService _requestIdentityService;
+        private readonly ILogger<ThrottlingMiddleware> _logger;
+        public ThrottlingMiddleware(IOptions<ThrottlingOptions> options, IThrottlingService processor, IRequestIdentityService requestIdentityService, ILogger<ThrottlingMiddleware> logger)
         {
-
-            \_options = options.Value;
-
-            \_processor = processor;
-
-            \_requestIdentityService = requestIdentityService;
-
-            \_logger = logger;
-
+            _options = options.Value;
+            _processor = processor;
+            _requestIdentityService = requestIdentityService;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
-
         {
-
             // check if rate limiting is enabled
-
-            if (\_options == null)
-
+            if (_options == null)
             {
-
                 await next.Invoke(context);
-
                 return;
-
             }
-
             // check if throotling is enabled
-
-            if (!\_options.Enabled)
-
+            if (!_options.Enabled)
             {
-
                 await next.Invoke(context);
-
                 return;
-
             }
-
             // compute identity from request
-
-            var identity = \_requestIdentityService.Resolve();
-
+            var identity = _requestIdentityService.Resolve();
             // check white list
-
-            if (await \_processor.IsWhitelistedAsync(identity))
-
+            if (await _processor.IsWhitelistedAsync(identity))
             {
-
                 await next.Invoke(context);
-
                 return;
-
             }
-
-            var rules = await \_processor.GetMatchingRulesAsync(identity, context.RequestAborted);
-
-            var rulesDict = new Dictionary\<Rule, Counter\>();
-
+            var rules = await _processor.GetMatchingRulesAsync(identity, context.RequestAborted);
+            var rulesDict = new Dictionary<Rule, Counter>();
             foreach (var rule in rules)
-
             {
-
                 // increment counter
-
-                var rateLimitCounter = await \_processor.ProcessRequestAsync(identity, rule, context.RequestAborted);
-
-                if (rule.Limit \> 0)
-
+                var rateLimitCounter = await _processor.ProcessRequestAsync(identity, rule, context.RequestAborted);
+                if (rule.Limit > 0)
                 {
-
                     // check if key expired
-
-                    if (rateLimitCounter.Timestamp + rule.PeriodTimespan.Value \< DateTime.UtcNow)
-
+                    if (rateLimitCounter.Timestamp + rule.PeriodTimespan.Value < DateTime.UtcNow)
                     {
-
                         continue;
-
                     }
-
                     // check if limit is reached
-
-                    if (rateLimitCounter.Count \> rule.Limit)
-
+                    if (rateLimitCounter.Count > rule.Limit)
                     {
-
                         //compute retry after value
-
                         var retryAfter = rateLimitCounter.Timestamp.RetryAfterFrom(rule);
-
                         // log blocked request
-
-                        LogBlockedRequest(context, identity, rateLimitCounter, rule, \_options.Mode);
-
-                        if (\_options.Mode == ThrottlingMode.Restricted)
-
+                        LogBlockedRequest(context, identity, rateLimitCounter, rule, _options.Mode);
+                        if (_options.Mode == ThrottlingMode.Restricted)
                         {
-
-                            if (\_options.RequestBlockedBehaviorAsync != null)
-
+                            if (_options.RequestBlockedBehaviorAsync != null)
                             {
-
-                                await \_options.RequestBlockedBehaviorAsync(context, identity, rateLimitCounter, rule);
-
+                                await _options.RequestBlockedBehaviorAsync(context, identity, rateLimitCounter, rule);
                             }
-
                             // break execution
-
                             await ReturnQuotaExceededResponse(context, rule, retryAfter);
-
                             return;
-
                         }
-
                     }
-
                 }
-
                 // if limit is zero or less, block the request.
-
                 else
-
                 {
-
                     // log blocked request
-
-                    LogBlockedRequest(context, identity, rateLimitCounter, rule, \_options.Mode);
-
-                    if (\_options.Mode == ThrottlingMode.Restricted)
-
+                    LogBlockedRequest(context, identity, rateLimitCounter, rule, _options.Mode);
+                    if (_options.Mode == ThrottlingMode.Restricted)
                     {
-
-                        if (\_options.RequestBlockedBehaviorAsync != null)
-
+                        if (_options.RequestBlockedBehaviorAsync != null)
                         {
-
-                            await \_options.RequestBlockedBehaviorAsync(context, identity, rateLimitCounter, rule);
-
+                            await _options.RequestBlockedBehaviorAsync(context, identity, rateLimitCounter, rule);
                         }
-
                         // break execution (Int32 max used to represent infinity)
-
                         await ReturnQuotaExceededResponse(context, rule, int.MaxValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
-
                         return;
-
                     }
-
                 }
-
                 rulesDict.Add(rule, rateLimitCounter);
-
             }
-
             // set X-Rate-Limit headers for the longest period
-
-            if (rulesDict.Any() && !\_options.DisableRateLimitHeaders)
-
+            if (rulesDict.Any() && !_options.DisableRateLimitHeaders)
             {
-
-                var rule = rulesDict.OrderByDescending(x =\> x.Key.PeriodTimespan).FirstOrDefault();
-
-                var headers = \_processor.GetRateLimitHeaders(rule.Value, rule.Key, context.RequestAborted);
-
+                var rule = rulesDict.OrderByDescending(x => x.Key.PeriodTimespan).FirstOrDefault();
+                var headers = _processor.GetRateLimitHeaders(rule.Value, rule.Key, context.RequestAborted);
                 headers.Context = context;
-
                 context.Response.OnStarting(SetRateLimitHeaders, state: headers);
-
             }
-
             await next.Invoke(context);
-
         }
 
         private Task ReturnQuotaExceededResponse(HttpContext httpContext, Rule rule, string retryAfter)
-
         {
-
             var message = string.Format(
-
-                \_options.QuotaExceededResponse?.Content ??
-
-                \_options.QuotaExceededMessage ??
-
-                \"API calls quota exceeded! maximum admitted {0} per {1}.\", rule.Limit, rule.Period, retryAfter);
-
-            if (!\_options.DisableRateLimitHeaders)
-
+                _options.QuotaExceededResponse?.Content ??
+                _options.QuotaExceededMessage ??
+                "API calls quota exceeded! maximum admitted {0} per {1}.", rule.Limit, rule.Period, retryAfter);
+            if (!_options.DisableRateLimitHeaders)
             {
-
-                httpContext.Response.Headers\[\"Retry-After\"\] = retryAfter;
-
+                httpContext.Response.Headers["Retry-After"] = retryAfter;
             }
-
-            httpContext.Response.StatusCode = \_options.QuotaExceededResponse?.StatusCode ?? \_options.HttpStatusCode;
-
-            httpContext.Response.ContentType = \_options.QuotaExceededResponse?.ContentType ?? \"text/plain\";
-
+            httpContext.Response.StatusCode = _options.QuotaExceededResponse?.StatusCode ?? _options.HttpStatusCode;
+            httpContext.Response.ContentType = _options.QuotaExceededResponse?.ContentType ?? "text/plain";
             return httpContext.Response.WriteAsync(message);
-
         }
 
         private Task SetRateLimitHeaders(object rateLimitHeaders)
-
         {
-
             var headers = (RateLimitHeaders)rateLimitHeaders;
-
-            headers.Context.Response.Headers\[\"X-Rate-Limit-Limit\"\] = headers.Limit;
-
-            headers.Context.Response.Headers\[\"X-Rate-Limit-Remaining\"\] = headers.Remaining;
-
-            headers.Context.Response.Headers\[\"X-Rate-Limit-Reset\"\] = headers.Reset;
-
+            headers.Context.Response.Headers["X-Rate-Limit-Limit"] = headers.Limit;
+            headers.Context.Response.Headers["X-Rate-Limit-Remaining"] = headers.Remaining;
+            headers.Context.Response.Headers["X-Rate-Limit-Reset"] = headers.Reset;
             return Task.CompletedTask;
-
         }
 
         private void LogBlockedRequest(HttpContext httpContext, RequestIdentity identity, Counter counter, Rule rule, ThrottlingMode mode)
-
         {
-
             var message = (mode == ThrottlingMode.Restricted)
-
-                ? \$\"Request {identity.HttpMethod}:{identity.Path} from IP {identity.Ip} has been blocked, quota {rule.Limit}/{rule.Period} exceeded by {counter.Count - rule.Limit}. Blocked by rule {rule.Endpoint}, TraceIdentifier {httpContext.TraceIdentifier}.\"
-
-                : \$\"\[Skip\] Request {identity.HttpMethod}:{identity.Path} from IP {identity.Ip} shold be blocked but i\'m in observe mode, quota {rule.Limit}/{rule.Period} exceeded by {counter.Count - rule.Limit}. Blocked by rule {rule.Endpoint}, TraceIdentifier {httpContext.TraceIdentifier}.\";
-
-            \_logger.LogWarning(message);
-
+                ? $"Request {identity.HttpMethod}:{identity.Path} from IP {identity.Ip} has been blocked, quota {rule.Limit}/{rule.Period} exceeded by {counter.Count - rule.Limit}. Blocked by rule {rule.Endpoint}, TraceIdentifier {httpContext.TraceIdentifier}."
+                : $"[Skip] Request {identity.HttpMethod}:{identity.Path} from IP {identity.Ip} shold be blocked but i'm in observe mode, quota {rule.Limit}/{rule.Period} exceeded by {counter.Count - rule.Limit}. Blocked by rule {rule.Endpoint}, TraceIdentifier {httpContext.TraceIdentifier}.";
+            _logger.LogWarning(message);
         }
-
     }
-
 }
+```
 
 **Configurando el Middleware**
 
@@ -947,90 +591,61 @@ de configurar el arranque de nuestra app según los métodos que hemos
 implementado en la carpeta de inyección de dependencias. Para ello en el
 método ConfigureService del Startup añadiremos esta configuración:
 
-             services.AddThrottling(p =\>
-
+```
+             services.AddThrottling(p =>
             {
-
                 p.Enabled = true;
-
                 p.Mode = ThrottlingMode.Restricted;
-
                 p.CounterStoreType = CounterStoreType.InMemory;
-
             })
-
-            .AddRules(p =\> Configuration.GetSection(\"Throttling\").Bind(p));
+            .AddRules(p => Configuration.GetSection("Throttling").Bind(p));
+```
 
 Y en el método Configure algo tan sencillo como:
 
+```
   app.UseThrottling();
+```
 
 Ahora lo que nos queda es configurar las settings de nuestra aplicación
 por ejemplo como las siguientes:
 
+```
 {
-
-  \"Logging\": {
-
-    \"LogLevel\": {
-
-      \"Default\": \"Information\",
-
-      \"Microsoft\": \"Warning\",
-
-      \"Microsoft.Hosting.Lifetime\": \"Information\"
-
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
     }
-
   },
-
-  \"Throttling\": {
-
-    \"EndpointWhitelist\": \[ \"\*:/WeatherForecast/Three\" \],
-
-    \"IpWhitelist\": \[\],
-
-    \"StackBlockedRequests\": true,
-
-    \"EnableRegexRuleMatching\": false,
-
-    \"Rules\": \[
-
+  "Throttling": {
+    "EndpointWhitelist": [ "*:/WeatherForecast/Three" ],
+    "IpWhitelist": [],
+    "StackBlockedRequests": true,
+    "EnableRegexRuleMatching": false,
+    "Rules": [
       {
-
-        \"Ip\": \"\*\",
-
-        \"Endpoint\": \"get:/WeatherForecast/\*\",
-
-        \"Period\": \"1m\",
-
-        \"Limit\": 2
-
+        "Ip": "*",
+        "Endpoint": "get:/WeatherForecast/*",
+        "Period": "1m",
+        "Limit": 2
       },
-
       {
-
-        \"Ip\": \"\*\",
-
-        \"Endpoint\": \"\*:/WeatherForecast\",
-
-        \"Period\": \"2m\",
-
-        \"Limit\": 3
-
+        "Ip": "*",
+        "Endpoint": "*:/WeatherForecast",
+        "Period": "2m",
+        "Limit": 3
       }
-
-    \]
-
+    ]
   }
-
 }
+```
 
 Si ahora ejecutamos la API: dotnet run y lanzamos hacemos dos peticiones
 y veremos como la API nos devuelve un 429.
 
-![](c:\CompartiMOSS\convert\implementar-throotling-en-nuestra-api-adrian-diaz/media/image1.png){width="6.268055555555556in"
-height="1.136111111111111in"}
+![](../../../images/numero48/implementar-throotling-en-nuestra-api/image1.png)
 
 **Conclusión**
 
@@ -1052,10 +667,9 @@ ese proyecto. Por eso para funcionalidad pequeña y que no cueste mucho
 esfuerzo yo recomiendo la implementación de dicha característica para no
 tener una dependencia con dicha librería y su posterior actualización.
 
-**Adrián Diaz Cervera Technical Lead at SCRM Lidl Hub International**
 
-MVP Office Development
-
-http://theavenger.dev
-
-\@AdrianDiaz81
+**Adrián Diaz Cervera** <br />
+Technical Lead at SCRM Lidl Hub International <br />
+MVP Office Development <br />
+http://theavenger.dev <br />
+@AdrianDiaz81 <br />
