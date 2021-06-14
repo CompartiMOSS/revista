@@ -24,6 +24,15 @@ module.exports = {
     `gatsby-remark-images`,
     `gatsby-transformer-remark`,
     `gatsby-plugin-sharp`,
+    {
+      resolve: 'gatsby-plugin-material-ui',
+      // If you want to use styled components you should change the injection order.
+      options: {
+        // stylesProvider: {
+        //   injectFirst: true,
+        // },
+      },
+    },
     `gatsby-plugin-styled-components`,
     {
       resolve: `gatsby-plugin-mdx`,
@@ -71,6 +80,7 @@ module.exports = {
         icon: 'src/images/compartimoss-icon.png'
       },
     },
+    'gatsby-plugin-offline',
     {
       resolve: 'gatsby-plugin-mdx-frontmatter'
     },

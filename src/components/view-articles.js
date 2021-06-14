@@ -2,6 +2,19 @@ import React, { PureComponent } from 'react';
 import { Link } from 'gatsby'
 import styled from "styled-components";
 
+const ArticleNumberContent = styled.div`
+  margin: 20px 0
+` 
+const HeaderIndex = styled.header`
+  h2 {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0 10px;
+    font-size: 27px;
+    color: #f90b39;    
+  }
+` 
+
 const ArticleListStyled = styled.section`
   display: flex;
   flex-flow: row wrap;
@@ -40,11 +53,11 @@ const ArticleStyled = styled.article`
 class ViewArticles extends PureComponent {
     render() {
       return (
-        <div id="articleNumberContent">
+        <ArticleNumberContent>
           <div id="divIndex">
-            <header>
+            <HeaderIndex>
               <h2>{this.props.title}</h2>
-            </header>
+            </HeaderIndex>
             <ArticleListStyled>
               {this.props.articles.edges.map((article) => (
                 <ArticleStyled key={article.node.frontmatter.slug}>        
@@ -61,7 +74,7 @@ class ViewArticles extends PureComponent {
               ))}
             </ArticleListStyled>
           </div>
-        </div>
+        </ArticleNumberContent>
       );
     }
   }

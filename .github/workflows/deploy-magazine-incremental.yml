@@ -44,6 +44,10 @@ jobs:
       with:
         name: site
         path: ${{ env.SITE_PUBLIC_PATH }}
+    - name: Delete dev site
+      uses: Azure/cli@1.0.4
+      with:
+        inlineScript: az storage blob delete-batch -s '$web' --account-name ${{ secrets.ACCOUNT_NAME }} --account-key ${{ secrets.ACCOUNT_KEY }}
     - name: Publish new version at PRE
       uses: Azure/cli@1.0.4
       with: 
@@ -61,6 +65,10 @@ jobs:
       with:
         name: site
         path: ${{ env.SITE_PUBLIC_PATH }}        
+    - name: Delete pro site
+      uses: Azure/cli@1.0.4
+      with:
+        inlineScript: az storage blob delete-batch -s '$web' --account-name ${{ secrets.ACCOUNT_NAME }} --account-key ${{ secrets.ACCOUNT_KEY }}
     - name: Publish new version at PRO
       uses: Azure/cli@1.0.4
       with: 

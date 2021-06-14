@@ -1,13 +1,15 @@
 import React from 'react'
 import styled from "styled-components";
 import Highlight, { defaultProps } from 'prism-react-renderer'
-import vsDark from 'prism-react-renderer/themes/vsDark';
+import nightOwl from 'prism-react-renderer/themes/nightOwl';
 
 const Pre = styled.pre`
   text-align: left;
   margin: 1em 0;
   padding: 0.5em;
   overflow: scroll;
+  font-size: 10pt;
+  font-family: 'Courier New', Courier, monospace;
 `;
 
 const Line = styled.div`
@@ -36,7 +38,7 @@ export default ({ children, className }) => {
     <Highlight {...defaultProps}
       code={children}
       language={language}
-      theme={vsDark}
+      theme={nightOwl}
     >
       {({ className, style, tokens, getLineProps, getTokenProps }) => (
         <Pre className={className} style={style}>

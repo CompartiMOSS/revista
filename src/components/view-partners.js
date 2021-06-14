@@ -1,6 +1,7 @@
 import React from 'react';
 import { useStaticQuery, graphql } from "gatsby" 
 import PartnerItem from './partner-item';
+import { Grid } from "@material-ui/core"
 
 const ViewPartners = () => {
   const data = useStaticQuery(graphql`
@@ -21,13 +22,13 @@ const ViewPartners = () => {
       }
   `)
   return (
-    <section id="divPartners">
-      <ul>
+      <Grid container spacing={2} alignItems="center" justify="center">
         {data.allMdx.edges.map((partner) => (
-          <PartnerItem current={partner.node} key={partner.node.frontmatter.slug} />
+            <Grid item key={partner.node.frontmatter.slug}>
+              <PartnerItem current={partner.node} />
+            </Grid>
         ))}
-      </ul>
-    </section>
+      </Grid>
   )
 }
 
