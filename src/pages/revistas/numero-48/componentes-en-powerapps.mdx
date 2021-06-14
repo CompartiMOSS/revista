@@ -148,14 +148,14 @@ controles:
 
 Después añadimos las propiedades:
 
-  Nombre         Tipo de propiedad   Tipo de datos   Descripción
-  -------------- ------------------- --------------- ----------------------------------------
-  MaxValue       Entrada             Número          Valor máximo admitido
-  MinValue       Entrada             Número          Valor mínimo admitido
-  DefaultValue   Entrada             Número          Valor por defecto
-  Increment      Entrada             Número          Incremento del valor en cada pulsación
-  Editable       Entrada             Booleano        El campo de texto es editable
-  Value          Salida              Número          Valor actual del componente
+  | Nombre         | Tipo de propiedad   | Tipo de datos   | Descripción
+  | -------------- | ------------------- | --------------- | ----------------------------------------
+  | MaxValue       | Entrada             | Número          | Valor máximo admitido
+  | MinValue       | Entrada             | Número          | Valor mínimo admitido
+  | DefaultValue   | Entrada             | Número          | Valor por defecto
+  | Increment      | Entrada             | Número          | Incremento del valor en cada pulsación
+  | Editable       | Entrada             | Booleano        | El campo de texto es editable
+  | Value          | Salida              | Número          | Valor actual del componente
 
 Con lo que el componente quedará de esta guisa
 
@@ -180,17 +180,17 @@ ello:
     para incrementar o decrementar el valor de la variable con las
     siguientes expresiones:
 
-+----------------------------------------------------------------------+
-| IconoArriba.OnSelect:                                                |
-|                                                                      |
-| If(_NUTDialInternalValue+NUTDial.Increment<=NUTDial.MaxValue;S     |
-| et(_NUTDialInternalValue;_NUTDialInternalValue+NUTDial.Increment)) |
-|                                                                      |
-| IconoAbajo.OnSelect:                                                 |
-|                                                                      |
-| If(_NUTDialInternalValue-NUTDial.Increment>=NUTDial.MinValue;S     |
-| et(_NUTDialInternalValue;_NUTDialInternalValue-NUTDial.Increment)) |
-+----------------------------------------------------------------------+
+```
+ IconoArriba.OnSelect:                                                
+                                                                     
+ If(_NUTDialInternalValue+NUTDial.Increment<=NUTDial.MaxValue;S     
+ et(_NUTDialInternalValue;_NUTDialInternalValue+NUTDial.Increment)) 
+                                                                      
+ IconoAbajo.OnSelect:                                                 
+                                                                      
+ If(_NUTDialInternalValue-NUTDial.Increment>=NUTDial.MinValue;S     
+ et(_NUTDialInternalValue;_NUTDialInternalValue-NUTDial.Increment)) 
+```
 
 Solo nos queda que desde la aplicación se pueda acceder al valor actual,
 para ello simplemente fijamos la propiedad Value del componente al valor
