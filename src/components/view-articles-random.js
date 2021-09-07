@@ -9,7 +9,6 @@ const useStyles = makeStyles({
     listStyle: 'none',
     display: 'flex',
     flexFlow: 'row wrap',
-    justifyContent: 'space-between',
 
     '& li': {
       flex: '1 1 320px',
