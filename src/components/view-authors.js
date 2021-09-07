@@ -5,14 +5,13 @@ import styled from "styled-components";
 const AuthorsStyled = styled.ul`
   display: flex;
   flex-flow: row wrap;
-  justify-content: space-between;
   align-items: top;
   margin: 0;
   padding: 0;
   list-style: none;
   
   li {
-    margin: 6px;
+    margin: 12px;
     padding: 0;
     box-shadow: 0px 0px 15px rgba(0,0,0, 0.45);
     transition: all 0.3s ease-in-out;

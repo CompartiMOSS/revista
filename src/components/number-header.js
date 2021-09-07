@@ -5,6 +5,8 @@ import { makeStyles } from "@material-ui/core"
 
 const useStyles = makeStyles({
   header: {
+    margin: '12px 0',
+
     '& img': {
       marginRight: '12px',
       verticalAlign: 'text-bottom'
@@ -17,7 +19,7 @@ const useStyles = makeStyles({
     },
     '& p': {
       fontSize: '19px',
-      margin: '10px 20px'
+      margin: '10px 0'
     }
   },
   image: {

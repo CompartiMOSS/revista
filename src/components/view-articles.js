@@ -18,7 +18,7 @@ const HeaderIndex = styled.header`
 const ArticleListStyled = styled.section`
   display: flex;
   flex-flow: row wrap;
-  justify-content: flex-start;
+  justify-content: space-between;
   width: 100%;
   margin: 5px auto;
   padding: 0 10px;

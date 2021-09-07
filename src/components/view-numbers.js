@@ -13,7 +13,7 @@ const NumbersStyled = styled.ul`
   list-style: none;
   
   li {
-    margin: 8px;
+    margin: 12px 8px;
     padding: 0;
     box-shadow: 0px 0px 15px rgba(0,0,0, 0.45);
     transition: all 0.3s ease-in-out;
