@@ -11,7 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v2.4.0
+      with:
+        node-version: 16.x
     - uses: actions/checkout@v2      
+    - name: set node memory
+      run: export NODE_OPTIONS="--max_old_space_size=4096"
     - name: Run NPM INSTALL
       run: npm install
     - name: Run Gatsby 

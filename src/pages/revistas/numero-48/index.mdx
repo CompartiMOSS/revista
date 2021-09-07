@@ -1,0 +1,52 @@
+---
+title: Número 48 - Junio 2021
+slug: /revistas/numero-48/
+date: 2021-06-01
+magazine: 48
+type: number
+content: >-
+    Seguimos creciendo dirigidos por nuestro objetivo de compartir conocimiento técnico con la comunidad. Nuestro canal de YouTube será nuestro próximo reto, como complemento a los artículos de nuestra revista.  
+    <br /><br />
+    Como objetivo a medio plazo tenemos que se pueda consumir contenido escrito y en video, que lleguemos a más lectores y que nuestros autores puedan elegir como compartir su conocimiento. ¿te apuntas?  
+    <br /><br />
+    Con este número 48, dejaremos de publicar en formato PDF, el contenido en web es el preferido por nuestros lectores y moveremos nuestros esfuerzos a seguir mejorando el formato y la entrega del contenido en web, para que sea accesible para todos.  
+    <br /><br />
+    Gracias por leernos y formar parte de este proyecto.  
+    <br /><br />
+    <b>​El Equipo Editorial de CompartiMOSS</b>
+---
+
+import LayoutNumber from '../../../components/layout-number'
+import { graphql } from "gatsby";
+import ViewArticles from "../../../components/view-articles"
+import ViewPartners from '../../../components/view-partners'
+import NumberHeader from '../../../components/number-header'
+
+<NumberHeader frontmatter={props.pageContext.frontmatter} />
+
+<ViewArticles articles={props.data.allMdx} title="Índice" />
+
+<ViewPartners />
+
+export const pageQuery = graphql`
+    query {
+        allMdx(    
+            sort: {
+                fields: frontmatter___title
+            }
+            filter: {
+                frontmatter: {magazine: {eq: 48}, type: {ne: "number"}}
+            }) 
+            {
+                edges {
+                    node {
+                        frontmatter {
+                            title, author, slug, authorId
+                        }      
+                    }
+                }
+            }
+    }
+`
+
+export default LayoutNumber

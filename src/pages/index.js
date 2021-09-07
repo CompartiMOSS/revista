@@ -29,7 +29,7 @@ const HomePage = ({}) => {
   const classes = useStyles();
   const data = useStaticQuery(graphql`{
   current: allMdx(
-    filter: {frontmatter: {magazine: {eq: 47}, type: {eq: "number"}}}
+    filter: {frontmatter: {magazine: {eq: 49}, type: {eq: "number"}}}
   ) {
     edges {
       node {
@@ -42,7 +42,7 @@ const HomePage = ({}) => {
     }
   }
   articles: allMdx(
-    filter: {frontmatter: {magazine: {eq: 47}, type: {ne: "number"}}}
+    filter: {frontmatter: {magazine: {eq: 49}, type: {ne: "number"}}}
   ) {
     edges {
       node {
@@ -65,7 +65,7 @@ const HomePage = ({}) => {
     <LayoutHome>
       <Grid container>
         <Grid item xs={12} className={classes.divHeader}>
-          <SEO title="Home" keywords={['Microsoft', 'Microsoft 365', 'Azure']} />
+          <SEO title="Home" keywords={['Microsoft', 'Microsoft 365', 'Azure', 'Office 365']} />
           <h1>Bienvenidos al sitio de CompartiMOSS</h1>
           <p>La revista digital de habla hispana en la que se escribe sobre la tecnología Microsoft y todo lo relacionado con ésta</p>
         </Grid>
