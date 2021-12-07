@@ -1,0 +1,30 @@
+---
+id: ferran-chopo
+title: Ferran Chopo Garcia
+jobTitle: Solution Expert en PlanB. GmbH
+slug: /autores/ferran-chopo
+photo: ../../../images/Autores/ferran-chopo.png
+twitter: https://twitter.com/fchopo
+blog: http://www.ferranchopo.com/
+type: author
+director: false
+content: >-
+    Ferran Chopo Garcia is a freelance Office 365 consultant and trainer with +15 years experience working on Microsoft technologies like .NET and SharePoint. He can focus on different roles in any Office365 project:
+    <br /><br />
+    - Business analyst.
+    - User adoption and training (Microsoft Certified Trainer).
+    - Solution architect and developer (SPFx, Power Apps, Power Automate).
+    - Security and governance.
+    <br /><br />
+    Proud member of SharePoint User Group Barcelona (SUG.CAT), he speaks at different community events and writes technical articles about Office 365 and Power Platform.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "ferran-chopo"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

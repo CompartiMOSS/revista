@@ -1,0 +1,209 @@
+---
+title: Azure Functions. Errores que se nos pueden producir en escenarios de alto rendimiento
+slug: /revistas/numero-50/azure-functions-deep-dive
+date: 01/12/2021
+magazine: 50
+author: Adrian Díaz
+authorId: adrian-diaz-cervera
+keywords: ['Azure Function','Azure']
+featuredImage: ../../../images/numero50/azure-functions-deep-dive/image1.png
+---
+
+En muchos artículos hemos visto/leído que son las Azure Functions y
+cuáles son las principales características que tiene y escenarios en las
+que los que se pueden utilizar. Sin embargo, en pocas ocasiones entramos
+en el detalle de que aspectos debemos en cuenta en el desarrollo, desde
+la elección del plan hasta que opciones tenemos, como se pueden ahorrar
+en costes para aprovechar la capacidad del cloud y que aspectos debemos
+tener en cuenta para hacer nuestra aplicación resistente a errores.
+
+**La elección del plan**
+
+Lo primero que debemos tener claro es que tipo de Plan va a tener en
+nuestra Azure Function. Es importante porque el plan una vez lo creamos
+ya no se puede cambiar (salvo que recreemos la infraestructura... pero
+una vez ya se este usando no es como cualquier otro servicio). Tenemos
+tres tipos de plan:
+
+-   **Consumption Plan** => El auténtico servicio Serverless, solo pagas
+    por lo que consumes. Escalado más o menos infinito. Sin embargo,
+    tiene una serie de inconvenientes el primero es que no lo puedes
+    poner en una vNet y por lo tanto por temas de seguridad es posible
+    que esta opción no sea la elegida en muchas entidades. También otro
+    limite que cada ejecución de una función tiene un tiempo máximo de
+    ejecución que no supera los 10 minutos por lo tanto dependiendo de
+    la duración de nuestro proceso es posible que este plan tampoco lo
+    podamos elegir. Y otro inconveniente que tiene es el arranque de la
+    Function que cuando no se utiliza tiene un arranque "frio" es decir
+    que puede tardar la primera respuesta más de lo normal al igual que
+    una llamada en un IIS cuando el servicio no se utiliza.
+
+-   **Dedicated Plan** => El usar este plan estas pagando una Maquina
+    Virtual dedicada para ejecutar tus funciones. El escalado es algo
+    que tu configuras de la misma forma que haces en un App Service. Por
+    lo tanto, tiene los mismos pros y contras que un escalado de una App
+    Service. Es decir, podemos escalar infinitamente pero este escalado
+    es algo que no es inmediato como si es en caso de las Consumption
+    Plan. Sin embargo, como aspecto más positivo, es que tiene el
+    comportamiento de arranque en frio, tiene un tiempo de ejecución
+    mucho mayor que las Consumption Plan y se pueden usar vNets para
+    securizar tus functions.
+
+-   **Premium Plan** => Este tipo son las mejores, las más rápidas, su
+    tiempo de procesamiento es espectacular. Tiene un escalado mucho más
+    rápido que las dedicadas, porque se puede disponer de tener nodos
+    disponibles cuando sean requeridos. Por el contrario, lo peor que
+    tiene esto es el precio que para una única función es posible que
+    tenga un coste de 10 veces superior a tener un plan dedicado. Sin
+    embargo, dependiendo del tipo de arquitectura que tengas es posible
+    que sea mucho más rentable el usar estas que un servicio dedicado.
+
+Si queréis algo más de detalle sobre el detalle de todo esto en el
+anterior Azure BootCamp mi amigo [@Robert
+Bermejo](https://www.linkedin.com/in/robert-bermejo-blasco-75a73b2a/) y
+yo dimos una charla sobre todo estos detalles que podéis verla en el
+enlace <https://www.youtube.com/watch?v=GscWL6DIN3k>.
+
+**Arquitectura/Escenario de alto rendimiento**
+
+Una de los patrones que más se utilizan en las aplicaciones Cloud, es el
+uso de arquitecturas orientadas a mensajes donde seguro que a todos los
+lectores les viene a la mente
+[CQRS](https://docs.microsoft.com/es-es/azure/architecture/patterns/cqrs#:~:text=CQRS%20significa%20segregaci%C3%B3n%20de%20responsabilidades,la%20escalabilidad%20y%20la%20seguridad.).
+Sin embargo, muchas veces pecamos de sobre arquitecturar estas
+aplicaciones y darle complicaciones para escenarios muchos más
+sencillos. En este escenario de una arquitectura basada en mensajes, las
+Azure Functions son una pieza clave, ya que es la opción que escogemos
+en la mayoría de estos casos.
+
+Seguro que en algún desarrollo hemos tenido que implementar la siguiente
+funcionalidad: se crea un evento en un mensaje de una Cola/topic de un
+Service Bus, y tenemos una Azure Function que desencadena una acción en
+el momento en el que se añade un evento. Ejemplos en los que nos podemos
+encontrar podemos tener muchos: Enviar un email cuando un usuario se
+registra, notificar una acción de nuestro servicio a otros servicios que
+necesitan saberlo, actualizar un valor de una cache... etc.
+
+Ahora imaginaros que tenemos un servicio que deje unos 300 mensajes cada
+minuto. El procesamiento de estos mensajes no debe de tardar mas de 2
+segundos la ejecución de cada uno de ellos. Poneros en el caso de que se
+produce un error de comunicación y la Function está durante 30 minutos
+sin poder leer los mensajes de la cola del Service Bus. En esta ocasión
+el plan de nuestra Function es una Premium Plan, pero también podría
+darse la casuística de que pudiera ser en un Dedicated Plan.
+
+De estas dos opciones: ¿cómo se comportaría nuestro sistema una vez se
+restablezca la comunicación?
+
+1.- Se van creando tantas Functions como mensajes tenemos pendientes de
+procesar, así hasta el momento en el que los mensajes se terminen de
+procesar y nuestro sistema ni se inmuta. El sistema escalará según lo
+hayamos configurado y en el momento que ya este con su carga normal
+volverá a su tamaño normal.
+
+2.- La Azure Function se cae y no puede procesar ningún mensaje.
+
+**Respuesta**: Pues la verdad es que las dos opciones se pueden producir
+y todo dependerá de la configuración que hayamos puesto en nuestra Azure
+Function. Cuando desplegamos una Function que tienen una vinculación con
+otro servicio siempre pensamos que existe una comunicación fluida y que
+las dos están siempre on-line. En el mundo real este escenario no
+siempre ocurre y es posible que alguna de nuestras piezas falle y por lo
+tanto entra en una prueba que nunca hemos realizado. Cuando desplegamos
+una Azure Function indicamos cual es el número máximo de Azure Functions
+que se pueden ejecutar en paralelo. Si este parámetro no lo
+establecemos, indicaremos que nuestra Function crezca todo lo que se
+necesite. ¿Pero que puede ocurrir? Que a la Azure Function no le dé
+tiempo a escalar lo que necesite y se ponga a ejecutar functions
+mientras haya elementos en la cola. En este escenario que hemos puesto
+tenemos muchos mensajes sin procesar y no tenemos ningún límite de
+Functions con lo cual con el nodo que tenemos va a ejecutar todas las
+functions que tenemos. Y como es un tipo Premium procesa muy rápido y le
+da mucho tiempo a coger muchos mensajes a la vez. En el momento que
+empieza a ejecutarlos ocurre que el App Service se ha quedado sin
+memoria. Al caer el único App Service que tenemos la Azure Functions se
+reinicia y no puede procesar nada. Desastre absoluto.
+
+¿Cómo lo podemos solucionar? Cuando desplegamos la Azure Functions en el
+fichero Host.json que se sube se puede indicar esta configuración. Un
+ejemplo para cuando usamos una Function con un Service Bus puede ser
+esta configuración.
+
+```
+"serviceBus": {
+    "prefetchCount": 4,
+    "messageHandlerOptions": {
+        "autoComplete": **true**,
+        "maxConcurrentCalls": 32,
+        "maxAutoRenewDuration": "00:05:00"
+    }
+```
+
+El número máximo de Concurrencias puede variar dependiendo del tipo de
+Plan y del tiempo de ejecución de nuestro proceso. Al final debemos de
+poner un número que sea lo suficientemente flexible para que si tenemos
+muchos elementos de la cola se puedan procesar estos elementos con mucha
+rapidez y se pueda escalar lo que necesite nuestro sistema.
+
+Dependiendo del desencadenador de nuestra Function, estas
+configuraciones son distintas dependiendo del tipo de servicio que sea.
+Recomiendo mirar la documentación de Azure para cada caso y establecer
+unos valores mínimos que sepamos que no se caigan, antes de que en un
+entorno productivo se nos pueda caer.
+
+Más preguntas que nos podemos hacer. ¿Si utilizáramos una Function del
+Tipo Consumption se hubiera producido esta casuística? Aunque pueda
+parecer mentira la respuesta es que NO se hubiera caído, en primer
+lugar, al no tener App Service hubiera ejecutado mientras los limites
+los hubiera permitido. Entonces porque en este caso elegimos un tipo
+Premium, si con un modo consumo nos lo podríamos permitir. Quitando de
+en medio la casuística del arranque en frío y la necesidad de conectarlo
+con una vnet. El tiempo de procesamiento es algo importantísimo, estos
+mensajes no se pueden permitir que estén mucho tiempo en la cola de
+procesamiento. Es decir, necesitamos que estos mensajes se ejecuten en
+un tiempo máximo de 2 minutos, con lo cual necesitamos de disponer de
+unas mejores máquinas para procesar.
+
+**Bonus Track**
+
+Aunque no por tema de desarrollo, muchas veces las Azure Functions
+usando un Tipo Premium las descartamos por su precio. Sin embargo, hay
+que analizar todos los escenarios de nuestra Aplicación: poner el caso
+que tenemos 10 Azure Functions alojadas en 10 Azure Functions en formato
+App Service. ¿Podemos alojar estas 10 Azure Functions dentro de una
+Azure Function de tipo Premium? La respuesta es que sí, pero hay que
+analizar el funcionamiento que tienen estos procesos si son procesos que
+requieren mucha CPU es posible que no podamos poner las 10 Azure
+Functions dentro de una única premium, sino que igual podríamos ponerlo
+en 2. Muchos pensareis que si la elección de un plan u otro es por tema
+económico va fuera de nuestro alcance, pero no es solo un tema económico
+las Azure Functions de tipo Premium van muchísimo mejor que el resto de
+los tipos por lo que si encima de ahorrar nos coste, nuestra aplicación
+tiene un mayor perfomance y rendimiento yo no dudaría en buscar esta
+opción. Para plantear hay que hacer pruebas, ver la carga de CPU y
+memoria que tienen estas Azure Functions y ver si podemos encajarlo. Una
+vez se utiliza unas Azure Functions Premium no querréis usar ninguna
+otra.
+
+**Conclusiones**
+
+Las Azure Functions son la joya de la corona dentro de los servicios
+serverless dentro de Azure. Por este motivo debemos tener claro sus
+características y el tipo de plan que mejor se adapta a nuestro
+desarrollo. Saber los pros y los contras de cada acción y con ello
+también poder elegir la mejor opción.
+
+También es muy necesario tener claro cual es el comportamiento que
+tendrá nuestra aplicación en una situación de alto rendimiento. No es el
+mismo caso cuando nuestra aplicación tiene 100 usuarios que cuando tiene
+60 millones de usuarios. En muchas ocasiones hacemos números de
+capacidades, pero esa casuística casi siempre es simulada, por lo que se
+debe de generar una gran batería de pruebas para poder saber cómo se
+comportaría nuestro desarrollo en cualquier escenario posible
+
+Happy Codding.
+
+**Adrián Diaz Cervera Technical Lead at SCRM Lidl Hub International** <br />
+MVP Office Development <br />
+http://theavenger.dev <br />
+@AdrianDiaz81 <br />
