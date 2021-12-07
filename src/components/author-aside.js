@@ -9,8 +9,8 @@ const useStyles = makeStyles({
     textAlign: 'center',
     '& img': {
       objectFit: 'cover',
-      width: 250,
-      height: 250,
+      width: 220,
+      height: 220,
       boxShadow: '0 5px 10px #303030'
     }
   },

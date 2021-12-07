@@ -8,7 +8,10 @@ import ArticleKeywords from './article-keywords';
 import numberImage from '../images/layout/Back-Magazine-Number.png'
 
 const useStyles = makeStyles({
-  number: {
+  articleHeader: {
+    marginTop: '24px'
+  },
+  backToNumber: {
     display: 'inline-block',
     transition: 'top .5s ease-in-out',
     background: `url(${numberImage}) no-repeat 0`,
@@ -36,8 +39,8 @@ const ArticleHeader = ({ frontmatter, ...props }) => {
   const classes = useStyles();
 
   return (
-    <header>
-      <div className={classes.number}>
+    <header className={classes.articleHeader}>
+      <div className={classes.backToNumber}>
         <Link to={`/revistas/numero-${frontmatter.magazine}`}>
           {`Número ${frontmatter.magazine}`}
         </Link>

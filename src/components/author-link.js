@@ -7,7 +7,7 @@ const useStyles = makeStyles({
   overlay: {
     position: 'absolute',
     top: 70,
-    width: 250,
+    width: 220,
     zIndex: 20,
     backgroundColor: '#f90b39',
     transition: 'all .5s ease-in-out',
@@ -26,7 +26,7 @@ const useStyles = makeStyles({
     position: 'relative',
     margin: '5px 0',
     height: 80,
-    width: 250,
+    width: 220,
     background: '#303030 no-repeat 15px',
     color: '#fff',
     textAlign: 'right',

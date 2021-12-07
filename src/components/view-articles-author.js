@@ -13,7 +13,7 @@ const ArticleListStyled = styled.section`
 `;
 
 const ArticleStyled = styled.article`
-  flex: 1 1 auto;
+  flex: 1 1 200px;
   margin: 6px;
   padding: 10px;
   max-width: 250px;

@@ -7,11 +7,13 @@ import { makeStyles } from "@material-ui/core"
 import ArticleHeader from './article-header'
 
 const useStyles = makeStyles({
-  section: {
+  sectionArticle: {
     margin: 'auto auto 40px',
+    padding: '0 20px',
     maxWidth: 700,
     fontSize: 21,
-    fontFamily: 'Calibri'
+    fontFamily: 'Calibri',
+    wordWrap: 'break-word'
   }
 })
 
@@ -32,7 +34,7 @@ const LayoutNumber = ({ children, pageContext }) => {
     <Layout pageContext={pageContext}>
       <SEO title={pageContext.frontmatter.title} keywords={pageContext.frontmatter.keywords} />
       <ArticleHeader frontmatter={pageContext.frontmatter} />
-      <section className={classes.section}>
+      <section className={classes.sectionArticle}>
         {children}
       </section>
       {discussion}

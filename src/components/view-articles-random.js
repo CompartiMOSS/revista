@@ -4,11 +4,12 @@ import { makeStyles } from "@material-ui/core"
 
 const useStyles = makeStyles({
   ul: {
-    margin: '0 12px',
+    margin: '0 0 0 24px',
     padding: 0,
     listStyle: 'none',
     display: 'flex',
     flexFlow: 'row wrap',
+
     '& li': {
       flex: '1 1 320px',
       minWidth: 300,

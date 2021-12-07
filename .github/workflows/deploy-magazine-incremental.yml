@@ -28,8 +28,10 @@ jobs:
       with: 
         key: gatsby-public-folder
         path: public
+    - name: Node memory
+      run: export NODE_OPTIONS=--max_old_space_size=4096
     - name: Run Gatsby 
-      run: npm run build:incremental  
+      run: export NODE_OPTIONS='--max-old-space-size=8192' && npm run build:incremental  
     - name: Publish artifacts
       uses: actions/upload-artifact@v2.2.2
       with: 
