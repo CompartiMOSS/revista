@@ -7,10 +7,23 @@ import HideOnScroll from "./hideOnScroll"
 import BackToTop from "./backToTop";
 import { Link } from 'gatsby'
 import logo from '../../images/layout/Logo380x109.png';
+import anniversaryBg from '../../images/icons/Celebration-Transparent.png'; 
+
 
 const useStyles = makeStyles({
+    anniversaryBanner: {
+        margin: "0 -20px",
+        padding: "30px",
+        lineHeight: "30px",
+        fontSize: "30px",
+        background: "#FFd700",
+        color: "#000",
+        textAlign: "center",
+        backgroundImage: `url(${anniversaryBg});`,
+        "background-size": "contain"
+    },
     appBar: {
-        height: 200,
+        height: 290,
         backgroundColor: '#303030',
         padding: '0 20px',
         boxSizing: 'border-box'
@@ -24,7 +37,7 @@ const useStyles = makeStyles({
         height: 200
     },
     toolbar: {
-        height: 200
+        height: 290
     },
     link: {
         alignSelf: 'center'
@@ -91,6 +104,7 @@ const Header = () => {
         <>
             <HideOnScroll>
                 <AppBar position="fixed" className={classes.appBar}>
+                    <div className={classes.anniversaryBanner}>¡¡CompartiMOSS CUMPLE 50 NÚMEROS!!</div>
                     <Toolbar className={classes.toolbar}>
                         <Container maxWidth="xl" className={classes.navbarDisplayFlex}>
                             <Hidden mdUp>
