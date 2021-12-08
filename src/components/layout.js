@@ -10,16 +10,14 @@ import './layout/layout.css'
 
 const useStyles = makeStyles({
   body: {
-    minHeight: 'calc(100vh - 80px - 200px)'
+    minHeight: 'calc(100vh - 80px - 290px)'
   }
 });
-
 
 const components = {
   pre: props => <div {...props} />,
   code: CodeBlock
 };
-
 
 const Layout = ({ children, pageContext }) => {
   const classes = useStyles();
