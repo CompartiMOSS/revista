@@ -104,7 +104,7 @@ const Header = () => {
         <>
             <HideOnScroll>
                 <AppBar position="fixed" className={classes.appBar}>
-                    <div className={classes.anniversaryBanner}>¡¡CompartiMOSS CUMPLE 50 NÚMEROS!!</div>
+                    <div className={classes.anniversaryBanner}>¡¡Celebramos la publicación de nuestro Número 50!!</div>
                     <Toolbar className={classes.toolbar}>
                         <Container maxWidth="xl" className={classes.navbarDisplayFlex}>
                             <Hidden mdUp>
