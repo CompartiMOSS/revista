@@ -1,0 +1,147 @@
+---
+title: Power Platform Power BI rest API Custom Connector
+slug: /revistas/numero-50/powerautomatepowerbiapi
+date: 01/12/2021
+magazine: 50
+author: Alex Rostán
+authorId: alex-rostan
+keywords: ['Power Platform','Power Automate','Power BI']
+featuredImage: ../../../images/numero50/powerautomatepowerbiapi/image1.png
+---
+
+De la misma manera que hicimos en el artículo anterior, una vez en el
+portal de Power Automate iremos a la sección de Datos (Data) -> Conectores personalizados (Custom Connectors)
+
+![Imagen 1.- Sección conectores personalizados en Power Automate.](../../../images/numero50/powerautomatepowerbiapi/image1.png)
+
+
+Una vez allí iremos a crear un nuevo conector personalizado y creamos
+uno desde cero
+
+![Imagen 2.- Creando un conector personalizado.](../../../images/numero50/powerautomatepowerbiapi/image2.png)
+
+Le ponemos un nombre al conector y le damos continuar
+
+![Imagen 3.- Nombre para el conector.](../../../images/numero50/powerautomatepowerbiapi/image3.png)
+
+
+En esta sección de la creación del conector personalizado tendremos
+varias secciones a rellenar con los datos la PowerBI Rest API, por lo
+que vamos a necesitar registrar nuestra aplicación en Power BI.
+
+![Imagen 4.- Configuración del conector.](../../../images/numero50/powerautomatepowerbiapi/image4.png)
+
+
+En esta sección los datos importantes son el esquema y el host, el
+esquema debe ser HTTPS y el host es la URL a la Power BI Rest API "api.powerbi.com".
+
+Una vez completada esta sección damos en ![](../../../images/numero50/powerautomatepowerbiapi/image5.png) y continuamos con la siguiente sección.
+
+En esta sección lo primero que debemos seleccionar es el tipo de
+seguridad:
+
+![](../../../images/numero50/powerautomatepowerbiapi/image6.png)
+
+![Imagen 5.- Configurando la seguridad.](../../../images/numero50/powerautomatepowerbiapi/image7.png)
+
+
+Seleccionamos OAuth 2.0 y nos aparecerá la siguiente pantalla:
+
+![Imagen 6.- Configuraciones para OAuth 2.0.](../../../images/numero50/powerautomatepowerbiapi/image8.png)
+
+
+La información del Client id, Client Secret la vamos a obtener del
+registro de la aplicación en Power BI, para ello abrimos en el navegador
+https://app.powerbi.com/apps.
+
+Una vez allí nos logueamos y comenzamos el registro.
+
+![](../../../images/numero50/powerautomatepowerbiapi/image9.png)
+
+![Imagen 7.- Inicio del registro de la aplicación Power BI.](../../../images/numero50/powerautomatepowerbiapi/image10.png)
+
+
+Hacemos clic en el botón Next y comenzaremos el proceso de registro de
+nuestra aplicación.
+
+![Imagen 8.- Parámetros para configurar la App de Power BI.](../../../images/numero50/powerautomatepowerbiapi/image11.png)
+
+
+Completamos los datos y luego vamos a la sección de API Permissions.
+
+![Imagen 9.- Permisos para la API.](../../../images/numero50/powerautomatepowerbiapi/image12.png)
+
+
+Completamos los datos y luego vamos a la sección de API Access.
+
+![Imagen 10.- Permisos para la API.](../../../images/numero50/powerautomatepowerbiapi/image13.png)
+
+
+En esta sección lo que estamos realizando es definir que tipos accesos
+tendrá el conector y a cuáles elementos.
+
+Ya finalizada la seleccionamos el botón **Register** y nos aparecerá la
+siguiente pantalla con el Application ID y Application Secret.
+
+![Imagen 11.- Application ID y Application secret generados.](../../../images/numero50/powerautomatepowerbiapi/image14.png)
+
+
+Retornamos a nuestro Custom Connector seleccionamos Azure Active
+Directory en Proveedor de Indentidades (Identity Provider), pegamos el
+ID y el Secret previamente copiados donde corresponde.
+
+![Imagen 12.- Vuelta a la configuración del Custom Connector.](../../../images/numero50/powerautomatepowerbiapi/image15.png)
+
+
+Ya cargados los datos necesarios pasamos a la definición haciendo clic
+en ![](../../../images/numero50/powerautomatepowerbiapi/image16.png)
+
+Aquí debemos definir todas las acciones que tendrá nuestro conector,
+como ejemplo podría haber una acción por cada método de la Power BI Rest
+API. Para agregar una nueva acción vamos a Acciones -> Nueva Acción.
+
+![Imagen 13.- Nueva acción.](../../../images/numero50/powerautomatepowerbiapi/image17.png)
+
+Debemos cargar el resumen, la descripción y el Identificador de nuestra
+acción.
+
+![Imagen 14.- Datos para configurar la nueva acción.](../../../images/numero50/powerautomatepowerbiapi/image18.png)
+
+
+Luego vamos a crear la solicitud para esa operación.
+
+![Imagen 15.- Nueva solicitud.](../../../images/numero50/powerautomatepowerbiapi/image19.png)
+
+
+Luego vamos a importar desde ejemplo y le pegamos la llamada a nuestra
+API. En este paso debemos seleccionar el verbo de la llamada "get","
+post", "put", etc. Si no necesita de un cuerpo particular pegamos la
+URL y el propio conector se encargará de crear el request y las
+variables si así las identifica, si necesita un cuerpo debemos cargar un
+ejemplo del JSON correspondiente.
+
+![Imagen 16.- Configuración del verbo para la solicitud](../../../images/numero50/powerautomatepowerbiapi/image20.png)
+
+
+Para conocer las operaciones de la Power BI Rest API solo basta con
+ingresar a https:// docs.microsoft.com/en-us/rest/api/power-bi. Luego de
+cargar todas las acciones que consideremos necesarias debemos guardar y
+actualizar el conector. Podemos ir a la sección de probar nuestro
+conector para validar que todo funcione correctamente.
+
+Ya nuestro conector quedo listo, este aparecerá en los conectores
+personalizados cuando estemos en el diseñador de flujos de Power
+Automate y lo utilizaremos como un conector más dentro de nuestro flujo.
+
+**Conclusión**
+
+Este particular conector personalizado con la Power BI Rest API nos
+permite obtener información e interactuar con Power BI desde Power
+Automate.
+
+
+**Alex Rostán** <br />
+Microsoft Business Applications MVP AI & Smarts Applications / Cloud Architect (Azure, O365, Power Platform) <br />
+Mail:rostanker@msn.com <br />
+Twitter: @rostanker <br />
+LinkedIn: https://www.linkedin.com/in/alexrostan/

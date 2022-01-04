@@ -1,6 +1,6 @@
 import * as React from "react"
 import { AppBar, Toolbar, Container, Hidden, Fab } from "@material-ui/core"
-import { KeyboardArrowUp } from "@material-ui/icons"
+import { KeyboardArrowUp, NoEncryption } from "@material-ui/icons"
 import { makeStyles } from "@material-ui/core"
 import SideDrawer from "./sideDrawer"
 import HideOnScroll from "./hideOnScroll"
@@ -20,7 +20,15 @@ const useStyles = makeStyles({
         color: "#000",
         textAlign: "center",
         backgroundImage: `url(${anniversaryBg});`,
-        "background-size": "contain"
+        "background-size": "contain",
+        '& a': {
+            textDecoration: 'none',
+            fontSize: "20px",
+            color: "#000"
+        },
+        '& a:hover': {
+            color: "#f90b39"
+        }
     },
     appBar: {
         height: 290,
@@ -104,7 +112,10 @@ const Header = () => {
         <>
             <HideOnScroll>
                 <AppBar position="fixed" className={classes.appBar}>
-                    <div className={classes.anniversaryBanner}>¡¡CompartiMOSS CUMPLE 50 NÚMEROS!!</div>
+                    <div className={classes.anniversaryBanner}>
+                        ¡¡Celebramos la publicación de nuestro Número 50!!
+                        <Link to="/especial-50"> + info</Link>
+                    </div>
                     <Toolbar className={classes.toolbar}>
                         <Container maxWidth="xl" className={classes.navbarDisplayFlex}>
                             <Hidden mdUp>

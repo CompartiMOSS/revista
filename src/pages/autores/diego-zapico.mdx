@@ -1,0 +1,23 @@
+---
+id: diego-zapico
+title: Diego Zapico
+jobTitle: Cloud Solutions Developer
+slug: /autores/diego-zapico
+photo: ../../../images/Autores/diego-zapico.png
+twitter: https://twitter.com/dzapic0
+blog: 
+type: author
+director: false
+content: >-
+    Developer. #MSPAlumni (Microsoft Student Partner). @TCAsturias
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "diego-zapico"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  
