@@ -8,7 +8,7 @@ module.exports = {
     author: '@compartimoss_com',
     siteUrl: `https://www.compartimoss.com`,
   },
-  flags: { FAST_DEV: true },
+  flags: { FAST_DEV: true, PARALLEL_SOURCING: true },
   plugins: [
     {
       resolve: `gatsby-plugin-google-analytics`,
