@@ -10,7 +10,7 @@ import './layout/layout.css'
 
 const useStyles = makeStyles({
   body: {
-    minHeight: 'calc(100vh - 80px - 290px)'
+    minHeight: 'calc(100vh - 80px - 200px)'
   }
 });
 
