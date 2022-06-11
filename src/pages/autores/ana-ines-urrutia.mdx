@@ -1,0 +1,23 @@
+---
+id: ana-ines-urrutia
+title: Ana Inés Urrutia
+jobTitle: Microsoft Business Applications MVP | D365 HR Practice Lead | Advisory Board Member | CHO & Founder @ PIMBA | anainesurrutia.com | pimbalab.com
+slug: /autores/ana-ines-urrutia
+photo: ../../../images/Autores/ana-ines-urrutia.png
+twitter: https://twitter.com/anainesurrutia
+blog: https://www.anainesurrutia.com/
+type: author
+director: false
+content: >-
+    I'm the first and only female Uruguayan MVP. Specialist in Dynamics 365 Human Resources and employee experience solutions. Community advocate, mentor, speaker, but mostly a cheerleader for almost everything.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "ana-ines-urrutia"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

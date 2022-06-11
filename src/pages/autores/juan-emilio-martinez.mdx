@@ -1,0 +1,23 @@
+---
+id: juan-emilio-martinez
+title: Juan Emilio Martínez
+jobTitle: Lider SharePoint en Nación Servicios S.A | Músico
+slug: /autores/juan-emilio-martinez
+photo: ../../../images/Autores/juan-emilio-martinez.png
+twitter: 
+blog: 
+type: author
+director: false
+content: >-
+    Experto en desarrollo y administración SharePoint con mas de 10 años de experiencia. He trabajado en todas sus versiones: 2007, 2010, 2013, 2016, 2019 y SharePoint Online. Musico: Bob Dylan, Tom Petty, Neil Young
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "juan-emilio-martinez"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  
