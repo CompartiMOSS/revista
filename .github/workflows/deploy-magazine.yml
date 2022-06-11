@@ -16,12 +16,12 @@ jobs:
       with:
         node-version: 16.x
     - uses: actions/checkout@v2      
-    - name: set node memory
-      run: export NODE_OPTIONS="--max_old_space_size=4096"
     - name: Run NPM INSTALL
       run: npm install
+    - name: Node memory
+      run: export NODE_OPTIONS=--max_old_space_size=4096
     - name: Run Gatsby 
-      run: npm run build  
+      run: export NODE_OPTIONS='--max-old-space-size=8192' && npm run build  
     - name: Publish artifacts
       uses: actions/upload-artifact@v2.2.2
       with: 
