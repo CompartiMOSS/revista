@@ -1,0 +1,258 @@
+---
+title: Canales compartidos en Microsoft Teams - Por donde empezar
+slug: /revistas/numero-52/canales-compartidos-microsoft-teams-parte-i
+date: 01/06/2021
+magazine: 52
+author: Juan Carlos Gonzalez Martin
+authorId: juan-carlos-gonzalez-martin
+keywords: ['Microsoft Teams','Canales compartidos']
+featuredImage: ../../../images/numero52/canales-compartidos-microsoft-teams-parte-i/image1.png
+---
+
+Los Canales Compartidos (actualmente en Preview) en Microsoft Teams
+[habilitan un nuevo escenario de colaboración con menos
+fricción](https://docs.microsoft.com/en-us/microsoftteams/shared-channels)
+(no se requiere cambio de tenant) en el que es posible invitar a
+personas de la organización y de fuera de la organización sin que formen
+parte del Team donde se hayan creado. Los canales compartidos no
+permiten colaborar con usuarios invitados, pero si con personas de
+cualquier organización mediante una nueva característica de Azure AD
+también en Preview llamada Azure AD B2B direct connect. En este primer
+artículo de la serie repasaremos los aspectos de configuración que se
+requieren para poder usar los Canales Compartidos en Microsoft Teams de
+acuerdo con todas sus posibilidades.
+
+**Escenario de uso de Canales Compartidos**
+
+Antes de meternos a fondo con lo que necesitamos para poder utilizar los
+Canales Compartidos, vamos a describir mínimamente el escenario de uso
+en el que se basará este artículo y siguientes:
+
+-   Contoso es una compañía que apuesta por colaborar con Partners y
+    Clientes de una forma directa y productiva simplificando al máximo
+    la experiencia de usuario. Como buen conocedor de Microsoft Teams,
+    su CIO ha decidido poner en marcha un piloto en el que se utilicen
+    los Canales Compartidos para colaboración entre Teams definidos en
+    Contoso y también con Partners y Clientes.
+
+-   ITECH CS y RICOH son compañías cliente y Partner de Contoso con los
+    que se quieren poner en marcha el Piloto de colaboración utilizando
+    Canales Compartidos.
+
+**Configuraciones para Canales Compartidos en Microsoft Teams**
+
+Como podía ser de esperar, necesitaremos una serie de configuraciones de
+Microsoft Teams tanto en el tenant donde crearemos los Canales
+Compartidos (Contoso) como el tenant o tenants de las personas con las
+que vamos a colaborar. Las configuraciones en concreto pasan por:
+
+-   Tener una directiva de actualización de Teams (Teams update policy)
+    que configure la Preview Pública del cliente de Teams tanto para los
+    usuarios del piloto de Contoso como para los usuarios de las
+    organizaciones con las que vamos a colaborar mediante Canales
+    Compartidos. Asignaremos dicha directiva a los usuarios que vayan a
+    hacer uso de la Preview Pública de Microsoft Teams.
+
+![Imagen 1.- Directiva de actualización de Microsoft Teams.](../../../images/numero52/canales-compartidos-microsoft-teams-parte-i/media/image1.png)
+
+
+> De esta forma, los usuarios asignados a la directiva podrán una vez
+> que se propague la misma hacer el Switch en el cliente de Teams a la
+> Preview Pública requerimiento para poder hacer uso de los Canales
+> Compartidos.
+
+![Imagen 2.- Configurando la Preview Pública en el cliente de Teams.](../../../images/numero52/canales-compartidos-microsoft-teams-parte-i/media/image2.png)
+
+-   Mediante una directiva de Teams tanto en el tenant host de Canales
+    Compartidos como en los tenants de las organizaciones con las que
+    vamos a colaborar tener habilitado los Canales Compartidos de la
+    siguiente forma:
+
+    -   Tenant en el que se crearán los Canales Compartidos (Contoso):
+
+        -   Habilitar la creación de Canales Compartidos.
+
+        -   Habilitar poder invitar a personas externas a Canales
+            Compartidos.
+
+        -   (Opcional) Habilitar que los usuarios corporativos puedan
+            ser invitados a Canales Compartidos en otras organizaciones.
+
+    -   Tenants a los que se invitará a colaborar:
+
+        -   (Opcional) Habilitar la creación de Canales Compartidos.
+
+        -   (Opcional) Habilitar que se pueda invitar a personas
+            externas a Canales Compartidos.
+
+        -   Habilitar que los usuarios corporativos puedan ser invitados
+            a Canales Compartidos en otras organizaciones.
+
+![Imagen 3.- Configuración por defecto en un tenant con relación a Canales Compartidos.](../../../images/numero52/canales-compartidos-microsoft-teams-parte-i/media/image3.png)
+
+
+Con estas configuraciones de momento lo que estamos consiguiendo es:
+
+-   En el tenant de Contoso que al menos se puedan crear Canales
+    Compartidos y que se puedan invitar a los mismos a personas
+    externas.
+
+-   En los tenants externos, permitir que los usuarios corporativos
+    puedan ser invitados a Canales Compartidos en otras organizaciones.
+
+![Imagen 4.- Canales que se pueden crear en un tenant en el que se permiten crear Canales Privados y Canales Compartidos.](../../../images/numero52/canales-compartidos-microsoft-teams-parte-i/media/image4.png)
+
+
+**Configuraciones para Canales Compartidos en Azure AD**
+
+Como ya hemos anticipado, los Canales Compartidos se apoyan en la
+característica Azure AD B2B direct connect de Azure AD que habilita la
+colaboración entre personas de distintas organizaciones de forma
+productiva y con 0 fricción. Azure AD B2B Connect está actualmente en
+Preview y la configuración por defecto es que no se permite la
+colaboración entrante (inbound) y saliente (outbound) entre
+organizaciones. Para revisar la configuración por defecto de Azure AD
+B2B Connect:
+
+-   Accedemos a la administración de Azure AD y hacemos clic en "External Identities":
+
+![Imagen 5.- Acceso a la sección External Identities en Azure AD.](../../../images/numero52/canales-compartidos-microsoft-teams-parte-i/media/image5.png)
+
+
+-   A continuación, haremos clic en "Cross-tenant access settings
+    (Preview)" donde podremos ver que Azure AD B2B direct connect está
+    bloqueado por defecto tanto para el acceso entrante al tenant como
+    saliente
+
+![Imagen 6.- Configuración por defecto de Azure AD direct Connect en un tenant.](../../../images/numero52/canales-compartidos-microsoft-teams-parte-i/media/image6.png)
+
+
+Revisada la configuración por defecto de Azure AD B2B direct Connect, es
+momento de revisar las configuraciones a realizar en el tenant de origen
+(Contoso) y en los tenant con los que vamos a colaborar para que sea
+posible que se pueda invitar a usuarios externos a los Canales
+Compartidos que se vayan creando en Contoso. Vamos a empezar primero por
+las configuraciones en Contoso:
+
+-   Empezaremos con la configuración de colaboración entrante (Inbound)
+    en Contoso para permitir invitar a personas externas a nuestros
+    canales compartidos. Para ello haremos clic en Organizational
+    settings -\> Add an organization de forma que se abre un panel
+    lateral en el que podremos indicar o bien el tenant ID o bien el
+    dominio del tenant con el que queremos colaborar externamente:
+
+![Imagen 7.- Añadiendo una organización con la que colaborar externamente mediante Azure AD B2B direct connect.](../../../images/numero52/canales-compartidos-microsoft-teams-parte-i/media/image7.png)
+
+-   Una vez añadido el tenant, tendremos que configurar al menos en
+    nuestro escenario la configuración de colaboración entrante
+    (Inbound) y de manera opcional la configuración de colaboración
+    saliente (Outbound) ya que en ambos casos se hereda la configuración
+    por defecto de Azure AD B2B direct Connect (Todo bloqueado). Para
+    hacerlo, en cada caso haremos clic en el enlace correspondiente:
+
+![Imagen 8.- Acceso a las configuraciones de colaboración externa entrante y saliente en Azure AD direct Connect.](../../../images/numero52/canales-compartidos-microsoft-teams-parte-i/media/image8.png)
+
+
+-   Comenzamos con la configuración de colaboración externa entrante
+    (Inbound) que es la que permite que las personas de otros tenants
+    puedan ser invitados a los Canales Compartidos que creemos. Como
+    veis, para la configuración de Azure AD direct Connect tendremos que
+    pasar de la opción por defecto (All blocked) a la opción de
+    configuración personalizada que nos permite invitar a cualquier
+    persona del tenant con el que queremos colaborar o bien indicar
+    personas/grupos concretos:
+
+![Imagen 9.- Configuraciones personalizadas de Azure AD B2B direct conect para colaboración externa entrante (Inbound).](../../../images/numero52/canales-compartidos-microsoft-teams-parte-i/media/image9.png)
+
+
+En el caso en el que queramos especificar usuarios y/o grupos concretos:
+
+-   Los usuarios concretos del tenant con el que vamos a colaborar
+    externamente en los Canales Compartidos los indicaremos mediante su
+    e-mail.
+
+-   Los grupos concretos del tenant con el que vamos a colaborar
+    externamente en los Canales Compartidos los indicaremos mediante su
+    ID de Grupo. Lógicamente este ID lo tendremos que solicitar a un
+    administrador del tenant.
+
+![Imagen 10.- Configurando usuarios y grupos concretos para la colaboración externa entrante.](../../../images/numero52/canales-compartidos-microsoft-teams-parte-i/media/image10.png)
+
+
+-   De la misma forma que podemos habilitar el acceso de los usuarios
+    pertenecientes al tenant con el que vamos a colaborar, podemos hacer
+    lo mismo para el caso de aplicaciones habilitadas.
+
+![Imagen 11.- Configuración de aplicaciones permitidas para la colaboración externa entrante.](../../../images/numero52/canales-compartidos-microsoft-teams-parte-i/media/image11.png)
+
+
+-   Finalmente, y de manera opcional, aunque recomendable, podemos
+    realizar las configuraciones de confianza que requiramos como
+    mecanismo que asegurar que los usuarios del tenant con el que vamos
+    a colaborar acceden a nuestros recursos (en este caso a los Canales
+    Compartidos). Como veis, podemos elegir entre tres settings
+    diferentes que se pueden combinar:
+
+    -   Se requiere autenticación multifactor.
+
+    -   Se requiere el acceso con dispositivos de confianza.
+
+    -   Se requiere el acceso desde equipos unidos de forma híbrida a
+        Azure AD.
+
+![Imagen 12.- Configuraciones de seguridad para la colaboración externa entrante.](../../../images/numero52/canales-compartidos-microsoft-teams-parte-i/media/image12.png)
+
+
+Una vez que la colaboración externa entrante se ha realizado, en Contoso
+ya estaríamos listos. De manera opcional podríamos configuración la
+colaboración externa saliente (Outbound), es decir, como habilitar que
+los usuarios de Contoso puedan acceder a recursos del tenant o tenants
+con el que tenemos la colaboración entrante. Precisamente es esto lo que
+tenemos que hacer en estos tenants:
+
+-   En tenant con el que vamos a colaborar, añadiremos a Contoso como
+    organización con la que queremos al menos tener una colaboración
+    externa saliente. Haremos click en el enlace que se muestra bajo la
+    columna Outbound access.
+
+![Imagen 13.- Configurando la colaboración externa saliente para el tenant con el que queremos colaborar.](../../../images/numero52/canales-compartidos-microsoft-teams-parte-i/media/image13.png)
+
+
+-   En la sección de Azure AD B2B direct connect realizaremos el mismo
+    tipo de configuraciones que vimos para la colaboración externa
+    entrante:
+
+    -   Podremos indicar si permitimos que todos o solo algunos de
+        nuestros usuarios puedan ser invitados a recursos de Contoso
+        (Canales Compartidos en este caso).
+
+    -   Podremos indicar si permitimos acceso a todas las aplicaciones o
+        solo algunas de las aplicaciones externas de Contoso.
+
+![Imagen 14.- Configuración de Azure B2B direct connect para colaboración externa saliente (Outbound).](../../../images/numero52/canales-compartidos-microsoft-teams-parte-i/media/image14.png)
+
+
+-   Finalmente, en el caso de la colaboración externa saliente fijaros
+    que no hay una sección relativa a seguridad como si ocurría con la
+    colaboración externa entrante.
+
+Y hasta aquí todo lo que es configuración de la colaboración externa
+entrante y saliente entre organizaciones que van a hacer uso de Canales
+Compartidos en Microsoft Teams para dicha colaboración. En el próximo
+artículo de la serie nos centraremos ya en la experiencia de usuario de
+dicha colaboración.
+
+**Conclusiones**
+
+Los Canales Compartidos en Microsoft Teams habilitan escenarios de
+colaboración productivos y de cero fricción en los que dos
+organizaciones pueden trabajar de forma conjunta evitando tener que
+hacer un cambio de tenant y la proliferación de usuarios invitados en
+Azure AD. Los Canales Compartidos se apoyan en la característica Azure
+AD B2B direct connect de Azure AD que habilita la colaboración de
+usuarios de tenants diferentes.
+
+**Juan Carlos Gonzalez Martin** <br />
+Offices Apps & Services MVP <br />
+M365 SME & Delivery Manager <br />
+@jcgm1978 | <https://www.linkedin.com/in/juagon/>
