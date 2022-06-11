@@ -1,37 +1,17 @@
 import * as React from "react"
 import { AppBar, Toolbar, Container, Hidden, Fab } from "@material-ui/core"
-import { KeyboardArrowUp, NoEncryption } from "@material-ui/icons"
+import { KeyboardArrowUp } from "@material-ui/icons"
 import { makeStyles } from "@material-ui/core"
 import SideDrawer from "./sideDrawer"
 import HideOnScroll from "./hideOnScroll"
 import BackToTop from "./backToTop";
 import { Link } from 'gatsby'
 import logo from '../../images/layout/Logo380x109.png';
-import anniversaryBg from '../../images/icons/Celebration-Transparent.png'; 
 
 
 const useStyles = makeStyles({
-    anniversaryBanner: {
-        margin: "0 -20px",
-        padding: "30px",
-        lineHeight: "30px",
-        fontSize: "30px",
-        background: "#FFd700",
-        color: "#000",
-        textAlign: "center",
-        backgroundImage: `url(${anniversaryBg});`,
-        "background-size": "contain",
-        '& a': {
-            textDecoration: 'none',
-            fontSize: "20px",
-            color: "#000"
-        },
-        '& a:hover': {
-            color: "#f90b39"
-        }
-    },
     appBar: {
-        height: 290,
+        height: 200,
         backgroundColor: '#303030',
         padding: '0 20px',
         boxSizing: 'border-box'
@@ -45,7 +25,7 @@ const useStyles = makeStyles({
         height: 200
     },
     toolbar: {
-        height: 290
+        height: 200
     },
     link: {
         alignSelf: 'center'
@@ -112,10 +92,6 @@ const Header = () => {
         <>
             <HideOnScroll>
                 <AppBar position="fixed" className={classes.appBar}>
-                    <div className={classes.anniversaryBanner}>
-                        ¡¡Celebramos la publicación de nuestro Número 50!!
-                        <Link to="/especial-50"> + info</Link>
-                    </div>
                     <Toolbar className={classes.toolbar}>
                         <Container maxWidth="xl" className={classes.navbarDisplayFlex}>
                             <Hidden mdUp>

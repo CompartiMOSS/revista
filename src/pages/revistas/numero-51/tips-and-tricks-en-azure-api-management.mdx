@@ -1,0 +1,206 @@
+---
+title: Tips and tricks en Azure API Management
+slug: /revistas/numero-51/tips-and-tricks-en-azure-api-management
+date: 01/03/2021
+magazine: 51
+author: Diego Zapico Ferreiro
+authorId: diego-zapico
+keywords: ['Azure', 'Api Management']
+featuredImage: ../../../images/numero51/tips-and-tricks-en-azure-api-management/image1.png
+---
+
+
+No voy a comenzar explicando que es Azure API Management (APIM desde
+ahora) porque en esta misma revista ya contamos con un artículo genial
+de Javier López [1], que, aunque con novedades en el servicio da una
+perfecta introducción de qué es y para qué sirve. En este artículo
+quiero contar algunas cosas que me he cruzado desarrollando para APIM y
+que me han podido dar algún dolor de cabeza y como lo he solucionado o
+esquivado.
+
+**XDocument.Load no existe**
+
+APIM no cuenta con todas las referencias que esperaríamos y
+XDocument.Load es una de ellas. Estaba mapeando una llamada JSON al
+origen real que se trataba de un servicio SOAP e intentaba cargar la
+respuesta para navegar por ella y construir un JSON.
+
+Ahora alguien podría estar pensando "Diego, APIM ya te ofrece una
+etiqueta que te hace esta transformación automáticamente" y sí, tienes
+razón, APIM proporciona json-to-xml y xml-to-json pero estas
+directivas automáticas puede que no se adapten a lo que necesitamos por
+varios motivos:
+
+1.  Introducen en el JSON los namespaces de XML y otra información que
+    no es necesaria en el JSON.
+
+2.  Queremos hacer transformaciones más profundas, traducir nombres de
+    campos o devolver cálculos en un agregado.
+
+Para estas circunstancias esas etiquetas no son válidas y necesitamos
+leer el XML y *parsearlo* manualmente. Una primera idea que tendríamos
+sería usar XDocument para cargar el XML y trabajar con él, pero nos
+encontraríamos una sorpresa cuando al guardar la policy (única forma de
+validarla) el portal nos diga que XDocument.Load no existe y es verdad,
+puedes usar todos los métodos de XDocument menos el Load ¿Qué sentido
+podría tener esto? Yo he tirado de XmlDocument que si nos ofrece todos
+sus métodos.
+
+![Imagen 1.- XDocument.Load excluido de APIM.]( ../../../images/numero51/tips-and-tricks-en-azure-api-management/image1.png)
+
+Pero ¿Dónde está el problema? Bueno, directamente no lo hay, ambas las
+podemos usar, pero es verdad que en todos los benchmark XDocument
+presenta un mejor rendimiento [3] que a veces lleva a alcanzar una
+mejor de 6-10x.
+
+**Cuidado con set-body template liquid**
+
+Al igual que en el caso anterior he empleado esta opción para
+transformar JSON a XML. La opción *template="liquid"* nos permite usar
+set-body de forma que podamos trabajarlo como un sistema de plantillas
+para realizar transformaciones de una manera rápida y cómoda entre JSONy
+xml como en el siguiente ejemplo:
+
+```
+{
+    marca: "Ford",
+    matricula: "1234HHF"
+}
+```
+
+Body que recibimos
+
+```
+<set-body template="liquid">
+<coche>
+<marca>{{body.marca}}</marca>
+<matricula>{{body.matricula}}</matricula>
+</coche>
+</set-body>
+Template empleando liquid
+<marca>Ford</marca>
+<matricula>1234HHF</maricula>
+```
+
+Transformación
+
+La verdad que el sistema de plantillas nos hace la transformación muy
+fácil, pero es muy sencillo no darse cuenta del problema que os quiero
+contar. Cuando nos llegue la petición con el body en json nuestro
+Content-Type será "application/json" y lo primero que pensaremos en
+hacer pensando en pasarle a nuestro backend un xml (seguramente a un
+servicio SOAP) es transformar el Content-Type a "text/xml" o
+"application/soap+xml" en función de si nos dirigimos a un SOAP 1 o 1.2.
+Pero si hacemos esto antes de la transformación liquid las referencias
+body dejarían de funcionar, debemos hacer ese cambio después del
+set-body siempre que necesitemos obtener valores del body, si estos
+fueran query o path params no tendríamos problema y podríamos realizar
+el cambio del Content-Type primero.
+
+**El preserveContent olvidado**
+
+Parece que el body da muchos dolores de cabeza, pero es que al final, en
+mi experiencia, muchos de los trabajos con APIM se tratan de
+transformaciones en los body y llamadas a múltiples endpoints desde uno
+único. Imagínate que el servicio te devuelve unas respuestas como las
+siguientes:
+
+```
+<status>OK</status>
+<message>something</message>
+<status>ERROR</status>
+<message>something wrong</message>
+```
+
+Nosotros deberíamos de devolver un 20X o 40X en función del status, para
+ello leeremos la respuesta recibida, si status == ERROR debemos de poner
+el código a 400, por ejemplo. Para ello declararemos una variable
+booleana con esa condición, pero para leerlo llamaremos a algo del
+estilo de:
+
+```
+string response = context.Request.Body.As<string>();
+```
+
+Y un poco después crearemos un set-body para construir la nueva
+respuesta, al volver a leer el body nos dirá que no existe nada y nos
+volveremos locos buscando. El problema está en que al leer el body lo
+borra si no le decimos lo contrario, la primera llamada debería de
+incluir el parámetro "preserveContent" a true y que es muy posible que
+se nos haya olvidado.
+
+```
+string response = context.Request.Body.As<string>(preserveContent:true);
+```
+
+**Crea variables para los query params**
+
+He tenido que reconstruir URLs o como he dicho antes llamar a distintos
+endpoints desde la misma llamada expuesta en APIM, de forma que para mí
+endpoint expuesto si me proporcionas el parámetro1 llamo a una dirección
+y con el parámetro1 y parámetro2 llamo a otra distinta.
+
+Esto se consigue con el uso de "rewrite-uri", pero para obtener el valor
+de los query params deberíamos de hacer algo como
+"context.Request.OriginalUrl.Query.GetValueOrDefault("parametro1","")"
+que en mi caso muchas veces prefiero hacerlo una vez para darle ese
+valor a una variable de APIM y después emplear
+"context.Variables["parametro1"] en la construcción de la URL, de
+forma que me quedaría algo como lo siguiente:
+
+```
+<set-variable name="parametro1" value="@(context.Request.OriginalUrl.GetValueOrDefault("parametro1",""))">
+<set-variable name="parametro2" value="@(context.Request.OriginalUrl.GetValueOrDefault("parametro2",""))">
+<rewrite-uri template="@("/newUrl/"+
+    context.Variables["parametro1"] + "/" +
+    context.Variables["parametro2"])" />
+```
+
+No creo que pudiese llamarlo buena práctica, pero es mi consejo, me hace
+muchísimo más fácil de ver las construcciones y me ha ayudado a
+encontrar errores cuando estos se han dado. El coste computacional de
+crear estas variables es despreciable.
+
+**APIM te da tiempo**
+
+Una tendencia que he observado es usar APIM para parchear o modificar
+comportamientos o diseños que ya se han detectado como erróneos en la
+API origen. Es posible usar APIM para corregirlos de una manera más
+ágil, pero este no debería de ser el camino. Estoy seguro de que una
+modificación en APIM puede ser más sencillo que modificar tu API y los
+servicios que ya la están consumiendo, pero aprovecha este nuevo diseño
+para incluirlo en tu actual API y marcar las viejas llamadas como
+deprecadas. Cambiarlo en APIM no será ningún problema, tan sencillo como
+borrar toda la policy si ya no necesitamos que haga modificaciones.
+
+**Propagar errores 500**
+
+Este puede ser un punto cuestionable y no compartido, pero quería cerrar
+el artículo con un punto de opinión.El servicio daba innumerables
+errores 500, es verdad que en este caso no incluía en el body
+información sobre cual era el fallo, pero si te fijabas un poco en los
+parámetros podías darte cuenta, en algunos casos un parámetro que no
+tenía el formato esperado. Mi decisión y consejo es no propagar errores
+500 que puedan dar información a un posible usuario malicioso de que ahí
+puede haber algo no controlado que pueda intentar explotar, de forma que
+enmascaraba estos errores con 400.
+
+Está claro que lo ideal si detectas que tu aplicación devuelve un error
+500 es subsanar ese comportamiento, pero ¿Y si no tienes esa
+posibilidad? Mi recomendación es enmascararlos, puedes crear frustración
+en el usuario de la API que piense que está haciendo algo mal (y en
+parte si, no le va a funcionar, aunque lo introduzca 100 veces), pero
+propagar un error 500 por una excepción no controlada en el código me
+parece que da más información de cómo funciona, información que en malas
+manos puede ayudar a conocer nuestro código interno.
+
+[1]:
+<https://www.compartimoss.com/revistas/numero-28/introduccion-a-azure-api-management/>
+
+[2]:
+<https://docs.microsoft.com/en-us/azure/api-management/api-management-transformation-policies>
+
+[3]:
+<https://docs.microsoft.com/en-us/archive/blogs/codejunkie/xmldocument-vs-xelement-performance>
+
+**Diego Zapico Ferreiro**
