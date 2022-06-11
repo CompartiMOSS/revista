@@ -32,7 +32,7 @@ preferencias y gustos, en mi caso, es una tarjeta sencilla, que contará
 con un título , una pequeña descripción, un control de opciones y dos
 botones con las opciones "SI" y "NO".
 
-![Imagen 1.- Diseñando la Adaptive Card en el Designer.](../../../images/numero52/enviar-una-adaptive-card-por-teams-y-esperar-su-respuestav3/image1.PNG)
+![Imagen 1.- Diseñando la Adaptive Card en el Designer.](../../../images/numero52/enviar-una-adaptive-card-por-teams-y-esperar-su-respuestav3/image1.png)
 
 
 El control de opciones "Imput.Choice" nos permitirá, entonces, ofrecerle
@@ -61,27 +61,14 @@ utilizado para el imput.choice
         }
 ```
 
-  -----------------------------------------------------------------------
-  type                                Tipo de control
-  ----------------------------------- -----------------------------------
-  id                                  Id del control y variable que
-                                      después utilizamos en Teams para
-                                      actualizar un determinado campo
-
-  isRequired                          Si el campo es obligatorio
-
-  errorMessage                        Mensaje para mostrar en caso de que
-                                      el control tenga isRequired en true
-
-  placeholder                         Opción para mostrar en el
-                                      placerholder (Marca de agua, en el
-                                      caso de ejemplo no es necesario)
-
-  choices                             Opciones para mostrar y su valor
-                                      interno
-
-  Style                               Forma del control, Expanded/Compact
-  -----------------------------------------------------------------------
+  | type                                | Tipo de control
+  | ----------------------------------- | -----------------------------------
+  | id                                  | Id del control y variable que después utilizamos en Teams para actualizar un determinado campo
+  |isRequired                           | Si el campo es obligatorio
+  |errorMessage                         | Mensaje para mostrar en caso de que el control tenga isRequired en true
+  | placeholder                         | Opción para mostrar en el placerholder (Marca de agua, en el caso de ejemplo no es necesario)
+  | choices                             | Opciones para mostrar y su valor interno
+  | Style                               | Forma del control, Expanded/Compact
 
 Código json completo de la tarjeta:
 
@@ -158,20 +145,13 @@ componente para actualizar el item de SharePoint
 
 En el componente de Teams, configuramos las siguientes opciones:
 
-  -----------------------------------------------------------------------
-  Post as                             Flow Bot
-  ----------------------------------- -----------------------------------
-  Post in                             Chat With Flow Bot
-
-  Message                             Nuestra tarjeta en JSon
-
-  Update message (Dicho mensaje       Gracias!
-  actualiza la tarjeta una vez que el 
-  usuario realizó la acción)          
-
-  Recipient                           Destinatario de la tarjeta
-  -----------------------------------------------------------------------
-
+  | Post as                             | Flow Bot
+  |----------------------------------- |-----------------------------------
+  | Post in                             | Chat With Flow Bot
+  |Message                             | Nuestra tarjeta en JSon
+  | Update message (Dicho mensaje actualiza la tarjeta una vez que el usuario realizó la acción)        | Gracias!
+  | Recipient                           | Destinatario de la tarjeta
+  
 Luego, actualizamos el Update Item, con la variable "MiAprobacion", que,
 como mencioné, es el resultado seleccionado por el usuario.
 

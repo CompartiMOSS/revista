@@ -1,11 +1,11 @@
 ---
 title: Uso de Contenedores para un Developer de Office 365
-slug: /revistas/numero-52/docker-developerde-office365
+slug: /revistas/numero-52/docker-developer-office365
 date: 01/06/2021
 magazine: 52
-author: Enrique Sánchez Moreno
-authorId: enrique-sanchez
-keywords: ['Power Platform','Power Apps', 'Wrpap Feature']
+author: Adrian Diaz Cervera
+authorId: adrian-diaz-cervera
+keywords: ['Office 365','Developer', 'Docker']
 featuredImage: ../../../images/numero52/docker-developerde-office365/image1.png
 ---
 
@@ -59,52 +59,50 @@ Debe de contener el conjunto de comandos o instrucciones para realizar
 la imagen que queremos construir. Que comandos podemos ejecutar dentro
 del contenedor:
 
-  --------------------------------------------------------------------------
-  Instrucción   Descripción                      Comentario
-  ------------- -------------------------------- ---------------------------
-  FROM          Establecer imagen base           Debe presentarse como
-                                                 primera instrucción; solo
-                                                 una entrada por etapa
-
-  ENV           Variable de entorno para el      ---
-                proceso de construcción y        
-                establecer vida del contenedor   
-
-  ARG           Declarar parámetros de la línea  Debe aparecer antes que la
-                de comandos para el proceso de   instrucción FROM
-                construcción                     
-
-  WORKDIR       Cambiar de directorio actual     ---
-
-  USER          Cambiar usuario y pertenencia al ---
-                grupo                            
-
-  COPY          Copiar los archivos y            Crea una nueva capa
-                directorios de una Image         
-
-  ADD           Copiar los archivos y            Crea una nueva capa; uso no
-                directorios de una Image         recomendable
-
-  RUN           Ejecutar el comando de Image     Crea una nueva capa
-                durante el proceso de            
-                construcción                     
-
-  CMD           Establecer argumentos estándar   Solo una entrada por build
+  | Instrucción   | Descripción                      | Comentario
+  | ------------- | -------------------------------- | ---------------------------
+  | FROM          | Establecer imagen base           | Debe presentarse como
+                                                 | | | primera instrucción; solo
+                                                 | | | una entrada por etapa
+| | | 
+  | ENV           | Variable de entorno para el      | ---
+                | | proceso de construcción y        
+                | | establecer vida del contenedor   
+| | | 
+  | ARG           | Declarar parámetros de la línea  | Debe aparecer antes que la
+                | | de comandos para el proceso de   | instrucción FROM
+                | | construcción                     
+| | | 
+  | WORKDIR       | Cambiar de directorio actual     | ---
+| | | 
+  | USER          | Cambiar usuario y pertenencia al | ---
+                | | grupo                            
+| | | 
+  | COPY          | Copiar los archivos y            | Crea una nueva capa
+                | | directorios de una Image         
+| | | 
+  | ADD           | Copiar los archivos y            | Crea una nueva capa; uso no
+                | | directorios de una Image         | recomendable
+| | | 
+  | RUN           | Ejecutar el comando de Image     | Crea una nueva capa
+                | | durante el proceso de            
+                | | construcción                     
+| | | 
+  | CMD           Establecer argumentos estándar   Solo una entrada por build
                 para el inicio del contenedor    stage
 
-  ENTRYPOINT    Establecer comando estándar para Solo una entrada por etapa
-                el inicio del contenedor         de construcción
-
-  EXPOSE        Definir asignación de puerto     Los puertos deben estar
-                para contenedores en ejecución   activos al iniciar el
-                                                 contenedor
-
-  VOLUME        Integrar como volumen directorio ---
-                de Image al iniciar el           
-                contenedor en el sistema         
-                anfitrión                        
-  --------------------------------------------------------------------------
-
+  | ENTRYPOINT    | Establecer comando estándar para | Solo una entrada por etapa
+                | | el inicio del contenedor         | de construcción
+| | | 
+  | EXPOSE        | Definir asignación de puerto     | Los puertos deben estar
+                | | para contenedores en ejecución   | activos al iniciar el
+                                                 | | | contenedor
+| | | 
+  | VOLUME        | Integrar como volumen directorio | ---
+                | | de Image al iniciar el           
+                | | contenedor en el sistema         
+                | | anfitrión                        
+  
 Un ejemplo de un fichero DockerFile para ejecutar una aplicación .NET
 podría ser el siguiente:
 
