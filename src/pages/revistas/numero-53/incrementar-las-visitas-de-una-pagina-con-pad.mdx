@@ -1,0 +1,776 @@
+**Incrementar las visitas de una página con Power Automate for Desktop**
+
+El objetivo que tienen los RPA es la de automatizar tareas repetitivas
+que se realizan de forma manual. Al ser realizadas por un proceso
+automático, podemos liberar de esta tarea a nuestros usuarios y además
+minimizamos la posibilidad de que se produzcan errores por los fallos
+que pueden cometer los usuarios cuando lo hacen manualmente. Hace tiempo
+vi un documental en el que mostraban cómo funcionaba una granja de
+likes: se trataba de una serie de empleados con miles de teléfonos
+móviles y ellos se encargaban de ir pulsando like en alguna publicación
+en cada uno de estos terminales. De esta forma, subían la popularidad de
+la publicación o de la persona que hubiese contratado este servicio.
+
+Con estas dos premisas, se me ocurrió la idea de probar las capacidades
+de Power Automate for Desktop (PAD) con un proceso automático que se
+conectase frecuentemente a una determinada página para incrementar su
+número de visitantes. Para que las visitas fuesen únicas, además quería
+hacer la visita cada vez desde una IP diferente y así surge la idea de
+escribir este artículo.
+
+*Disclaimer: El artículo sólo tiene el propósito de probar las
+capacidades de Power Automate for Desktop. No tiene la intención de
+proveer de una herramienta que permita incrementar las visitas de
+ninguna página web ("For Testing Purposes Only")*
+
+Para esta prueba utilizaremos las siguientes tecnologías:
+
+-   Power Automate Desktop: para automatizar las tareas.
+
+-   Power Automate: para ejecutar el flujo PAD de forma periódica.
+
+-   Azure: para albergar la infraestructura.
+
+-   Una página web propia que queramos monitorizar. En mi caso, un post
+    de un blog de Blogger.
+
+-   Google Analytics para el análisis en detalle de las visitas de la
+    página. Para ello, tuve que añadir un pequeño script en la página
+    web.
+
+El flujo sería el siguiente:
+
+1.  Un proceso abre la página web que queramos monitorizar en incógnito
+
+2.  Una vez abierta, realiza alguna interacción con la misma y cierra la
+    página
+
+3.  Se renueva la IP
+
+4.  Esperamos un tiempo para que apliquen los cambios
+
+5.  Volvemos a empezar
+
+Seguro que hay formas de hacerlo de una manera más eficiente, pero para
+esta prueba, lo he realizado de la siguiente forma:
+
+**PREPARACIÓN DE LA INFRAESTRUCTURA EN AZURE (Parte I)**
+
+La primera parte de la preparación consiste en la creación de una
+máquina virtual en Azure donde instalaremos el cliente de Power Automate
+Desktop. Para ello, en una suscripción de Azure crearemos un nuevo grupo
+de recursos con una máquina virtual Windows. Dado que esto es para una
+prueba, escogí una VM económica que cumpla con los requisitos para la
+instalación de Power Automate for Desktop:
+<https://docs.microsoft.com/en-us/power-automate/desktop-flows/setup>
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image1.png){width="5.905555555555556in"
+height="1.4006944444444445in"}
+
+**Imagen 1.- VM en la que instalar Power Automate Desktop.**
+
+Como podéis ver, la ubicación de la VM es West Europe. Por eso, luego
+veréis que en Google Analytics aparece Países Bajos como lugar del
+acceso a la página web. Para poder acceder por Escritorio Remoto, le
+habilité los puertos RDP (33889) y le agregué una IP pública dinámica
+para que se cambie la dirección cada vez que desasociamos la red a la
+VM.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image2.png){width="5.905555555555556in"
+height="1.2847222222222223in"}
+
+**Imagen 2.- IP pública dinámica asignada a la VM.**
+
+Como último paso, tenemos que verificar que las sesiones de Azure no
+tienen establecido un timeout que haga que se cierren tras determinado
+tiempo de inactividad. Esto lo necesitamos para dejar abierta la sesión
+de Azure con el usuario administrador ya que, si se cerrase, nos pediría
+la autenticación multifactor (MFA).
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image3.png){width="5.905555555555556in"
+height="1.8145833333333334in"}
+
+**Imagen 3.- Configuración del cierre de sesión en la VM.**
+
+**PREPARACIÓN DEL POWER AUTOMATE FOR DESKTOP**
+
+Ahora, vamos a acceder mediante escritorio remoto (RDP) a nuestra
+máquina virtual. Una vez dentro, vamos a instalar el cliente de Power
+Automate for Desktop (lo podéis encontrar en la parte de descargas de la
+página principal de Power Automate.)
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image4.png){width="5.905555555555556in"
+height="3.032638888888889in"}
+
+**Imagen 4.- Acceso a la descarga del cliente de Power Automate
+Desktop.**
+
+Una vez descargado, procedemos a su instalación en la máquina virtual:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image5.png){width="5.905555555555556in"
+height="4.4743055555555555in"}
+
+**Imagen 5.- Instalación del cliente de Power Automate Desktop.**
+
+Cuando esté instalado, lo ejecutamos e iniciamos sesión con un usuario
+de nuestro tenant de pruebas. Dado que vamos a utilizar componentes
+premium (un gateway local), desde esta misma página vamos a pulsar en el
+botón "***Go premium***". Dado que este artículo sólo es una prueba,
+seleccionamos la opción "***Start trial***".
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image6.png){width="5.905555555555556in"
+height="1.16875in"}
+
+**Imagen 6.- Selección de la versión de Power Automate Desktop.**
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image7.png){width="5.905555555555556in"
+height="3.9340277777777777in"}
+
+**Imagen 7.- Versión trial Power Automate Desktop.**
+
+Y veremos el mensaje indicando que se ha activado la versión de prueba.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image8.png){width="5.905555555555556in"
+height="0.6694444444444444in"}
+
+**Imagen 8.- Mensaje de versión trial de Power Automate Desktop
+activada.**
+
+Si accedéis al navegador predeterminado (en mi caso Edge), veremos que
+se nos ha instalado también la extensión de "Microsoft Power Automate"
+que deberemos activar ('Turn on extension')
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image9.png){width="4.78125in"
+height="2.6145833333333335in"}
+
+**Imagen 9.- Extensión de Power Automate para Edge que se ha
+instalado.**
+
+**CREACIÓN DEL GATEWAY LOCAL.**
+
+Ahora es el momento de crear un gateway local en nuestra VM para que
+posteriormente podamos acceder desde un flujo en la nube de Power
+Automate. Para instalar el Gateway, deberéis acceder a
+<https://docs.microsoft.com/en-us/data-integration/gateway/service-gateway-install>
+desde la máquina virtual y descargar el Gateway Installer
+(*GatewayInstall.exe*). Una vez descargado, ejecutadlo para instalarlo
+en la VM.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image10.png){width="5.905555555555556in"
+height="2.3916666666666666in"}
+
+**Imagen 10.- Creación de un Gateway local.**
+
+Tras la instalación, accedemos con el usuario de nuestro tenant con el
+que vamos a realizar la configuración del flujo de Power Automate.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image11.png){width="5.905555555555556in"
+height="2.7423611111111112in"}
+
+**Imagen 11.- E-Mail a utilizar para Gateway local.**
+
+Y seleccionamos la opción "*Register a new gateway on this computer*"
+para que quede asociado a nuestra VM.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image12.png){width="5.905555555555556in"
+height="2.8243055555555556in"}
+
+**Imagen 12.- Registro del Gateway en la VM.**
+
+Ahora, nos pedirá establecer un nombre para nuestro gateway y una clave
+de recuperación:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image13.png){width="5.905555555555556in"
+height="5.950694444444444in"}
+
+**Imagen 13.- Configuraciones del Gateway,**
+
+Una vez creado, recibiremos el mensaje de que nuestro gateway está
+correctamente instalado en el equipo:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image14.png){width="5.905555555555556in"
+height="6.627777777777778in"}
+
+**Imagen 14.- Mensaje de confirmación de Gateway instalado y
+configurado.**
+
+Ahora, si desde un navegador accedemos a la página principal de Power
+Automate y seleccionamos la opción "***Gateways***" que hay en la zona
+"*Data*" del menú izquierdo, podemos ver que nuestro gateway aparece en
+el listado.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image15.png){width="5.905555555555556in"
+height="2.5479166666666666in"}
+
+**Imagen 15.- Comprobación de disponibilidad del Gateway en el Portal de
+Administración de Power Automate .**
+
+**PREPARACIÓN DE LA INFRAESTRUCTURA EN AZURE (Parte II)**
+
+Ahora ya estaríamos en condiciones de crear el flujo de Power Automate
+for Desktop. Dicho flujo se encargará de realizar tres tareas:
+
+-   Desasociar la interfaz de red de la Máquina Virtual. Esto liberará
+    la dirección IP que tenga asociada hasta ese momento.
+
+-   Asociar de nuevo la interfaz de red para asignar una nueva dirección
+    IP.
+
+-   Abrir una ventana de incógnito del navegador y acceder a nuestra
+    página web de Blogger.
+
+Las dos primeras acciones se realizan desde la zona de *Información
+general* de la *Dirección IP pública* en el portal de Azure. Os pongo
+aquí los pantallazos ya que se referenciarán posteriormente dentro del
+flujo de Power Automate for Desktop:
+
+A.  Desasociar la interfaz de red:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image16.png){width="5.905555555555556in"
+height="1.8888888888888888in"}
+
+**Imagen 16.- Desasociando la interfaz de red.**
+
+B.  Asociar la interfaz de red:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image17.png){width="5.905555555555556in"
+height="1.9368055555555554in"}
+
+**Imagen 17.- Asociando la interfaz de red.**
+
+Dado que lo que vamos a desasociar y asociar la IP pública de la VM,
+perderemos el acceso mediante escritorio remoto a la misma, por lo que
+se nos complicará la posibilidad de crear todos los pasos de Power
+Automate for Desktop. Por esta razón, vamos a utilizar otro de los
+servicios que nos ofrece Azure y que se llama "**Azure Bastión**". Así
+pues, la segunda parte de la configuración de la infraestructura de
+Azure, será configurar este servicio de conexión.
+
+**AZURE BASTION**
+
+Azure Bastión nos permite acceder a nuestra VM como si lo hiciésemos por
+RDP, pero desde el propio portal de Azure, es decir, sin tener que
+exponer una IP pública. Esto nos va a permitir acceder a nuestra
+infraestructura de la máquina virtual y desasociar y asociar la IP
+pública sin perder el acceso a la VM. Para acceder a Azure Bastión,
+accedemos al recurso de la máquina virtual y desde la sección "Conectar"
+nos situamos en la pestaña "Bastión".
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image18.png){width="5.905555555555556in"
+height="2.5756944444444443in"}
+
+**Imagen 18.- Acceso a Azure Bastion.**
+
+Como veis en la imagen, desde esta misma pestaña tenemos acceso a más
+información sobre este servicio de Azure. Pulsaremos en el botón "**Usar
+un bastión**" y aparecerá la siguiente ventana:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image19.png){width="5.905555555555556in"
+height="2.5479166666666666in"}
+
+**Imagen 19.- Acceso a la creación de una instancia de Azure Bastion.**
+
+Seleccionaremos "**Crear una instancia de Azure Bastión**"
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image20.png){width="5.905555555555556in"
+height="2.6055555555555556in"}
+
+**Imagen 20.- Creando una instancia de Azure Bastion.**
+
+Tras un rato de espera (5-6 minutos), nos solicitará un usuario y
+contraseña para el acceso a nuestra VM.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image21.png){width="5.905555555555556in"
+height="3.297222222222222in"}
+
+**Imagen 20.- Usuario y contraseña para el acceso a la VM.**
+
+Tras introducir el usuario y contraseña del administrador de la VM,
+pulsamos el botón "**Conectar**" y así accederemos a ella en una nueva
+pestaña del navegador, por lo que ya podremos hacer desde allí el flujo
+de Power Automate for Desktop sin riesgo de perder la conexión cuando
+desasociemos la IP pública. Lo único que tenéis que tener cuidado es de
+no refrescar esta página en lugar de la que hay dentro de ella cuando
+queráis hacer un refresh (a mí me ha pasado varias veces).
+
+Por tanto, ahora ya sí que podemos pasar a la fase de construcción del
+flujo de Power Automate for Desktop desde nuestra máquina virtual.
+
+**FLUJO DE POWER AUTOMATE FOR DESKTOP**
+
+*[NOTA]{.underline}*: No me considero un experto en Power Automate for
+Desktop, así que es probable que alguno de los pasos se pueda hacer de
+alguna otra forma que sea más eficiente.
+
+Para crear el flujo que desasocie una IP, asocie una nueva y acceda a
+nuestra página web, seguiremos los siguientes pasos:
+
+1)  Accedemos al portal de Azure en el navegador predeterminado (en mi
+    caso Microsoft Edge) con el usuario administrador y nos situamos en
+    la zona de *Información general* de la *Dirección IP pública* que
+    vamos a desasociar para que haya una sesión abierta del portal de
+    Azure*.* Ahora copiamos en un Notepad la URL de esta página ya que
+    la necesitaremos más adelante.
+
+2)  Abrimos la aplicación de Power Automate for Desktop y pulsamos en
+    "**Nuevo flujo**" y le damos un nombre.\
+    ![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image22.png){width="1.2083333333333333in"
+    height="0.5833333333333334in"}
+
+3)  La primera operación será establecer una variable con la URL de la
+    página de configuración de la IP (la del punto 1). Para ello
+    escogemos la acción "**Set variable**" que haz en el bloque de
+    'Variables' y pegamos la URL que guardamos en el primer punto
+    estableciendo un nombre de variable (en mi caso '*AzureIPwebPage'*).
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image23.png){width="5.905555555555556in"
+height="3.811111111111111in"}
+
+**Imagen 21.- Estableciendo una variable en Power Automate Desktop.**
+
+4)  Ahora vamos a hacer el mismo proceso para establecer una variable
+    con la página web que vamos a monitorizar. En mi caso, es una página
+    que he creado en mi Blogger y que le he agregado los tags de Google
+    Analytics para monitorizarla. Lo almacenamos en la variable
+    '*myWebPage'*.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image24.png){width="5.905555555555556in"
+height="0.49166666666666664in"}
+
+5)  El siguiente paso, será abrir el navegador con la URL de la
+    configuración de la IP pública en Azure. Para ello, escogemos la
+    acción "**Launch new Microsoft Edge**" que hay dentro del bloque de
+    'Browser Automation' y establecemos que la URL es la variable
+    correspondiente.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image25.png){width="5.905555555555556in"
+height="4.236805555555556in"}
+
+**Imagen 22.- Configuración de la acción "Launch new Microsoft Edge".**
+
+Fijaos que la instancia del navegador queda almacenada en la variable
+'*Browser'*. Esta variable será la que utilicemos en todas las acciones
+relacionadas con esta página de Azure.
+
+6)  Como la página tarda un poco en cargar, vamos a establecer un
+    pequeño retardo en el flujo para estar seguros que todos los
+    componentes se muestran correctamente. Para ello, agregamos la
+    acción "**Wait**" que hay en el bloque 'Flow control' e indicamos
+    una espera de 5 segundos.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image26.png){width="5.905555555555556in"
+height="3.022222222222222in"}
+
+**Imagen 23.- Delay para la carga de la página.**
+
+Con este paso, ya tendremos abierta una nueva sesión del explorador Edge
+con nuestra página de configuración de la IP.
+
+7)  Es el turno ahora de Desasociar la IP que tenga actualmente la
+    máquina virtual. Para ello, tendremos que pulsar el botón
+    "*Desasociar*" que hay en la página de Azure que hemos abierto. Esto
+    se consigue con la acción "**Click link on web page**" que hay en la
+    sección 'Browser automation'.
+
+En esta acción, desplegaremos el 'UI element' para seleccionar el botón
+"**Add UI element**". Esto iniciará un asistente que nos permitirá
+seleccionar el div de "*Dissociate*" de la página y agregarlo pulsando
+Ctrl + botón izquierdo del ratón.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image27.png){width="5.905555555555556in"
+height="3.9722222222222223in"}
+
+**Imagen 24.- Configurando la acción "Click link on web page".**
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image28.png){width="5.905555555555556in"
+height="2.4618055555555554in"}
+
+**Imagen 25.- Acción emulada**
+
+Una vez seleccionado, la acción quedará configurada de la siguiente
+forma:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image29.png){width="5.905555555555556in"
+height="3.954861111111111in"}
+
+**Imagen 26.- Configuración final de la acción.**
+
+Que en nuestro flujo se mostrará de la siguiente forma:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image30.png){width="5.905555555555556in"
+height="0.40347222222222223in"}
+
+***[IMPORTANTE]{.underline}***: El asistente de selección de elementos
+se basa en clases css y en identificadores de la misma forma que se hace
+con jQuery. Lo que ocurre es que a veces los identificadores de los
+elementos en las páginas de Azure son dinámicos y no siempre se generan
+con el mismo ID. Esto puede hacer que no se seleccionen correctamente
+los elementos en las ejecuciones posteriores. Por eso, os recomiendo que
+verifiquéis la configuración de la selección de elementos desde la
+opción **View** -\> **UI elements** del menú superior del PAD:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image31.png){width="3.4166666666666665in"
+height="3.2604166666666665in"}
+
+**Imagen 27.- Acceso a UI elements desde la opción view.**
+
+Así en la parte derecha podréis ver los elementos seleccionados en el
+flujo y al acceder a ellos, podéis ver cómo está configurada la
+selección de ese elemento.\
+Por ejemplo, en el caso del div seleccionado en el paso anterior, su
+configuración es la siguiente:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image32.png){width="5.905555555555556in"
+height="3.954861111111111in"}
+
+**Imagen 27.- Listado de elementos configurados.**
+
+En la parte inferior de la configuración, podéis ver que está
+seleccionado el div cuyo ID sea *'\_weave_e\_322'*. Os recomiendo
+refrescar la página varias veces y comprobar si la selección vuelve a
+funcionar. Para ello, podéis usar jQuery en la consola de la web del
+navegador de la siguiente forma: \$(\'div\[Id=\"\_weave_e\_322\"\]\')
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image33.png){width="5.905555555555556in"
+height="2.7527777777777778in"}
+
+**Imagen 28.- Visualización del Div seleccionado.**
+
+Si la selección no es correcta, podéis usar jQuery para afinar la
+selección hasta que la selección siempre sea acertada. De hecho, podéis
+utilizar el botón "**Text editor**" que hay en la parte superior derecha
+para introducir la selección de la forma que queráis.
+
+8)  Si ejecutáis el flujo hasta ahora, veréis que tras accionar el botón
+    "*Dissociate*", se os pedirá una confirmación. Para ello, utilizando
+    la misma acción que antes, pulsaremos el botón "*Yes*".
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image34.png){width="5.905555555555556in"
+height="0.4270833333333333in"}
+
+9)  Dado que el proceso de desasociar la IP al recurso tarda un poco,
+    volveremos a establecer un retardo para asegurarnos que se ejecuta
+    completamente. En este caso, lo estableceremos en 60 segundos.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image35.png){width="5.905555555555556in"
+height="0.38125in"}
+
+*[NOTA]{.underline}*: Aunque hemos desasociado la IP pública de la
+máquina virtual, veréis que, al estar accediendo con Azure Bastión,
+seguimos conectados a la VM sin problemas, por lo que podemos continuar
+con el proceso del flujo.
+
+10) Vamos a actualizar la página de Azure para visualizar que ahora no
+    hay ninguna IP asociada. Para ello, utilizaremos la acción "**Go to
+    web page**" del bloque 'Browser automation'. En la configuración de
+    esta acción, en el apartado *Navigate*, seleccionaremos '*Reload web
+    page'*.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image36.png){width="5.905555555555556in"
+height="4.01875in"}
+
+**Imagen 29.- Acción "Go to web page".**
+
+11) Volvemos a poner un pequeño retraso de 5 segundos para que se
+    termine de cargar bien la página.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image37.png){width="5.905555555555556in"
+height="0.3819444444444444in"}
+
+12) Es el momento ahora de pulsar el botón "*Associate*" en la página de
+    Azure. Para ello, volvemos a utilizar la misma acción de siempre
+    ("**Click link on web page**") y seleccionamos el botón
+    correspondiente.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image38.png){width="5.905555555555556in"
+height="0.4041666666666667in"}
+
+Una vez pulsado el botón, se abrirá un panel lateral para establecer el
+recurso al que queremos asociar la IP pública. En nuestro caso deberemos
+seleccionar "*Interfaz de red*" y marcar la que creamos en nuestra VM.
+
+13) Para seleccionar en el desplegable "*Interfaz de red*" volvemos a
+    utilizar la misma acción de los pasos anteriores ("**Click link on
+    web page**"). En primer lugar, haremos un click para mostrar las
+    opciones y luego haremos click en '*Network interface'*
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image39.png){width="5.905555555555556in"
+height="0.8666666666666667in"}
+
+14) Es el momento de seleccionar la interfaz de red de nuestra máquina
+    virtual. Para ello volveremos a usar la misma acción pulsando sobre
+    el desplegable y escogiendo la que corresponda.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image40.png){width="5.905555555555556in"
+height="0.8847222222222222in"}
+
+15) Ahora deberemos pulsar el botón "*Ok*", por lo que volveremos a
+    utilizar la acción "**Click link on web page**" en el elemento
+    correspondiente.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image41.png){width="5.905555555555556in"
+height="0.44513888888888886in"}
+
+16) Una vez pulsado el botón, se ejecutará el proceso de asociación de
+    la IP pública a nuestra interfaz de red. Como este proceso lleva un
+    tiempo, volveremos a insertar una acción de espera por 90 segundos.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image42.png){width="5.905555555555556in"
+height="0.3506944444444444in"}
+
+17) El siguiente paso va a ser almacenar nuestra nueva IP en una
+    variable del flujo. Para ello vamos primero a actualizar la página
+    de Azure para que se muestre la nueva IP asociada. Para ello,
+    volveremos a usar la acción "**Go to web page**" del bloque 'Browser
+    automation' con la opción '*Reload web page'*. De nuevo, después
+    volveremos a establecer una pequeña espera de 5 segundos para cargar
+    bien los componentes de la página.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image43.png){width="5.905555555555556in"
+height="0.7354166666666667in"}
+
+18) Ahora vamos a guardar en una variable la nueva IP. Para ello vamos a
+    utilizar la acción "**Extract data from web page**" que está en el
+    bloque 'Browser automation \> Web data extraction'. Al agregarla al
+    flujo, se abrirá la configuración. Lo que hay que hacer en este caso
+    es ir directamente a nuestra página web de Azure y automáticamente
+    se lanzará el asistente para la selección del elemento. Una vez
+    localizado el div de la IP, pulsaremos botón derecho en el ratón y
+    se abrirá un menú contextual para que escojamos qué valor queremos
+    extraer. Aquí sería el atributo *text* del div que es el que
+    contiene la dirección IP.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image44.png){width="5.905555555555556in"
+height="5.480555555555555in"}
+
+**Imagen 30.- Acción "Extract data from web page".**
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image45.png){width="5.905555555555556in"
+height="2.8583333333333334in"}
+
+**Imagen 31.- Elemento a seleccionar.**
+
+Una vez seleccionado el atributo *text*, pulsamos *Finish* en el
+asistente y tendremos nuestra acción configurada y lista para almacenar
+la nueva IP en la variable que hayamos establecido en la acción. En este
+caso, en la variable '*currentPublicIP'*.
+
+19) Agregaremos ahora la acción "**Get current date and time**" del
+    bloque 'Date time' para almacenar la fecha y hora actual en una
+    variable ('*CurrentDateTime'*).
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image46.png){width="5.905555555555556in"
+height="3.9881944444444444in"}
+
+**Imagen 32.- Acción "Get current date and time".**
+
+20) En este paso vamos a guardar la IP en un fichero de texto. Para
+    ello, he creado un txt denominado '*PAD_IPs.txt*' en una ruta dentro
+    de la VM.\
+    Para escribir en él la IP con la fecha actual, agregamos la acción
+    "**Write text to file**" del bloque 'File' y lo configuramos de la
+    siguiente forma para que en el texto a escribir concatene la fecha
+    actual y la IP:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image47.png){width="5.905555555555556in"
+height="4.438888888888889in"}
+
+**Imagen 33.- Acción "Write text to file".**
+
+21) Ya hemos hecho todas las tareas que necesitábamos del portal de
+    Azure, por lo que podemos pasar a cerrar esta página. Para ello,
+    agregaremos la acción "**Close web browser**" del bloque 'Browser
+    automation'.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image48.png){width="5.905555555555556in"
+height="3.995833333333333in"}
+
+**Imagen 34.- Acción "Close web browser".**
+
+22) Ahora ya podemos pasar a abrir una nueva página del navegador con la
+    URL de la página que vamos a monitorizar (la que está almacenada en
+    la variable '*myWebPage'*). Para poder abrirla en modo de incógnito
+    (in private) tendremos que usar la acción "**Run application**" del
+    bloque 'System' ya que no hay una acción de navegador que lo haga.\
+    En esta acción deberemos escoger el ejecutable de nuestro navegador
+    y en la parte de comandos establecer la variable de la URL de
+    nuestra web seguida del parámetro '*-inprivate*\'. De esta forma se
+    cargará el navegador con nuestra web de incógnito.\
+    Por tanto, la acción quedará de la siguiente forma:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image49.png){width="5.905555555555556in"
+height="4.911111111111111in"}
+
+**Imagen 35.- Acción "Run application".**
+
+*[NOTA]{.underline}*: Para que Power Automate for Desktop pueda
+interactuar con una página de incógnito, tenéis que configurar la
+extensión de "*Microsoft Power Automate*" del navegador correspondiente
+para permitirle que se ejecute también cuando está en InPrivate.\
+En el caso de la extensión de Edge, se configura así:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image50.png){width="5.905555555555556in"
+height="4.148611111111111in"}
+
+**Imagen 36.- Configurando la extension de Power Automate Desktop para
+Edge.**
+
+23) Ahora necesitamos volver a disponer del navegador en una variable
+    browser. Para ello, agregaremos la acción "**Launch new Microsoft
+    Edge**" y en el parámetro 'Launch mode' escogeremos *'Attach to
+    running instace'*. En el parámetro 'Attach to Microsoft Edge tab'
+    seleccionaremos '*By URL'* y en el 'Tab URL' escogeremos la variable
+    de nuestra página web ('*myWebPage'*).\
+    Con esto, ya tendremos almacenada esta instancia del navegador en la
+    variable '*Browser2*'
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image51.png){width="5.905555555555556in"
+height="4.247916666666667in"}
+
+**Imagen 37.- Acción "Launch new Microsoft Edge".**
+
+24) Como ya tenemos la instancia del navegador en la variable, podemos
+    cerrar la ventana con la acción "**Close web browser**" que está en
+    el bloque 'Browser automation'.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image52.png){width="5.905555555555556in"
+height="0.40625in"}
+
+Y con esto hemos concluido el flujo de escritorio de Power Automate, por
+lo que sólo nos queda el paso final: hacer que el flujo se ejecute
+periódicamente. Para ello, vamos a utilizar un flujo periódico de Power
+Automate en la nube. Antes de ello, tenemos que cerrar la sesión del
+usuario de nuestra máquina virtual para liberar el acceso a ella desde
+el flujo de nube. Es decir, necesitamos hacer un Sign out del usuario en
+la VM:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image53.png){width="2.1770833333333335in"
+height="0.65625in"}
+
+**CREACIÓN DEL FLUJO DE POWER AUTOMATE (cloud flow)**
+
+Vamos a crear un flujo de nube de Power Automate que se encargue de
+ejecutar el anterior flujo de Power Automate for Desktop cada hora. Va a
+ser un flujo muy básico en el que no voy a hacer tratamiento de errores
+ya que no es el objetivo de este artículo. Así pues, desde el portal de
+Power Automate en la nube, agregaremos un nuevo flujo de tipo periódico
+(*Scheduled*) y le configuraremos el trigger para que se ejecute cada
+hora.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image54.png){width="5.905555555555556in"
+height="3.7597222222222224in"}
+
+**Imagen 38.- Creación del Flujo de Power Automate que lance el de Power
+Automate Desktop.**
+
+Una vez configurado el trigger, agregaremos la acción "**Run a Flow
+built with Power Automate for desktop**".
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image55.png){width="5.905555555555556in"
+height="2.751388888888889in"}
+
+**Imagen 39.- Acción "Run a Flow built with Power Automate for
+desktop".**
+
+*[NOTA]{.underline}*: Fijaos que esta acción es *PREMIUM*. Como
+activamos las características premium en versión trial al principio del
+proceso, podemos utilizarlo sin problemas durante el periodo que dura el
+Trial.
+
+Después de configurar la autenticación en la máquina virtual con las
+credenciales correspondientes para crear la conexión, os pedirá
+seleccionar el flujo a ejecutar y si lo queremos en modo *Atendido* o
+*Desatendido*. En nuestro caso, como queremos mantener la sesión que
+está ahora mismo activa en la máquina virtual ya que allí está abierta
+la sesión de Azure con el administrador logado, elegiremos la opción
+'Unattended'
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image56.png){width="5.905555555555556in"
+height="2.2666666666666666in"}
+
+**Imagen 40.- Opción "Unattended" configurada.**
+
+Lo ejecutamos para probarlo:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image57.png){width="5.905555555555556in"
+height="1.226388888888889in"}
+
+**Imagen 41.- Probando el Flow.**
+
+Una vez verificado su correcto funcionamiento, sólo nos queda esperar a
+ver cómo se ejecuta de forma periódica y comprobar cómo se incrementan
+las visitas de nuestra página. Si por casualidad, alguna vez el flujo
+tiene un error, podréis comprobar en este flujo de Power Automate su
+causa. Por ejemplo, en mi caso tuve un problema a la hora de pulsar un
+botón del flujo al no encontrar su identificador (ya os comenté que, a
+veces, los identificadores de los elementos en el portal de Azure no son
+exactamente los mismos) y me ofreció el siguiente mensaje:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image58.png){width="5.905555555555556in"
+height="2.6375in"}
+
+**Imagen 42.- Ejecución errónea del flujo y mensaje mostrado.**
+
+Para solventarlo, modifiqué la selección del elemento para que no se
+basase en el ID del div.
+
+**COMPROBACIÓN DE LOS RESULTADOS**
+
+Después de dejar el flujo que se ejecute durante varios días de forma
+autónoma, es el momento de ver los resultados. En mi caso, la
+monitorización de la página la visualizaré con Google Analytics. En la
+siguiente imagen podéis ver los resultados de las visitas de la página
+de prueba en los últimos 7 días:
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image59.png){width="5.9in"
+height="4.358333333333333in"}
+
+**Imagen 43.- Comprobación del funcionamiento del Flujo en Google
+Analytics.**
+
+Como podéis ver, las visitas se han incrementado considerablemente en
+este periodo y además con el evento "*first_visit*". La razón de que
+haya un pequeño descenso en un par de días es porque el flujo falló a la
+hora de pulsar uno de los botones como comenté en el apartado anterior.
+Estas son las estadísticas si el flujo se lanza una vez por hora, pero,
+dado que la duración del mismo es de 4-5 minutos, podríamos hacer que se
+ejecutase cada 10 minutos, de forma que tuviésemos 144 visitas únicas
+diarias.
+
+Si os fijáis en el gráfico, además podéis comprobar cómo el país desde
+el que proceden las visitas en "**Netherlands**". Esto es porque
+alojamos la máquina virtual en "*West Europe*" y los servidores físicos
+que la soportan están en Amsterdam.
+
+Finalmente, si accedemos al fichero txt donde íbamos registrando las
+diferentes IPs, podemos ver cómo han ido variando a lo largo del tiempo
+que ha estado el flujo en funcionamiento.
+
+![](C:\CompartiMOSS\convert\incrementar-las-visitas-de-una-pagina-con-pad/media/image60.png){width="5.905555555555556in"
+height="2.9347222222222222in"}
+
+**Imagen 44.- Fichero en el que se registran las distintas IPs.**
+
+Con esto finalizo este artículo. Como os comentaba al principio, la idea
+del mismo no es que se utilice Power Automate for Desktop para falsear
+los datos de las visitas de una determinada página web. El único
+objetivo es mostrar cómo este servicio de Microsoft puede ayudarnos a
+automatizar tareas que son manuales e incrementar así la productividad
+de los usuarios. Además, ha servido para conocer un poco el
+funcionamiento de un par de servicios de Azure como es la creación de
+máquinas virtuales con IP pública y la conexión a ellas con Azure
+Bastión.
+
+Estoy seguro de que hay maneras más eficientes de hacer todo este
+proceso, por ejemplo, utilizando scripts de PowerShell, pero quería
+realizar todo el proceso como si lo ejecutase un usuario de forma
+manual.
+
+Espero que os haya resultado interesante y podáis aplicarlo en alguna de
+vuestros desarrollos.
+
+Enrique Sánchez Moreno
+
+Cloud Services Manager en ILUNION IT Services
+
+[www.esanchezm.com](http://www.esanchezm.com)
