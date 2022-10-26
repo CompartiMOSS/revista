@@ -17,6 +17,17 @@ const useStyles = makeStyles({
   }
 })
 
+function htmlDecode(html) {
+  return html.replace(/&([a-z]+);/ig, (match, entity) => {
+    const entities = { amp: '&', apos: '\'', gt: '>', lt: '<', nbsp: '\xa0', quot: '"' };
+    entity = entity.toLowerCase();
+    if (entities.hasOwnProperty(entity)) {
+      return entities[entity];
+    }
+    return match;
+  });
+}
+
 const LayoutNumber = ({ children, pageContext }) => {
   const classes = useStyles();
 
@@ -30,6 +41,24 @@ const LayoutNumber = ({ children, pageContext }) => {
       discussion = <DiscussionEmbed {...disqusConfig} />;
   }
 
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://utteranc.es/client.js";
+    script.async = true;
+    script.repo = "CompartiMOSS/revista";
+    script.issueTerm = "pathname";
+    script.label="Comments";
+    script.theme="github-light";
+    script.crossOrigin="anonymous";
+
+    document.body.appendChild(script)
+
+    return () => {
+      // clean up the script when the component in unmounted
+      document.body.removeChild(script)
+    }    
+  }, [])
+
   return (
     <Layout pageContext={pageContext}>
       <SEO title={pageContext.frontmatter.title} keywords={pageContext.frontmatter.keywords} />
@@ -37,7 +66,6 @@ const LayoutNumber = ({ children, pageContext }) => {
       <section className={classes.sectionArticle}>
         {children}
       </section>
-      {discussion}
     </Layout>
   );
 };
