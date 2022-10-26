@@ -1,0 +1,431 @@
+---
+title: Asp.­NET Core - Implementando un proveedor de configuración personalizado
+slug: /revistas/numero-53/asp.net-core-implementando-un-proveedor-de-configuracion-personalizado
+date: 01/09/2021
+magazine: 53
+author: Sergio Parra
+authorId: sergio-parra
+keywords: ['ASP.NET','ASP.NET Core', '.NET 6']
+featuredImage: ../../../images/numero53/asp.net-core-implementando-un-proveedor-de-configuracion-personalizado/image1.png
+---
+
+Imagino que tienes ciertas configuraciones de tu aplicativo, digamos, en
+una tabla de SQL Server, ¿sabes que puedes implementar un proveedor de
+configuración personalizado para poder leerla? ¡Incluso puedes hacer que
+las configuraciones en tu aplicación se refresquen automáticamente
+cuando hay un cambio en la tabla en tiempo de ejecución! ¿Quieres saber
+cómo? Sigue leyendo.
+
+Lo primero que deberemos hacer es definir un par de clases: una que
+implemente
+[IConfigurationSource](https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.configuration.iconfigurationsource)
+y otra que herede de
+[ConfigurationProvider](https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.configuration.configurationprovider).
+
+IConfigurationSource
+
+Este interfaz representa nuestro origen de configuración de pares de
+**claves/valor**. En este caso el interfaz expone un método **Build()**
+que retorna un **IConfigurationProvider** que se implementará más
+adelante.
+
+```
+public class SqlServerConfigurationSource : IConfigurationSource
+{
+    public string? ConnectionString { get; set; }
+    public string? CustomQuery { get; set; } =  $"select [Key], [Value] from dbo.Settings";
+    public string? Schema { get; set; } = "dbo";
+    public string? Table { get; set; } = "Settings";
+    public string? KeyColumn { get; set; } = "Key";
+    public string? ValueColumn { get; set; } = "Value";
+    public string? Prefix { get; set; }
+    internal ISqlServerWatcher? SqlServerWatcher { get; set; }
+    public IConfigurationProvider Build(IConfigurationBuilder builder) => new SqlServerConfigurationProvider(this);
+}
+```
+
+En esta clase definimos también otra serie de propiedades como la cadena
+de conexión a nuestro servidor Sql Server, la consulta para devolver los
+datos de la tabla de configuración, o incluso si tenemos definido
+nuestro "**watcher**" que cada cierto tiempo revisa si hay cambios en la
+tabla de configuración.
+
+ConfigurationProvider
+
+Esta clase base permite devolver pares de **claves/valor** de un origen
+de configuración.
+
+```
+public class SqlServerConfigurationProvider : ConfigurationProvider, IDisposable
+{
+    private readonly SqlServerConfigurationSource? source;
+    private readonly string? query;
+    private readonly IDisposable? changeTokenRegistration;
+    public SqlServerConfigurationProvider(SqlServerConfigurationSource source)
+    {
+        this.source = source;
+        query = this.source?.CustomQuery;
+        if (this.source?.SqlServerWatcher is not null)
+        {
+            changeTokenRegistration = ChangeToken.OnChange(
+                                                () =>
+                this.source.SqlServerWatcher.Watch(),
+                this.Load
+            );
+        }
+    }
+
+    public override void Load()
+    {
+        var data = new Dictionary<string, string>();
+        using var connection = new SqlConnection(source?.ConnectionString);
+        var query = new SqlCommand(this.query, connection);
+        query.Connection.Open();
+        using var reader = query.ExecuteReader();
+        if (reader?.HasRows == true)
+        {
+            while (reader?.Read() == true)
+            {
+                data.Add(!string.IsNullOrWhiteSpace(source?.Prefix) ?
+                 $"{source?.Prefix}:{reader[source?.KeyColumn]}":
+                 reader[$"{source?.KeyColumn}"].ToString()!,
+                 reader[$"{source?.ValueColumn}"].ToString()!);
+            }
+        }                  
+
+        Data = data;
+    }
+
+    public void Dispose()
+    {
+        changeTokenRegistration?.Dispose();
+        source?.SqlServerWatcher?.Dispose();
+    }
+}
+```
+
+En la implementación del método **Load()** lo que se hace simplemente es
+conectar a la base de datos de nuestro servidor Sql Server, ejecutar la
+consulta y devolver un diccionario con nuestros pares **clave/valor**.
+Vemos en el constructor que se define el "watcher" que ejecutará el
+método **Load()** cada vez que lo necesite.
+
+Implementando métodos de extensión
+
+Para poder usar nuestro flamante proveedor personalizado, recomiendo que
+se implemente métodos de extensión para ello. El código es muy sencillo
+y creo que poco hay que comentar más.
+
+```
+public static class SqlServerConfigurationBuilderExtensions
+{
+    public static IConfigurationBuilder AddSqlServer(this IConfigurationBuilder builder, string connectionString) =>
+                                           
+    builder.AddSqlServer(sqlBuilder =>
+    sqlBuilder.UseConnectionString(connectionString));
+
+    public static IConfigurationBuilder AddSqlServer(
+        this IConfigurationBuilder builder, 
+        string connectionString, 
+        TimeSpan? refreshInterval = null) =>
+                                            builder.Add(new SqlServerConfigurationSource
+                                            {
+                                                ConnectionString = connectionString,
+                                                SqlServerWatcher = refreshInterval.HasValue ?
+                                                                   new SqlServerWatcher(refreshInterval.Value) :
+                                                                   null
+                                            });
+
+    public static IConfigurationBuilder AddSqlServer(this IConfigurationBuilder builder,
+        Action<ISqlServerConfigurationSourceBuilder> sqlBuilderAction)
+    {
+        var sqlBuilder = new SqlServerConfigurationSourceBuilder();
+        sqlBuilderAction(sqlBuilder);
+        var source = sqlBuilder.Build();
+        return builder.Add(source);
+    }
+}
+```
+
+Si te fijas en el último método, usaremos un **"builder"** personalizado
+para establecer propiedades o configuraciones en nuestro proveedor para
+usarlo de una forma más sencilla.
+
+Nuestro **"builder"** se define así
+
+```
+public interface ISqlServerConfigurationSourceBuilder
+{
+    ISqlServerConfigurationSourceBuilder UseConnectionString(string connectionString);
+    ISqlServerConfigurationSourceBuilder UseCustomQuery(string query);
+    ISqlServerConfigurationSourceBuilder WithTable(string table);
+    ISqlServerConfigurationSourceBuilder WithKeyColumn(string keyColumn);
+    ISqlServerConfigurationSourceBuilder WithValueColumn(string valueColumn);
+    ISqlServerConfigurationSourceBuilder WithSchema(string valueColumn);
+    ISqlServerConfigurationSourceBuilder WithPrefix(string prefix);
+    ISqlServerConfigurationSourceBuilder ConfigureRefresh(TimeSpan refreshInterval);
+
+    SqlServerConfigurationSource Build();
+}
+
+public class SqlServerConfigurationSourceBuilder : ISqlServerConfigurationSourceBuilder
+{
+    public string? ConnectionString { get; private set; }
+    public string? CustomQuery { get; private set; }        
+    public string? Table { get; private set; }
+    public string? KeyColumn { get; private set; }
+    public string? ValueColumn { get; private set; }
+    public string? Schema { get; private set; }
+    public string? Prefix { get; private set; }
+    public TimeSpan? RefreshInterval { get; private set; }
+
+    public ISqlServerConfigurationSourceBuilder UseConnectionString(string connectionString)
+    {
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new ArgumentNullException(connectionString, $"Connection string could not be null or empty!");
+        }
+
+        ConnectionString = connectionString;
+
+        return this;
+    }
+
+    public ISqlServerConfigurationSourceBuilder UseCustomQuery(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            throw new ArgumentNullException(query, $"Query could not be null or empty!");
+        }
+
+        CustomQuery = query;
+
+        return this;
+    }
+
+    public ISqlServerConfigurationSourceBuilder WithTable(string table)
+    {
+        if (string.IsNullOrWhiteSpace(table))
+        {
+            throw new ArgumentNullException(table, $"Table could not be null or empty!");
+        }
+
+        Table = table;
+        return this;
+    }
+
+    public ISqlServerConfigurationSourceBuilder WithKeyColumn(string keyColumn)
+    {
+        if (string.IsNullOrWhiteSpace(keyColumn))
+        {
+            throw new ArgumentNullException(keyColumn, $"Key column could not be null or empty!");
+        }
+
+        KeyColumn = keyColumn;
+
+        return this;
+    }
+
+    public ISqlServerConfigurationSourceBuilder WithValueColumn(string valueColumn)
+    {
+        if (string.IsNullOrWhiteSpace(valueColumn))
+        {
+            throw new ArgumentNullException(valueColumn, $"Value column could not be null or empty!");
+        }
+
+        ValueColumn = valueColumn;
+
+        return this;
+    }
+
+    public ISqlServerConfigurationSourceBuilder WithSchema(string schema)
+    {
+        if (string.IsNullOrWhiteSpace(schema))
+        {
+            throw new ArgumentNullException(schema, $"Schema could not be null or empty!");
+        }
+
+        Schema = schema;
+
+        return this;
+    }
+
+    public ISqlServerConfigurationSourceBuilder WithPrefix(string prefix)
+    {
+        if (string.IsNullOrWhiteSpace(prefix))
+        {
+            throw new ArgumentNullException(prefix, $"Prefix could not be null or empty!");
+        }
+
+        Prefix = prefix;
+
+        return this;
+    }
+
+    public ISqlServerConfigurationSourceBuilder ConfigureRefresh(TimeSpan refreshInterval)
+    {
+        if (refreshInterval < TimeSpan.Zero)
+        {
+            throw new ArgumentException($"Refresh interval must be positive.");
+        }                
+
+        RefreshInterval = refreshInterval;
+
+        return this;
+    }
+
+    public SqlServerConfigurationSource Build()
+    {
+        var instance = new SqlServerConfigurationSource { ConnectionString = ConnectionString };
+
+        if (Table != null)
+        {
+            instance.Table = Table;
+        }                
+
+        if (KeyColumn != null)
+        {
+            instance.KeyColumn = KeyColumn;
+        }                
+
+        if (ValueColumn != null)
+        {
+            instance.ValueColumn = ValueColumn;
+        }
+
+        if (Schema != null)
+        {
+            instance.Schema = Schema;
+        }
+
+        if (Prefix != null)
+        {
+            instance.Prefix = Prefix;
+        }
+
+        if (CustomQuery != null)
+        {
+            instance.CustomQuery = CustomQuery;
+        }
+
+        if (RefreshInterval != null)
+        {
+            instance.SqlServerWatcher = new SqlServerWatcher(RefreshInterval.Value);
+        }            
+
+        return instance;
+    }
+}
+```
+
+Ya tenemos todas las piezas (sé que me falta explicarte el refresco de
+la configuración), así que te muestro cómo usarlo en tu aplicación Asp
+Net Core.
+
+En tu Program.cs puedes hacer algo parecido a esto
+
+```
+var builder = WebApplication.CreateBuilder(args);
+
+var  connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+//Here we added our configuration provider.
+if (!string.IsNullOrWhiteSpace(connectionString))
+{
+    builder.Configuration.AddSqlServer(sqlBuilder =>
+                                                    sqlBuilder
+        .UseConnectionString(connectionString)
+        .UseCustomQuery("SELECT [Key], [Value] from dbo.Settings") // set query to retrieve configuration
+        .WithPrefix("AppSettings") // set configuration key prefix. Ex: AppSettings:Message
+        .ConfigureRefresh(TimeSpan.FromSeconds(20))); // set refreshing configuration timespan
+}
+
+builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
+```
+
+Aquí hemos usado nuestro **"builder"**, también puedes hacer algo más
+sencillo, usando los valores por defecto que has podido comprobar en la
+implementación del interfaz **IConfigurationSource**.
+
+```
+builder.Configuration.AddSqlServer(connectionString)
+```
+
+Recarga de a configuración
+
+Esto es lo realmente más interesante del artículo. Implementaremos un
+[IChangeToken](https://docs.microsoft.com/es-es/dotnet/api/microsoft.extensions.primitives.ichangetoken)
+para propagar notificaciones que indican que se ha producido un cambio.
+Con esto, nuestro **"watcher"** quedaría de la siguiente forma
+
+```
+public interface ISqlServerWatcher : IDisposable
+{
+    IChangeToken Watch();
+}
+
+internal class SqlServerWatcher : ISqlServerWatcher
+{
+    private readonly TimeSpan refreshInterval;
+    private IChangeToken? changeToken;
+    private readonly Timer timer;
+    private CancellationTokenSource? cancellationTokenSource;
+    public SqlServerWatcher(TimeSpan refreshInterval)
+    {
+        this.refreshInterval = refreshInterval;
+        timer = new Timer(callback: Change, null, TimeSpan.Zero, this.refreshInterval);
+    }
+
+    private void Change(object? state) => cancellationTokenSource?.Cancel();
+
+    public IChangeToken Watch()
+    {
+        cancellationTokenSource = new CancellationTokenSource();
+        changeToken = new CancellationChangeToken(cancellationTokenSource.Token);
+
+        return changeToken;
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+        cancellationTokenSource?.Dispose();
+    }
+}
+```
+
+Como puedes observar en el código, se notifica un cambio cada X
+intervalo de tiempo definido en el constructor gracias a un Timer
+interno de la clase. Con esto conseguimos, que cada X tiempo, se ejecute
+el método **Load()** de nuestro **SqlServerConfigurationProvider** y se
+recargue los datos que haya en la tabla.
+
+Pero para usar el refresco, hay un truco que paso a explicarte. Como
+sabes IOptions, lee la configuración una sola vez y la cachea
+durante toda la ejecución del programa. En vez de ese interfaz, debes
+usar IOptionsSnapshot que lee de la configuración en cada
+petición que hagamos a nuestra aplicación.
+
+En el código de ejemplo hay una aplicación Asp Net Core Razor Pages que
+puedes trastear para comprobar el refresco de la configuración.
+
+## ¿Dónde puedo encontrar el código de ejemplo?
+
+Podéis descargaros el código de ejemplo en
+<https://github.com/sparraguerra/compartimoss/tree/master/AspNetCoreCustomConfigurationProviders>
+
+## Conclusiones
+
+Hemos visto lo sencillo que es implementar nuestro proveedor de
+configuración personalizado. Prometo en un siguiente post, implementar
+uno para que consuma nuestra base de datos NoSQL favorita Azure
+CosmosDB. Aquí podéis ver más información sobre los proveedores de
+configuración personalizados [Implement a custom configuration provider
+in
+.NET.](https://docs.microsoft.com/en-us/dotnet/core/extensions/custom-configuration-provider)
+
+Happy coding!
+
+**Sergio Parra Guerra** <br />
+Software & Cloud Architect at Encamina <br />
+https://twitter.com/sparraguerra

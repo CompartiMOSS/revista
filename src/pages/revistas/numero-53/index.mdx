@@ -1,0 +1,71 @@
+---
+title: Número 53 - Septiembre 2022
+slug: /revistas/numero-53/
+date: 2022-09-01
+magazine: 53
+type: number
+content: >-
+    Microsoft y su lucha eterna, como todo el mundo de la informática, por seguridad y más seguridad no deja de sorprender y, a veces, divertir.
+    <br /><br />
+    Desde el lado trágico del asunto, aunque Microsoft anunció desde hace más de tres años que iba a eliminar todos los esquemas de Autenticación
+    Básica en sus productos, todavía asombra ver que, como ocurrió hace algo
+    de más de un mes, muchos desarrolladores se dejaron sorprender con miles
+    de programas y scripts para Exchange Online que dejaron de funcionar
+    "súbitamente" cuando Microsoft elimino la Autenticación Básica en
+    Exchange ActiveSync (EAS), POP, IMAP, Remote PowerShell, Exchange Web
+    Services (EWS), Offline Address Book (OAB) y Outlook para Windows y Mac.
+    <br /><br />
+    Y desde el lado divertido de la historia, Microsoft mismo también cayó
+    en su propia trampa cuando a principios de julio removió el uso de
+    macros en las aplicaciones de Office sin avisar previamente. Desde hace
+    muchos años se sabe que Microsoft quiere eliminar VBA (la base de los
+    actuales macros) por su fragilidad en cuanto a seguridad, lo que es una
+    medida acertada. Pero sacar la tecnología del mercado, sin avisar
+    previamente, le significó a Microsoft tantas críticas y casos de soporte
+    abiertos por todo tipo de empresas, de pequeñas a grandes, que solo una
+    semana después tuvo que dar marcha atrás, reactivar los macros, y tomar
+    las cosas con más calma.
+    <br /><br />
+    En cualquier caso, entre tragedia y diversión llegamos a un nuevo número
+    más de CompartiMOSS, nuestra revista sobre tecnologías de Microsoft.
+    Esperamos que ustedes se diviertan tanto leyendo los artículos, como los
+    autores lo hicieron escribiéndolos y nosotros, la redacción de la
+    revista, publicándolos. 
+    <br /><br />
+    <b>El Equipo Editorial de CompartiMOSS</b>
+---
+
+import LayoutNumber from '../../../components/layout-number'
+import { graphql } from "gatsby";
+import ViewArticles from "../../../components/view-articles"
+import ViewPartners from '../../../components/view-partners'
+import NumberHeader from '../../../components/number-header'
+
+<NumberHeader frontmatter={props.pageContext.frontmatter} />
+
+<ViewArticles articles={props.data.allMdx} title="Índice" />
+
+<ViewPartners />
+
+export const pageQuery = graphql`
+    query {
+        allMdx(    
+            sort: {
+                fields: frontmatter___title
+            }
+            filter: {
+                frontmatter: {magazine: {eq: 53}, type: {ne: "number"}}
+            }) 
+            {
+                edges {
+                    node {
+                        frontmatter {
+                            title, author, slug, authorId
+                        }      
+                    }
+                }
+            }
+    }
+`
+
+export default LayoutNumber
