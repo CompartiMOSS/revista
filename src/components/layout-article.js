@@ -1,8 +1,7 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types'
 import Layout from './layout';
 import SEO from './seo'
-import { DiscussionEmbed } from "disqus-react"
 import { makeStyles } from "@material-ui/core"
 import ArticleHeader from './article-header'
 
@@ -17,46 +16,22 @@ const useStyles = makeStyles({
   }
 })
 
-function htmlDecode(html) {
-  return html.replace(/&([a-z]+);/ig, (match, entity) => {
-    const entities = { amp: '&', apos: '\'', gt: '>', lt: '<', nbsp: '\xa0', quot: '"' };
-    entity = entity.toLowerCase();
-    if (entities.hasOwnProperty(entity)) {
-      return entities[entity];
-    }
-    return match;
-  });
-}
 
 const LayoutNumber = ({ children, pageContext }) => {
   const classes = useStyles();
-
-  const disqusConfig = {
-    shortname: "CompartiMOSS",
-    config: { identifier: pageContext.frontmatter.slug, title: pageContext.frontmatter.title }
-  }
-
-  let discussion = <p>Disqus sólo en Producción</p>;
-  if (process.env.NODE_ENV !== 'development') {      
-      discussion = <DiscussionEmbed {...disqusConfig} />;
-  }
+  const div = useRef(null);
 
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://utteranc.es/client.js";
     script.async = true;
-    script.repo = "CompartiMOSS/revista";
-    script.issueTerm = "pathname";
-    script.label="Comments";
-    script.theme="github-light";
-    script.crossOrigin="anonymous";
+    script.setAttribute("repo", "CompartiMOSS/revista")
+    script.setAttribute("issue-term", "pathname")
+    script.setAttribute("label", "Comments")
+    script.setAttribute("theme", "github-light")
+    script.setAttribute("crossorigin", "anonymous")
 
-    document.body.appendChild(script)
-
-    return () => {
-      // clean up the script when the component in unmounted
-      document.body.removeChild(script)
-    }    
+    div.current.appendChild(script)
   }, [])
 
   return (
@@ -65,6 +40,7 @@ const LayoutNumber = ({ children, pageContext }) => {
       <ArticleHeader frontmatter={pageContext.frontmatter} />
       <section className={classes.sectionArticle}>
         {children}
+        <div ref={div}></div>
       </section>
     </Layout>
   );
