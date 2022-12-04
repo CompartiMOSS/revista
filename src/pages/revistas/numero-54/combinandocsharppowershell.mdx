@@ -1,0 +1,438 @@
+---
+title: Combinando código de CSharp y PowerShell
+slug: /revistas/numero-54/combinandocsharppowershell
+date: 01/12/2022
+magazine: 54
+author: Gustavo Velez
+authorId: gustavo-velez
+keywords: ['powerShell','CSharp']
+featuredImage: ../../../images/numero54/combinandocsharppowershell/image1.png
+---
+
+Aunque cuando se necesita programar algo nuevo en cualquier tecnología
+de Microsoft se pueden utilizar muchos lenguajes de programación, los
+idiomas preferidos por los desarrolladores que trabajan con software de
+Microsoft en ambientes empresariales son solo unos cuantos: CSharp para
+programas de código manejado, PowerShell para scripting y TypeScript
+para JavaScript, principalmente.
+
+Los equipos de desarrollo en empresas manejan normalmente depósitos
+completos de código en CSharp y PowerShell. Como una de las estrategias
+más importantes para producción es la reutilización al máximo de código,
+es importante poder institucionalizar que las librerías disponibles de
+CSharp y PowerShell sean utilizadas indiscriminadamente (cuando sea
+posible) en cualquiera de los dos lenguajes.
+
+Por el hecho de que PowerShell está basado en los Frameworks .NET de
+Microsoft y que está escrito en CSharp, tenemos asegurado cierto grado
+de compatibilidad entre los lenguajes. Y, como este articulo muestra, es
+bastante fácil llamar código de PowerShell desde CSharp, y código
+manejado de CSharp desde PowerShell.
+
+Adicionalmente, hay situaciones en donde la combinación de código de los
+dos lenguajes puede ser conveniente. Por ejemplo, en ambientes de
+producción altamente controlados, en donde no es posible ejecutar nuevos
+archivos .exe, ejecutar un archivo .ps1 desde un programa .exe
+proporciona flexibilidad (aunque también un riesgo de seguridad
+añadido). O ejecutar programas .exe disponible para software que no
+tiene la posibilidad de crear cmdlets de PowerShell, ofrece la
+posibilidad a administradores de crear scripts de PowerShell que de otra
+forma seria imposible.
+
+## Usando código de CSharp en PowerShell
+
+Existen principalmente cinco formas de usar código de CSharp en un
+script de PowerShell: usando el cmdlet Invoke-Expression, usando el
+cmdlet Start-Process, cargando DLLs con el cmdlet Add-Type, cargando
+DLLs usando .Net Reflection y compilando el código de CSharp
+dinámicamente.
+
+**Ejemplo de código de CSharp**
+
+El siguiente ejemplo (muy sencillo) de código fuente en CSharp se va a
+llamar desde PowerShell. El código consiste en una Class Library (.Net
+7.0), compilada como DLL, con una clase que simula un calculador:
+
+```
+namespace CalculatorCSharpDll
+{
+    public class Calculator
+    {
+        public int NumberOne { get; set; }
+        public int NumberTwo { get; set; }
+        public int AddNumbers(int FirstNumber, int SecondNumber)
+        {
+            int intReturn = 0;
+            intReturn = FirstNumber + SecondNumber;
+            return intReturn;
+        }
+    }
+}
+```
+
+Y una aplicación de consola (también .Net 7.0), compilada como un EXE,
+que utiliza el DLL anterior. Esta aplicación requiere una referencia al
+DLL anterior:
+
+```
+using CalculatorCSharpDll;
+
+Calculator myCalculator = new Calculator();
+
+if (args.Length == 0 || string.IsNullOrEmpty(args[0]))
+{ // Using no input parameters
+    myCalculator.NumberOne = 1;
+    myCalculator.NumberTwo = 2;
+    
+    int myResult = myCalculator.AddNumbers(myCalculator.NumberOne, myCalculator.NumberTwo);
+
+    Console.WriteLine("Using no input params - " + myResult);
+}
+else
+{ // Using console input parameters (no validation of parameters)
+    int myResult = myCalculator.AddNumbers(int.Parse(args[0]),
+    int.Parse(args[1]));
+    
+    Console.WriteLine("Using input params - " + myResult);
+}
+```
+
+La aplicación de consola funciona sin parámetros de entrada, en cuyo
+caso siempre se suman los números 1 y 2, o funciona aceptando parámetros
+de entrada por medio de argumentos en la llamada al EXE (los parámetros
+no son validados para simplificar el código).
+
+
+**cmdlet Invoke-Expression**
+
+Con el cmdlet Invoke-Expression
+(<https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-expression?view=powershell-7.2>)
+se puede hacer ejecutar un EXE directamente y el resultado puede ser
+capturado en una variable:
+
+```
+$ExeFilePath =
+"C:ProjectsCalculatorCSharpExebinDebugnet6.0CalculatorCSharpExe.exe"
+
+$myResult01 = Invoke-Expression -Command $ExeFilePath
+
+Write-Host $myResult01
+```
+
+Invoke-Expression acepta un parámetro, "-Command", que es un string
+indicando la ruta al ejecutable. Si el ejecutable acepta parámetros,
+agréguelos en la ruta al EXE de la siguiente forma, en donde se utilizan
+como parámetros de entrada los números 3 y 4:
+
+```
+$ExeFilePathWithParams =
+"C:ProjectsCalculatorCSharpExebinDebugnet6.0CalculatorCSharpxe.exe
+3 4"
+
+Invoke-Expression -Command $ExeFilePathWithParams
+```
+
+Invoke-Expression es un cmdlet general que se puede utilizar también
+para ejecutar otros cmdlets e, inclusive, para ejecutar un script de
+PowerShell dentro de un script de PowerShell. Microsoft recomienda NO
+utilizar Invoke-Expression por razones de seguridad
+(<https://learn.microsoft.com/en-us/powershell/scripting/learn/deep-dives/avoid-using-invoke-expression?view=powershell-7.2>).
+
+**Cmdlet Start-Process**
+
+El cmdlet Start-Process
+(<https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/start-process?view=powershell-7.2>)
+inicia un proceso asincrónicamente en el computador local. El comando
+contiene varios parámetros para configurar las llamadas. De nuevo, el
+resultado puede ser renderizado de inmediato, o capturado en una
+variable para procesamiento posterior. El siguiente ejemplo muestra tres
+formas de utilización del cmdlet:
+
+```
+$ExeFilePath =
+"C:ProjectsCalculatorCSharpExebinDebugnet6.0CalculatorCSharpExe.exe"
+
+Start-Process -FilePath $ExeFilePath -NoNewWindow -Wait
+
+Start-Process -FilePath $ExeFilePath -NoNewWindow -Wait -ArgumentList
+"5 6"
+
+$myResult02 = Start-Process -FilePath $ExeFilePath -NoNewWindow -Wait
+-ArgumentList "6","7"
+
+Write-Host $myResult02
+```
+
+"Start-Process" por defecto inicia una nueva pantalla de PowerShell
+para ejecutar el programa, lo ejecuta totalmente asincrónicamente y solo
+permite capturar los resultados en un archivo. En el ejemplo se utiliza
+el parámetro "-NoNewWindow" para obligar a ejecutar el programa en la
+misma ventana y el parámetro "-Wait" para hacer que ejecute
+sincrónicamente. Si se quieren utilizar input parámetros en la llamada
+al programa EXE, agréguelos al final del comando como una string, o como
+un string array, como muestra el ejemplo.
+
+**Cargar DLLs con Reflexión**
+
+PowerShell no solo permite hacer llamadas a un ejecutable (EXE), sino
+también a una Class Library (DLL) directamente. El siguiente ejemplo
+utiliza .Net Reflexión para convertir el DLL en un Byte Array, cargarlo
+en memoria, crear un objeto basado en la clase y ejecutar sus métodos
+(y, eventualmente, darles valores a sus propiedades, si es necesario):
+
+```
+$DllFilePath =
+"C:ProjectsCalculatorCSharpDllbinDebugnet6.0CalculatorCSharpDll.dll"
+
+$CalculatorByte = [System.IO.File]::ReadAllBytes($DllFilePath)
+
+[System.Reflection.Assembly]::Load($CalculatorByte)
+
+$myCalculatorObjRefl = New-Object CalculatorCSharpDll.Calculator
+
+$myResult03 = $myCalculatorObjRefl.AddNumbers(10, 11)
+
+Write-Host $myResult03
+```
+
+**Cargar DLLs con Add-Type**
+
+El cmdlet "Add-Type" permite también utilizar un DLL dentro de
+PowerShell. Este cmdlet simplifica la llamada por medio de reflexión
+mostrada en la sección anterior, pero, en realidad, realiza la misma
+función:
+
+```
+$DllFilePath =
+"C:ProjectsCalculatorCSharpDllbinDebugnet6.0CalculatorCSharpDll.dll"
+
+Add-Type -Path $DllFilePath
+
+$myCalculatorObj = New-Object CalculatorCSharpDll.Calculator
+
+$myResult04 = $myCalculatorObj.AddNumbers(8, 9)
+
+Write-Host $myResult04
+```
+
+**Compilar dinámicamente código de CSharp**
+
+Porque PowerShell es una aplicación .Net, tiene también la capacidad de
+trabajar con código manejado y hacer ejecución de código en memoria.
+Esto significa que el cmdlet "Add-Type" se puede utilizar para leer un
+string que contenga código de CSharp, compilarlo on-time y ejecutarlo,
+como muestra el siguiente ejemplo:
+
+```
+$myCsCode = @"
+
+namespace CalculatorCSharpDll
+{
+    public class Calculator
+    {
+
+        public int AddNumbers(int FirstNumber, int SecondNumber)
+        {
+            int intReturn = 0;
+            intReturn = FirstNumber + SecondNumber;
+            return intReturn;
+        }
+    }
+}
+
+"@
+
+Add-Type -TypeDefinition $myCsCode -Language CSharp
+
+$myCalculatorObjComp = New-Object CalculatorCSharpDll.Calculator
+
+$myResult05 = $myCalculatorObjComp.AddNumbers(12, 13)
+
+Write-Host $myResult05
+```
+
+Si es necesario referenciar DLLs desde el código dinámico, defina las
+referencias en una variable y agregue la variable al cmdlet "Add-Type"
+por medio del parámetro "-ReferencedAssemblies":
+
+```
+$myAssemblies =
+("System.Core","System.Xml.Linq","System.Data","System.Xml",
+"System.Data.DataSetExtensions", "Microsoft.CSharp")
+
+Add-Type -ReferencedAssemblies $myAssemblies -TypeDefinition $myCsCode
+-Language CSharp
+
+```
+
+## Usando código de PowerShell en CSharp
+
+Hay principalmente dos formas para ejecutar código de PowerShell en una
+aplicación de CSharp: usando el namespace System.Diagnostics.Process o
+utilizando el namespace System.Management.Automation.PowerShell. Hay
+algunas otras formas, pero son más workarounds que funcionalidad de
+Windows y CSharp (por ejemplo, usando directamente rundll32.exe y
+PowerShdll.dll, o utilizando SyncAppvPublishingServer.exe y
+SyncAppvPublishingServer.vbs en Windows 10).
+
+**Ejemplo de código de PowerShell**
+
+El siguiente ejemplo (también muy sencillo) de código fuente de
+PowerShell simula un calculador que recibe dos integers como parámetros
+de entrada y retorna su suma. Los parámetros no son validados para
+simplificar el código:
+
+```
+Param($myArg01, $myArg02)
+
+if(($myArg01 -eq $null) -and ($myArg02 -eq $null)) {
+    Write-Host "No args"
+}
+else {
+    Write-Host([int]$myArg01 + [int]$myArg02)
+}
+```
+
+## Usando namespace System.Diagnostics.Process
+
+La clase "Process" permite iniciar cualquier proceso (.exe) de Windows
+desde CSharp. PowerShell es literalmente un .exe en el computador, por
+lo que se puede iniciar sin problemas con esta clase. Agregue una
+directiva a "using System.Diagnostics;" al principio del código.
+
+```
+void CallPowerShellWithProcess()
+{
+string strPowerShellFilePath =
+    @"C:ProjectsCalculatorPowerShell.ps1";
+    if (File.Exists(strPowerShellFilePath))
+    {
+        Process myScript = new Process();
+        myScript.StartInfo.UseShellExecute = false;
+        myScript.StartInfo.RedirectStandardOutput = true;
+        myScript.StartInfo.FileName = "powershell.exe";
+        myScript.StartInfo.ArgumentList.Add(strPowerShellFilePath);
+        myScript.StartInfo.ArgumentList.Add("3 4");
+        myScript.StartInfo.ArgumentList.Add("-File");
+        myScript.StartInfo.ArgumentList.Add("-ExecutionPolicy unrestricted");
+        myScript.StartInfo.ArgumentList.Add("-NoProfile");
+        myScript.Start();
+        string myResult = myScript.StandardOutput.ReadToEnd();
+        myScript.WaitForExit();
+        Console.WriteLine(myResult);
+    }
+}
+```
+
+El código en esta rutina crea primero una instancia de
+System.Diagnostics.Process, y luego utiliza la clase "StartInfo" para
+configurar la llamada a PowerShell. Las únicas propiedades obligatorias
+de configurar son "RedirectStandardOutput" ("yes" para poder
+capturar en CSharp el resultado del script), "FileName" (la ruta
+completa al ejecutable de PowerShell, o solamente su nombre si
+PowerShell está configurado en las variables de Windows) y
+"ArgumentList" (para indicar la ruta al archivo .ps1 y los parámetros
+de entrada que PowerShell espera).
+
+"UseShellExecute" no es obligatorio y tiene valores por defecto
+("false" para .Net 7.x, "true" para el .Net Framework), pero si es
+necesario se puede forzar un cambio. Si la ruta al archivo .ps1 contiene
+espacios, utilice el argumento "-File" para indicarle al proceso que
+no codifique la ruta (y evitar que no pueda encuentrar el archivo en el
+computador local). Si las políticas de ejecución de PowerShell no han
+sido configuradas, puede forzar su cambio utilizando los parámetros
+"-ExecutionPolicy unrestricted" y "-NoProfile".
+
+La ejecución del script ocurre asincrónicamente y se inicia con el
+método "Start". Para usar el método sincrónicamente, use el método
+"WaitForExit" como se muestra en el ejemplo. Finalmente, el resultado
+se puede leer desde el "StandardOutput", que es un objeto del tipo
+StreamReader.
+
+## Usando System.Management.Automation.PowerShell
+
+Este namespace facilita de alguna forma la llamada de scripts de
+PowerShell y ofrece muchas más posibilidades especializadas, tales como
+la creación de RunSpaces de PowerShell, pero al mismo tiempo complica la
+llamada de los scripts pues es necesario configurar perfectamente la
+seguridad de PowerShell para evitar problemas con sus ExecutionPolicies.
+
+La siguiente rutina no crea un RunSpace dedicado exclusivamente al
+script, sino que utiliza el RunSpace por defecto de PowerShell. El
+código requiere una directiva a "using System.Management.Automation;"
+y referencias a (que pueden ser agregadas con NuGets)
+"Microsoft.PowerShell.Commands.Diagnostics",
+"Microsoft.PowerShell.Commands.Management",
+"Microsoft.PowerShell.Commands.Utility", "
+Microsoft.PowerShell.ConsoleHost", "Microsoft.WSMan.Management" y
+"System.Management.Automation".
+
+```
+void CallPowerShellWithAutomation()
+{
+    string strPowerShellFilePath =
+        @"C:ProjectsCalculatorPowerShell.ps1";
+    PowerShell myScript = PowerShell.Create();
+    myScript.AddCommand(strPowerShellFilePath).AddArgument("5 6");
+    myScript.AddCommand("Set-ExecutionPolicy").AddArgument("Unrestricted").AddParameter("Scope", "CurrentUser");
+
+    Collection<PSObject> myResults = myScript.Invoke();
+
+    foreach (PSObject oneItem in myResults)
+    {
+        if (oneItem != null)
+        {
+            Console.WriteLine(oneItem.BaseObject.ToString());
+        }
+    }
+}
+```
+
+El código en la rutina crea una instancia de
+System.Management.Automation.PowerShell y, usando el método
+"AddCommand" y "AddArgument", le indica primero la ruta al archivo
+.ps1 y los parámetros de entrada a utilizar. Luego, usando el mismo
+método, configura la ExecutionPolicy de PowerShell. Finalmente, el
+método "Invoke" ejecuta el script. El resultado de PowerShell se
+recoge en una colección de objetos del tipo "PSObject", que pueden ser
+leídos con un loop.
+
+Este método se puede utilizar también para ejecutar cmdlets de
+PowerShell directamente. El siguiente ejemplo hace una llamada al cmdlet
+"Get-Process" de Windows que retorna una lista con todos los procesos
+que están ejecutando en el computador en el momento:
+
+```
+void CallPowerShellCmdletWithAutomation()
+{
+    PowerShell myScript = PowerShell.Create().AddCommand("Get-Process");
+    Collection<PSObject> myResults = myScript.Invoke();
+    foreach (PSObject oneItem in myResults)
+    {
+        if (oneItem != null)
+        {
+            Console.WriteLine(oneItem.BaseObject.ToString());
+        }
+    }
+}
+```
+
+## Conclusiones
+
+Muchas veces es una excelente idea reutilizar código de CSharp en
+scripts de PowerShell y código de PowerShell en aplicaciones escritas
+con CSharp. Ambas opciones son posibles, y en más de una forma. Utilice
+los cmdlets "Invoke-Expression" o "Start-Process", cargue DLLs
+compilados por medio de Reflexión o con el cmdlet "Add-Type" para
+ejecutar código de CSharp desde PowerShell. Y desde CSharp, utilice
+"System.Diagnostics.Process" o "System.Management.Automation" para
+ejecutar código de PowerShell. Encontrar la mejor opción es más una
+cuestión de preferencias y rapidez de ejecución que un problema técnico.
+En cualquier caso, reutilización de código, inclusive entre diferentes
+tipos de lenguajes, agiliza, facilita y rebaja los costos en el proceso
+de creación de software.
+
+**Gustavo Velez** <br />
+MVP M365 Apps & Services <br />
+<https://guitaca.com> <br />
+<gustavo@gavd.net>

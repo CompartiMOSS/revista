@@ -1,0 +1,294 @@
+---
+title: KEDA, qué debemos de saber antes de empezar a utilizarlo
+slug: /revistas/numero-54/keda
+date: 01/12/2022
+magazine: 54
+author: Adrian Diaz
+authorId: adrian-diaz-cervera
+keywords: ['KEDA', 'Microservicio']
+featuredImage: ../../../images/numero54/keda/image1.png
+---
+
+
+La gran mayoría de veces cuando hablamos de KEDA, a cualquier
+desarrollador de DotNet se le viene a la mente que es el equivalente a
+lanzar una Azure Function dentro de Kubernetes. De ese pensamiento a la
+realidad hay un trozo bastante elevado, y conviene pararse a pensar un
+poco que es KEDA, cuáles son los escenarios en los que entra en juego y
+que debemos de tener en cuenta. En este articulo vamos a explicar alguno
+de estos conceptos para que te animes y empieces a utilizarlo de una
+forma sencilla.
+
+**Introducción**
+
+Lo primero de todo hay que intentar explicar que es KEDA. KEDA son las
+siglas de Kubernetes Event-Driven Autoscaling y con ese nombre nos queda
+un poco más claro cual es el objetivo. La función viene a cubrir dentro
+de Kubernetes no es otra que la de poder escalar los Pods en base a
+algún evento externo. Dado que están muy de moda las arquitecturas de
+microservicios, arquitecturas en base a eventos como pueda ser el caso
+de CQRS, o arquitecturas en las que se buscan evitar el mínimo de
+dependencias con otros sistemas, este tipo de escalado es algo esencial
+en estos desarrollos.
+
+Si analizamos como se escala dentro de Kubernetes (k8s de aquí en
+adelante), de forma nativa se escalaba haciendo uso de Horizontal Pod
+Autoscalling. Ese escalado horizontal se podía usar una serie de
+métricas como CPU, Memoria, o cualesquiera otras métricas que se
+encuentra como recurso en K8s, pero no podemos escalar en base a ningún
+evento externo, del cual no esté en las métricas de API de k8s. Este
+tipo de forma de escalar está bien, pero hoy en día muchas veces hay
+eventos que pueden adelantarse a los acontecimientos.
+
+**¿Como funciona KEDA?**
+
+KEDA es un agente(pod) que instalamos en el Deployment para poder
+escalar nuestros desarrollos. La única funcionalidad que tiene KEDA es
+que actúa de un Servidor de métricas de Kubernetes para poder hacer
+escalar nuestros desarrollos en la medida que se requiere de él.
+
+![Imagen 1.- Arquitectura de KEDA.](../../../images/numero54/keda/image1.png)
+
+
+
+Viendo la imagen KEDA, es un pod que instalamos en nuestro Clúster cuya
+funcionalidad es observar si alguno de los procesos que se han definido
+con KEDA necesita escalar o desescalar.
+
+**¿Qué objetos vamos a usar en KEDA?**
+
+Tenemos dos tipos de objetos: ScaledJob y ScaledObject. Ambos objetos
+muy similares, sin embargo, es muy importante entender la diferencia
+entre unos y otro de cara a tener claro el desarrollo a realizar.
+
+Podemos definir un ScaledJob, como aquel Job que se crea en el momento
+en el que se recibe el evento que desencadena su ejecución, y una vez
+finalizado este Job el pod se elimina y ya no hay más rastro de él. Este
+comportamiento desde el punto de vista externo es algo muy similar al
+funcionamiento de una Azure Function, luego entraremos en las
+diferencias.
+
+Un ScaleObject, podemos decir que es una aplicación que se está
+ejecutando continuamente mientras KEDA decida que se tiene que ejecutar.
+Este proceso no debe de finalizar "nunca", que tipos de aplicaciones
+pueden ser ScaleObject: una API por ejemplo es una app que siempre debe
+de estar en ejecución.
+
+Resumiendo, entre usar un ScaledJob y un ScaledObject la única
+diferencia que debemos de tener en cuenta es si el proceso se finaliza o
+no. Si nosotros queremos ejecutar un job que finaliza, usaremos un
+ScaledJob, si por el contrario queremos ejecutar una aplicación que
+puede durar más que un periodo de tiempo se elegiría un ScaledObject.
+
+Dado esta definición, si tuvierais que crear un proceso que lea
+constantemente de una cola del Rabbit ¿qué tipo de objeto usarías?
+Seguro que la gran mayoría de ustedes elegirían un ScaledJob: ¿me
+equivoco? Seguramente no. Pero como habéis deducido esta pregunta tiene
+trampa, y esto es alguna de las cosas que tiene trabajar con gente que
+controla Kubernetes y KEDA como el que más como es mi compañero [Jorge
+Turrado](https://twitter.com/JorgeTurrado).
+
+Imaginar que tenemos una cola de Rabbit que siempre tiene mensajes, cual
+seria el funcionamiento que tiene KEDA cuando usamos un ScaledJob, por
+cada mensaje que tenemos en la cola se tiene que crear un Pod,
+terminarlo y ejecutarlo y así constantemente. Esto que problemas tiene,
+un uso constante de la API de Kubernetes y cual es el principal problema
+por el que se caen los cluster de Kubernetes por un mal uso de su API.
+También se tiene otro problema, que es el tiempo de levantar el Pod,
+como continuamente lo esta creando y destruyendo estamos perdiendo un
+tiempo (por muy pequeño que sea) en cada ejecución esto hace que en
+escenarios donde el tiempo es valioso es mejor tener un pod ya
+ejecutando preparado para hacer su trabajo que tener que estar
+preparándolo en cada ejecución. Este tiempo puede parecer
+insignificante, pero cuando marcamos un deployment una buena práctica es
+indicar endpoints de alive y readness de nuestro despliegue. Que
+significa esto que una vez el pod se crea necesita un tiempo para poder
+recibir peticiones, ¿cuánto puede tardar una app en .NET en estar lista?
+Un arranque básico imaginaros mínimo 1 o 2 segundos en resolver todas
+sus dependencias, pero si queremos comprobar que tiene todo lo necesario
+para poder ejecutarse (Bases de Datos, otras API, etc.) igual tarda un
+poco más. Así que imaginad el tiempo de ejecución que no estamos
+aprovechando nuestro desarrollo.
+
+Ahora bien, cual puede ser el problema que podemos tener al usar un
+ScaledObject. El problema que podemos de tener es el momento en el que
+la aplicación no tenga mensajes tenemos una aplicación que no está
+haciendo nada. ¿Pero eso se puede solucionar con KEDA? La respuesta es
+obvia que sí, ahora entramos al detalle.
+
+Antes de empezar a utilizar KEDA, debemos de saber es como configuramos
+el escalado de nuestro job/app y que opciones tenemos para escalar/des
+escalar. Aunque parezca mentira es igual de importante saber escalar a
+tiempo, como des escalar en el momento adecuado. Por lo general una
+buena aproximación es que escalemos un poco antes de que nuestro sistema
+este en apuros y des escalemos en el momento en que nuestro sistema este
+estable y sepamos que la carga de trabajo que se tiene en este momento
+se puede hacer sobradamente con menos pods. Es decir, mejor escalar al
+menor indicio de que el sistema se esa quedando justo de recursos y des
+escalar de forma conservadora, es decir dar un periodo de tiempo lo
+suficientemente largo como para que el sistema sepamos que esta
+funcionando correctamente.
+
+**¿Qué tipo de opciones del escalado tenemos?**
+
+A la hora de escribir el deployment de nuestro desarrollo es importante
+que conozcamos todos los parámetros. Aquí escribiremos alguno de estos
+parámetros:
+
+-   **minReplicaCount**: El número de pods mínimos que siempre vamos a
+    tener en ejecución. Este valor muchos os podéis imaginar que pueda
+    ser 0, para el momento en el que no tengamos trafico así no estar
+    gastando recursos en k8s de forma innecesaria. Este valor depende de
+    cómo se comporte nuestro sistema y cuál es la necesidad de nuestro
+    aplicativo.
+
+-   **maxReplicaCount**: El número máximo de pods máximos que vamos a
+    disponer. Es decir, el número máximo de pods que vamos a crear en
+    base al evento máximo del que vamos a poder hacer.
+
+-   **idleReplicaCount:** Este parámetro es muy interesante, tiene un
+    funcionamiento si lo indicamos y con valor 0 en el momento que en el
+    evento que tenemos configurado en KEDA este a 0, elimina todos los
+    pods del deployment, sin embargo, en el momento que se lance el
+    evento lo que hará es crear el número de pods que hemos configurado
+    como mínimo en el parámetro de minReplicaCount. Para que veáis el
+    escenario, siempre que tengo trafico suelo tener una media de 3 pods
+    de ejecución, pero en el momento en el que no hay trafico puedo
+    dejar de crear estos pods. Es decir, cuando ya tengo trafico en
+    lugar de empezar a ir escalando en base a las necesidades que van
+    surgiendo, escalo de una forma activa para evitar que nuestro
+    sistema este ahogado y se comporte de manera ineficiente en los
+    primeros usuarios. Un poco este funcionamiento lo podemos indicar si
+    queremos tener un arranque en caliente o no**.**
+
+-   **Fallback:** Esta es una sección opción y es como queremos que se
+    comporte KEDA cuando surja algún problema de comunicación con el
+    evento por el cual queremos escalar. Por ejemplo, si estamos
+    conectados a un EventHub y en ese momento no hay comunicación como
+    queremos que se comporte nuestro sistema es decir si no tengo
+    métricas cuantos pods debo tener como mínimo para atender nuestra
+    carga. Dependiendo que lo que haga nuestro desarrollo es posible
+    que, aunque nos cree los pods es posible que nuestro job siga sin
+    funcionar. Si el evento externo no funciona y nuestro job tiene que
+    acceder a dicho evento para ir consumiendo mensajes después
+    tendremos ese error. Aunque esa casuística, no es propia de este
+    artículo.
+
+**Autenticación Eventos con KEDA**
+
+Si queremos saber el número de mensajes que tenemos en nuestro
+EventHub/ServiceBus/Rabbit debemos de tener claro como establecer la
+conexión. Dentro de KEDA podemos definir un objeto Trigger
+Authentication. Este tipo de objetos permite describir los parámetros de
+autenticación por separado del ScaledObject y de los contenedores de
+despliegue. También permite métodos más avanzados de autenticación como
+la \"identidad del pod\", la reutilización de la autenticación o
+permitir que TI configure la autenticación. Cada uno de estos tipos
+tienes unas ventajas e inconvenientes que daría para un concepto más
+avanzado en este tema. Si queréis más información sobre como hacerlo os
+recomiendo este video de la NetCoreConf.
+https://www.youtube.com/watch?v=W8hMgZA7wGg&list=PLbNXjE8OQW5wBF3_nYcyLcerqjG74APck&index=3
+
+**HPA, KEDA ¿juntos o separados?**
+
+Una vez ya sabemos cómo funciona KEDA, vamos a entender un poco más los
+tipos de escalado que hay en Kubernetes y como se pueden deben integrar
+entre ellos. KEDA viene a cubrir el escalado en base eventos y HPA el
+escalado en base a métricas tangibles del propio Cluster. Pero también
+es posible que nuestro desarrollo lo queramos escalar bien por el número
+de mensajes que tenemos en algún sistema de mensajería y también porque
+tengamos los pods con un porcentaje de CPU elevado. No es un caso nada
+raro ¿no?
+
+¿Qué es lo que podríamos hacer? Por un lado, crear el objeto de escalado
+en KEDA en base a eventos y crear el evento en HPA para esto. Ahora
+bien, es importante que tengamos la creación de estos objetos en el
+mismo deployment. En caso de que los creemos en dos deployment separados
+lo más normal es que no funcione, porque tendremos dos elementos que
+mientras uno quiera escalar el otro se encargará de desescalar y en ese
+caso no funcionará el escalado de nuestra aplicación.
+
+Otra de las preguntas que también nos podemos hacer, es ¿puedo escalar
+con KEDA por métricas de la API de Kubernetes? La respuesta es obvia que
+sí, pero ¿cómo funciona ese escalado? Lo que hace KEDA internamente es
+crear un objeto HPA con la configuración del escalado que se ha
+indicado. Esto quiere decir que da igual si tu declaras en tu deployment
+que lo haga KEDA o HPA que al final KEDA para los temas que de escalado
+Horizontal va a usar HPA. Así que aquí para esta forma puedes elegir la
+forma que considere mejor. Si me preguntáis como lo hago yo mi opinión
+es la siguiente si usas KEDA porque tienes esa necesidad, delego en KEDA
+la definición tanto del escalado por eventos como el HPA. El motivo es
+un poco por la mantenibilidad de los ficheros de despliegues, pero
+repito no hay una cosa mejor que la otra.
+
+Una última pregunta que nos deberíamos de hacer es si KEDA no tiene el
+tipo de evento dentro de todos los desencadenadores de eventos, ¿podemos
+hacer algo? La respuesta es que sí, nos podemos crear nuestra propia API
+de métricas en el que nosotros indiquemos los valores por el cual
+queramos escalar. En versiones anteriores de KEDA cuando no había un
+mínimo de pods con el que arrancar, se utilizaba para establecer el
+mínimo de pods que debíamos de permanecer arrancados. Ahora en la
+actualidad el uso de esta API de métricas seria por algún requerimiento
+de negocio o algún funcionamiento custom de nuestro desarrollo. Pero a
+la hora de la creación de esta métrica hay que tener en cuenta que el
+poner una pieza nuestra en todo este engranaje significa un riesgo de
+que nuestro desarrollo falle por el motivo que sea. Hay que tener claro
+el dimensionamiento de esta API y tener claro las consecuencias de que
+nuestro servidor de métricas "custom" falle.
+
+**KEDA y su "parecido" con Azure Functions**
+
+Llegados a este punto en el artículo, seguro que sabéis que Azure
+Functions y KEDA no es algo que vayan de la mano. Una Azure Functions es
+la ejecución de un trozo de código y puede escalar dependiendo del
+número de instancias que ponemos, al final ponemos un desencadenador y
+en base al número de eventos que tenemos se van creando ejecuciones, y
+dependiendo del plan que se ha elegido se usa una forma de escalar u
+otra. KEDA es algo a más bajo nivel por definirlo de una forma muy
+sencilla, en KEDA indicamos como queremos que se comporte nuestra app,
+tiene un funcionamiento más artesano y no te abstrae de su
+comportamiento. Dado que puedes definir como y por que quieres escalar
+eres capaz de sacar mucho mejor rendimiento al desarrollo que estas
+realizando.
+
+Ya no solo a nivel de funcionamiento son distintos, sino que a nivel de
+desarrollo también es muy diferente. En las Azure Functions hay que
+indicar en las cabeceras que tipo de función es, mientras que en un
+desarrollo en KEDA, tienes un lienzo en blanco y debes de decidir cómo
+se comporta y es responsabilidad del propio desarrollador cómo funciona.
+
+Pero ¿puedo desplegar una Azure Function tal cual dentro de un Cluster
+de Kubernetes? La respuesta es que sí, pero para esto el primer paso es
+dockerizar tu desarrollo de Azure Function y posteriormente usar el
+sistema de escalado que tu consideres. Para mi esta forma de hacer es
+añadir una capa más de complejidad dentro de tu código, para que al
+final cualquier aplicación de consola se puede comportar de la misma
+forma en la que estas desarrollando la función. Ahora bien, está claro
+que hay escenarios en los que tienes muchas funciones ya desarrolladas y
+puede ser una forma de poder migrar a Kubernetes de forma sencilla,
+aunque a costa de penalizar el performance y dependencias de tu
+desarrollo, pero es posible que ahorres en costes.
+
+**Resumen**
+
+El mundo de la orquestación esta en un auge, Kubernetes cada año está
+siendo utilizado por más organizaciones y es muy necesario conocer como
+funciona, cual es el ciclo de vida de las aplicaciones para poder
+empezar en él y ver si se adapta a tus necesidades. Un consejo es que no
+hay que llevarse por las modas, sino por las necesidades que se tiene.
+
+KEDA viene a cubrir una necesidad que hay en Kubernetes para escalar en
+base a eventos. Su importancia va creciendo en base a que cada vez
+hablamos más de micro eventos, arquitecturas en base a eventos ... pero
+si no tenemos clara la base y como se comporta no podremos hacer nuestro
+desarrollo de una forma buena. En este articulo hemos intentado dar un
+poco más de visibilidad a que es KEDA, su funcionalidad y que debemos de
+saber antes de empezar a utilizarlo, espero que os sirva de utilidad.
+
+Happy Coding
+
+**Adrián Diaz Cervera** <br />
+Technical Lead at SCRM Lidl Hub International <br />
+MVP Office Development <br />
+http://theavenger.dev <br />
+@AdrianDiaz81
