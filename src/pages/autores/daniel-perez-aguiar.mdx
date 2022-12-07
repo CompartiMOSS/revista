@@ -1,0 +1,23 @@
+---
+id: daniel-perez-aguiar
+title: Daniel Pérez Aguiar
+jobTitle: Support Engineer en Microsoft
+slug: /autores/daniel-perez-aguiar
+photo: ../../../images/Autores/daniel-perez-aguiar.png
+twitter: https://twitter.com/perezaguiar
+blog: 
+type: author
+director: 
+content: >-
+    Corredor (que no runner) aficionado. Enamorado de sus niñas. Sharepointer, Dynamics CRM & tecnocrata x convicción... #Gilicomber y #Tiradalarger por necesidad.. 
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "daniel-perez-aguiar"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

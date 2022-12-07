@@ -29,7 +29,7 @@ const HomePage = ({}) => {
   const classes = useStyles();
   const data = useStaticQuery(graphql`{
   current: allMdx(
-    filter: {frontmatter: {magazine: {eq: 53}, type: {eq: "number"}}}
+    filter: {frontmatter: {magazine: {eq: 54}, type: {eq: "number"}}}
   ) {
     edges {
       node {
@@ -42,7 +42,7 @@ const HomePage = ({}) => {
     }
   }
   articles: allMdx(
-    filter: {frontmatter: {magazine: {eq: 53}, type: {ne: "number"}}}
+    filter: {frontmatter: {magazine: {eq: 54}, type: {ne: "number"}}}
   ) {
     edges {
       node {
@@ -77,7 +77,7 @@ const HomePage = ({}) => {
             <ViewArticlesRandom articles={data.articles} />
           </Grid>
         </Grid>
-        <Grid container alignItems="center" justify="center">
+        <Grid container alignItems="center" justifyContent="center">
           <ViewPartners />
         </Grid>
       </Grid>
