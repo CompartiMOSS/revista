@@ -88,7 +88,7 @@ WITH (
   DATA_SOURCE = [rsg_datalake_staging],
  FILE_FORMAT = [rsg_parquet]
 )
-``` 
+```
 
 Al crear una external table, debemos tener en cuenta que se trata de un
 puntero a los archivos almacenados en nuestro Data Lake. Si utilizamos
@@ -187,16 +187,11 @@ OPENROWSET
 
 **Tabla comparativa**
 
-  ------------------------------------------------------------------------
-                     External Table    CETA              VIEW
-  ------------------ ----------------- ----------------- -----------------
-  Schema Evolution   No                SI                SI
-
-  "Real time update  SI                NO                SI
-  data"                                                  
-
-  Partition Pruning  NO                NO                SI
-  ------------------------------------------------------------------------
+  | | External Table | CETA | VIEW |
+  | - | - | - | - |
+  | Schema Evolution  | No               | SI               | SI
+  | "Real time update data" | SI                | NO                | SI
+  | Partition Pruning  | NO                | NO                | SI
 
 
 **Javier Iniesta** <br />
