@@ -1,0 +1,205 @@
+---
+title: Maximizando el rendimiento de Azure Synapse Analytics
+slug: /revistas/numero-55/maximizando-el-rendimiento-de-azure-synapse
+date: 01/03/2023
+magazine: 55
+author: Javier Iniesta
+authorId: javier-iniesta
+keywords: ['Azure Synapse','Azure']
+featuredImage: ../../../images/numero55/maximizando-el-rendimiento-de-azure-synapse/image1.png
+---
+
+¡Hola! En este artículo os voy a contar las diferencias fundamentales
+entre tres conceptos clave en Azure Synapse Analytics. Aunque estos
+conceptos puedan parecer similares, es crucial conocer sus diferencias
+para aprovechar al máximo nuestra plataforma de análisis de datos.
+
+Como ya sabéis, al trabajar con Serverless SQL Pools no almacenamos
+datos de manera tradicional. En su lugar, Synapse nos permite ejecutar
+consultas SQL en nuestros datos almacenados, creando una capa de
+abstracción que nos permite trabajar con grandes cantidades de datos,
+independientemente de su formato (ya sea parquet, csv, etc.).
+
+Para lograr esta capa de abstracción, Synapse utiliza punteros hacia
+nuestros ficheros, los cuales se pueden generar de diferentes maneras.
+Hoy nos centraremos en Views, External Tables y CETAS, y veremos cuándo
+es más conveniente utilizar cada uno de ellos, así como sus
+funcionalidades específicas.
+
+Antes de continuar, os tengo que explicar que es el partition pruning
+pues es un concepto bastante importante que después veremos cómo podemos
+sacarle provecho:
+
+ 
+
+**Partition Pruning** se refiere a la técnica que utiliza el motor de
+procesamiento de datos para omitir el procesamiento de particiones de
+datos innecesarias durante la ejecución de una consulta. En otras
+palabras, si la consulta está diseñada para buscar datos en una
+partición específica, el motor de procesamiento de datos solo buscará en
+esa partición específica y no en las otras particiones que no están
+relacionadas con la consulta.
+
+Tomemos como ejemplo una tabla almacenada en un data lake que contiene
+información diaria de ventas de una tienda, dividida por año, mes y día.
+Supongamos que queremos obtener las ventas de una semana en particular
+en marzo de 2023. Si la tabla está adecuadamente particionada por año,
+mes y día, el motor de procesamiento de datos sólo escaneará las
+particiones correspondientes a la semana que nos interesa. En este caso,
+sólo escaneará las particiones de marzo de 2023 que contengan los datos
+de la semana que buscamos, y omitirá las particiones correspondientes a
+otros años, meses y días. Esto tiene como resultado un procesamiento
+mucho más rápido de la consulta y una reducción en el costo de
+procesamiento.
+
+En resumen, Partition Pruning permite que las consultas accedan a una
+porción específica de los datos almacenados, lo que reduce el tiempo de
+procesamiento y el costo de la consulta, lo que se traduce en un
+procesamiento más rápido y una reducción de costos.
+
+ 
+
+![Imagen que contiene Diagrama Descripción generada
+automáticamente](../../../images/numero55/maximizando-el-rendimiento-de-azure-synapse/image1.png)
+
+ 
+
+**External Table e**s el formato más típico cuando trabajamos con Azure
+Synapse, es un tipo de tabla virtual que se utiliza en Azure Synapse
+para acceder a datos almacenados en una ubicación externa, como un Data
+Lake. Una External Table actúa como un puntero hacia los archivos
+externos, permitiéndonos consultarlos directamente mediante SQL.
+
+La sintaxis de creación de un external table es muy sencillo:
+
+ 
+```
+CREATE EXTERNAL TABLE dbo.ExT_Sales
+(
+    [ID] [varchar](8000),
+    [Action] [varchar](8000),
+    [CompanyCode] [varchar](8000),
+    [AcceptorCode] [varchar](8000),
+    [PointOfSaleCode] [varchar](8000),
+    [ProtocolName] [varchar](8000),
+)
+WITH (
+  LOCATION = N'Raw/AS400/*/*/*.parquet',
+  DATA_SOURCE = [rsg_datalake_staging],
+ FILE_FORMAT = [rsg_parquet]
+)
+``` 
+
+Al crear una external table, debemos tener en cuenta que se trata de un
+puntero a los archivos almacenados en nuestro Data Lake. Si utilizamos
+un wildcard (*) en la definición de la ubicación de la tabla, al
+ejecutar una consulta SELECT sobre dicha tabla, se devolverán todos los
+datos de los archivos que coincidan con el patrón especificado,
+incluyendo aquellos que puedan estar siendo ingresados en tiempo real
+por medio de un stream. Sin embargo, una limitación de las external
+tables es que es necesario especificar el esquema de la tabla en la
+definición, lo que significa que no se pueden aprovechar las ventajas de
+un "esquema evolution".
+
+**CETA.** Un CETA (Create Table As) es una funcionalidad que nos permite
+crear una tabla nueva a partir del resultado de una consulta SQL. En
+otras palabras, si tenemos una consulta SQL que nos devuelve unos datos,
+podemos crear una tabla a partir de esos datos de una manera muy
+sencilla.
+
+Por ejemplo, si tenemos una consulta que nos devuelve el número de
+ventas que hemos realizado en los últimos meses, podríamos crear una
+tabla nueva que contenga esta información utilizando la funcionalidad
+CETA.
+
+Esta funcionalidad es muy útil porque nos permite guardar los resultados
+de nuestras consultas como una tabla nueva, lo que nos facilita el
+acceso a esta información en el futuro. Esto nos proporciona cierta
+ventaja, ya que si en vez tener un external table como siempre.
+Directamente generamos un CETA que tome el esquema de nuestros ficheros,
+podremos tener ese "Schema Evolution" que no teníamos con los external
+table. Ejemplo de Sintaxis:
+
+ 
+```
+CREATE EXTERNAL TABLE CETA_Sales
+WITH
+(
+  LOCATION = 'SalesCETA',
+  DATA_SOURCE = [rsg_datalake_staging],  
+  FILE_FORMAT = [rsg_parquet]  
+)
+ AS
+SELECT  *
+FROM
+OPENROWSET
+(
+    BULK 'Raw/AS400/*/*/*.parquet',
+    DATA_SOURCE = 'rsg_datalake_staging',
+    FORMAT = 'parquet'
+) AS operations
+```
+ 
+ 
+
+Aunque tenemos una contra con los CETAS, como bien dice su nombre
+*Create Table As* eso quiere decir que estaríamos haciendo una
+"Foto" del momento de la creación del CETA, por lo que perderíamos por
+otro lado el "Real Time" de visionado de datos ya que únicamente
+tendremos datos al momento de la generación de nuestro CETA.
+
+**View.** Las vistas son muy útiles porque nos permiten filtrar y
+seleccionar los datos de forma más eficiente, especialmente cuando
+trabajamos con gran cantidad de información. Al usar vistas con formatos
+como Parquet y Delta, podemos aplicar filtros y partition pruning, algo
+que no es posible en tablas externas y CETAS.
+
+La función filepath() en la creación de vistas nos permite crear
+columnas que nos permiten aplicar el partition pruning al filtrar datos
+en nuestras consultas. Esto significa que Synapse solo leerá los
+directorios que cumplan con los requisitos especificados, evitando la
+lectura y procesamiento de archivos en otros directorios.
+
+Por ejemplo, si queremos seleccionar solo los archivos de un mes
+específico, podemos utilizar filepath() para crear una columna con la
+fecha del mes y luego filtrar solo esos archivos en nuestras consultas.
+De esta manera, podemos procesar los datos de manera más eficiente y
+obtener resultados más rápidos.
+
+Ejemplo de sintaxis:
+ 
+```
+CREATE VIEW dbo.View_Sales
+AS
+SELECT  
+*,
+CAST(operations.filepath(1) AS INT) AS Anio,
+CAST(operations.filepath(2) AS INT) AS Mes
+FROM
+OPENROWSET
+(
+    BULK 'Sales/*/*/*.parquet',
+    DATA_SOURCE = 'rsg_datalake_staging',
+    FORMAT = 'parquet'
+)  AS operations
+```
+ 
+
+**Tabla comparativa**
+
+  ------------------------------------------------------------------------
+                     External Table    CETA              VIEW
+  ------------------ ----------------- ----------------- -----------------
+  Schema Evolution   No                SI                SI
+
+  "Real time update  SI                NO                SI
+  data"                                                  
+
+  Partition Pruning  NO                NO                SI
+  ------------------------------------------------------------------------
+
+
+**Javier Iniesta** <br />
+Data&AI Architect en ENCAMINA <br />
+https://twitter.com/MrOrphus <br />
+https://www.linkedin.com/in/javierif/
