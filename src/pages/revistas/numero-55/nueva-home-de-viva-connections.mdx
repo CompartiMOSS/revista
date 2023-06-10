@@ -1,0 +1,159 @@
+---
+title: Viva Connections Home - Facilitando el acceso a la Suite de Viva y a la información corporativa
+slug: /revistas/numero-55/nueva-home-de-viva-connections
+date: 01/03/2023
+magazine: 55
+author: Juan Carlos González Martín
+authorId: juan-carlos-gonzalez-martin
+keywords: ['Microsoft Viva','Microsoft 365']
+featuredImage: ../../../images/numero55/nueva-home-de-viva-connections/image1.png
+---
+
+Llevamos más de 2 años hablando de la propuesta EXP (Employee Experience
+Platform) de Microsoft que en la práctica se compone de una serie de
+aplicaciones y servicios bajo el paraguas de Microsoft Viva y cuya
+disponibilidad viene determinada por el licenciamiento disponible. Uno
+de los "primeros" Microsoft Viva que surgió es Viva Connections que
+facilita no solo la integración en Microsoft Teams de un sitio de
+SharePoint que "etiquetemos" como Home o Principal, sino sobre todo el
+acceso a recursos e informaciones corporativas a través de elementos de
+visualización e interacción en el Dashboard o de visualizar el feed de
+actividad. En Viva Connections el empleado pasa a ser el centro de
+atención y se busca proporcionarle acceso rápido y directo a
+aplicaciones e informaciones de interés:
+
+![**Imagen 1.- Viva Connections versión 1.0**](../../../images/numero55/nueva-home-de-viva-connections/image1.png)
+
+
+
+En esta versión "1.0" de Viva Connections era responsabilidad de la
+organización o de su partner tecnológico el diseñar y desplegar una
+experiencia de usuario adecuada que facilitase el acceso a esos recursos
+e información corporativa. Con la versión "2.0", Microsoft ha presentado
+una propuesta de página Home mucho más simplifica en la que se facilita
+no solo el acceso a los recursos corporativos de interés, sino también a
+los restos de productos de la suite de Vita que pueda disponer una
+organización.
+
+**Elementos principales de la nueva Home de Viva Connections**
+
+La nueva Home de Viva Connections tiene la siguiente apariencia en la
+que rápidamente podremos identificar los bloques fundamentales:
+
+![**Imagen 2.- Nueva Home de Viva Connections.**](../../../images/numero55/nueva-home-de-viva-connections/image2.png)
+
+
+Como se puede apreciar, la nueva Home dispone de:
+
+-   Navegación al resto de productos de la suite de Viva de que disponga
+    la organización.
+
+-   Dashboard de Viva Connections más optimizado en cuanto a su
+    visualización y experiencia de usuario e incorporando nuevos cards
+    como los de Viva Learning y Viva Topics.
+
+![**Imagen 3.- Dashboard optimizado de la nueva Home de Viva Connections.**](../../../images/numero55/nueva-home-de-viva-connections/image3.png)
+
+
+
+-   Sección de Recursos en los que el usuario puede visualizar el
+    listado de Sitios frecuentes, el listado de Sitios seguidos y una
+    serie de recursos que vienen definidos por la navegación del Home
+    Site definido en el tenant.
+
+![**Imagen 4.- Sección de recursos en la nueva Home de Viva Connections.**](../../../images/numero55/nueva-home-de-viva-connections/image4.png)
+
+
+
+-   Feed de actividad que muestra información de actividad generada en
+    SharePoint y Yammer en base al contenido que los usuarios siguen.
+
+**Opciones de personalización de la Home de Viva Connections**
+
+La nueva Home de Viva Connections presenta tres zonas de
+personalización:
+
+-   Background de la Home de Viva Connections, con especial énfasis en
+    la cabecera.
+
+-   Dashboard de Viva Connections.
+
+-   Recursos.
+
+![**Imagen 5.- Posibilidades de personalización de la Home de Viva Connections.**](../../../images/numero55/nueva-home-de-viva-connections/image5.png)
+
+
+
+La personalización de la imagen de fondo nos permite seleccionar una
+imagen a aplicar al fondo de la nueva Home eligiendo entre imágenes que
+tengamos almacenadas en Sitios de SharePoint o OneDrive, en nuestro
+equipo personal o bien buscándolas en el stock de imágenes:
+
+![**Imagen 6.- Personalización del fondo de la nueva Home de Viva Connections.**](../../../images/numero55/nueva-home-de-viva-connections/image6.png)
+
+
+La personalización del Dashboard supone acceder a la configuración del
+Dashboard de Viva Connections del Home Site configurado, pero desde
+Teams:
+
+![**Imagen 7.- Personalización del Dashboard de Viva Connections.**](../../../images/numero55/nueva-home-de-viva-connections/image7.png)
+
+
+
+Finalmente, editar los recursos de Viva Home consiste en editar la
+navegación del Home Site:
+
+![**Imagen 8.- Editando los recursos de la Home de Viva Connections.**](../../../images/numero55/nueva-home-de-viva-connections/image8.png)
+
+
+**Controles de Gobierno para la Home de Viva Connections**
+
+A nivel de controles de Gobierno para la Home de Viva Connections, una
+pregunta que puede surgir es la siguiente: ¿Puedo configurar si quiero
+como experiencia por defecto la nueva Home o la Home que tengo definida
+en mi Home Site? La respuesta es que sí, pero a través de PowerShell
+porque como podéis ver en la siguiente captura seguimos sin disponer de
+opciones de configuración y gobierno adicionales para la App de Viva
+Connections en el Teams Admin Center:
+
+![**Imagen 9.- Opciones de personalización y configuración de Viva Connections en el Teams Admin Center.**](../../../images/numero55/nueva-home-de-viva-connections/image9.png)
+
+
+
+La siguiente pregunta que os haréis es: ¿Y con PowerShell se puede hacer
+algo? La respuesta es que sí. Podemos establecer cuál es la Home por
+defecto que queremos para Viva Connections de la siguiente forma:
+
+```
+Set-SPOHomeSite -HomeSiteUrl <homesiteURL> -VivaConnectionsDefaultStart <$true/$false>
+```
+
+Un valor $false para el parámetro VivaConnectionsDefaultStart quiere
+decir que el home por defecto para Viva Connections será la nueva Home.
+Un valor $true en cambio indica que queremos seguir utilizando la
+página principal del Home Site del tenant como página principal. Por
+defecto cuando se realice el rollout de la nueva Home, esta pasa a ser
+la página principal de Viva Connections, aunque desde la misma podemos
+navegar a nuestro Home Site.
+
+![Imagen 10.- Acceso al Home Site desde la nueva Home de Viva Connections.](../../../images/numero55/nueva-home-de-viva-connections/image10.png)
+
+
+
+A la inversa, también podremos acceder (aunque algo oculto si me lo
+permitís) desde el Home Site a la nueva Home de Viva Connections.
+
+![**Imagen 11.- Acceso a la nueva Home de Viva Connections desde el Home Site configurado.**](../../../images/numero55/nueva-home-de-viva-connections/image11.png)
+
+
+
+**Conclusiones**
+
+Dentro de la evolución natural de Viva Connections, Microsoft ha puesto
+sobre la mesa un nuevo concepto de Home que mejore y unifique la
+experiencia de usuario en el acceso al resto de la suite de Viva, así
+como a recursos e informaciones de interés de cada corporación.
+
+**Juan Carlos Gonzalez** <br />
+M365 SME & Delivery Manager | Microsoft 365 Apps & Services MVP <br />
+@jcgm1978 | youtube.com/@jcgonzalezmartin

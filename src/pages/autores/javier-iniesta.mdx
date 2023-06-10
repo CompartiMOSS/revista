@@ -1,0 +1,23 @@
+---
+id: javier-iniesta
+title: Javier Iniesta Fernandez
+jobTitle: Data&AI Architect en ENCAMINA
+slug: /autores/javier-iniesta
+photo: ../../../images/Autores/javier-iniesta.png
+twitter: https://twitter.com/MrOrphus
+blog: 
+type: author
+director: false
+content: >-
+    Emprendedor Social - Cloud Solutions Developer - Coordinador del club tecnológico de la UCAM - Microsoft Student Partner - #hazqueocurra - @SAMEBullying 
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "javier-iniesta"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  
