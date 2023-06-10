@@ -1,0 +1,27 @@
+---
+id: rodrigo-liberoff
+title: Rodrigo Liberoff
+jobTitle: Senior Software & Cloud Architect | AI & Generative Language Models Tech Lead | Microsoft MCP
+slug: /autores/rodrigo-liberoff
+photo: ../../../images/Autores/rodrigo-liberoff.png
+twitter: https://twitter.com/rliberoff
+blog: 
+type: author
+director: false
+content: >-
+    Computer Engineer professional, with more than 20 years of hands-on experience, a dynamic attitude and adaptability to changes; passionate with the design, conceptualization and development of software systems, mainly with the C# programming language and using Agile Methodologies (like Scrum, SAFe), the creation of software architectures and researching new technologies and their possible deployment on clients and companies, focusing mainly on Microsoft technologies, specially the .NET platform (currently .NET Core)
+    <br /><br />
+    Specialties
+    <br /><br />
+    Cloud Computing, mainly in SaaS and PaaS, Software Architecture, Enterprise Architecture, Software Technical and Customer Management (including gathering and analysis of requirements), with expertise on Microsoft technologies with Azure and the .NET Platform including .NET Core, C#, ASP.NET (MVC, Web API and Razor), and related web development technologies like Angular, jQuery, Vue, React and Swagger. Also, experience with Microservices Architecture and containers (mainly Docker).
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "rodrigo-liberoff"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  

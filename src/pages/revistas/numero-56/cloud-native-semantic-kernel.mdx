@@ -41,11 +41,13 @@ El otro problema es cómo almacenar, indexar, preservar y recuperar los embeddin
 Aquí es donde entran las bases de datos vectoriales, un tipo específico de bases de datos especiales. Las bases de datos vectoriales no son nuevas en el mercado de las bases de datos, existen desde hace varios años y se empleaban principalmente en la disciplina del Análisis de Datos o en modelos muy sofisticados y complejos de Inteligencia Artificial basada en «Machine Learning».
 Con la entrada explosiva de los algoritmos de IA generativa – como nuestro amigo GPT-3 y GPT-4 de Open AI y Azure que dan potencia a ya ultra famoso ChatGPT – los desarrolladores de aplicaciones (como los Copilots) están encontrando la necesidad de contar con este tipo de bases de datos para sus productos y servicios.
 En ese ámbito, la oferta es bastante interesante:
-•	Azure Cognitive Search Service
-•	Azure Cosmos DB
-•	Pinecone
-•	Postgres
-•	Qdrant
+
+- Azure Cognitive Search Service
+- Azure Cosmos DB
+- Pinecone
+- Postgres
+- Qdrant
+
 Todas estas bases de datos vectoriales (y más que están en la hoja de ruta) son soportadas por Semantic Kernel, aunque principalmente en C#, aun cuando el plan es dar soporte a Python, TypeScript y Java.
 
 ![Imagen 1 - Tabla con el estado actual del desarrollo de conectores en Semantic Kernel para las principales bases de datos vectoriales (cuadro amarillo) a mayo de 2023.](../../../images/numero56/cloud-native-semantic-kernel/image1.png)
@@ -74,11 +76,11 @@ La arquitectura que montaremos es 100% «Cloud Native», es decir, que usaremos 
 ![Imagen 2.- Arquitectura de referencia de la infraestructura 100% «Cloud Native» que montaremos.](../../../images/numero56/cloud-native-semantic-kernel/image1.png)
 
 Lo primero es contar con los servicios y recursos de soporte; para los cuales en este caso necesitaremos:
-•	Un Azure Log Analytics Workspace donde enviar las trazas y métricas de los servicios de Azure, la base de datos Qdrant y nuestra aplicación con Semantic Kernel.
-•	Un Azure Application Insights para explotar las trazas y métricas recabadas en el Log Analytics Workspace.
-•	Un Azure Key Vault para los secretos y cadenas de conexiones.
-•	Un Azure App Configuration que nos servirá como el repositorio de los parámetros de nuestra aplicación. Este es un recurso de Azure especialmente muy útil para aplicaciones dockerizadas.
-•	Un Azure Container Registry donde conservar las imágenes de nuestra aplicación.
+- Un Azure Log Analytics Workspace donde enviar las trazas y métricas de los servicios de Azure, la base de datos Qdrant y nuestra aplicación con Semantic Kernel.
+- Un Azure Application Insights para explotar las trazas y métricas recabadas en el Log Analytics Workspace.
+- Un Azure Key Vault para los secretos y cadenas de conexiones.
+- Un Azure App Configuration que nos servirá como el repositorio de los parámetros de nuestra aplicación. Este es un recurso de Azure especialmente muy útil para aplicaciones dockerizadas.
+- Un Azure Container Registry donde conservar las imágenes de nuestra aplicación.
 Estos servicios y recursos podemos aprovisionarlos en nuestra subscripción de Azure como mejor nos convenga, usando PowerShell, Azure CLI o directamente desde el Portal de Azure.
 Esta arquitectura asume que tenéis aprovisionado un recurso de Azure OpenAI para la parte que veremos más delante de vinculación con el Semantic Kernel. También os servirá una cuenta directa de OpenAI.
 Lo siguiente a aprovisionar es un Azure Container Environment (ACE) donde se alojarán las Azure Container Apps (ACA) correspondientes a la base de datos vectorial de Qdrant y nuestra aplicación con Semantic Kernel. De momento – hasta donde yo sé – no hay un modo de crear un ACE independientemente de un ACA desde el Portal de Azure, por lo cual usaremos el Azure CLI para hacerlo.
@@ -162,21 +164,21 @@ Ahora nos queda sólo actualizar el contenedor con el YAML modificado, para lo c
 
 Y listo, ya tenemos nuestra base de datos vectorial de Qdrant ejecutándose en un ACA con un acceso restringido a sólo el ACE donde vive, para asegurar que nadie podrá llegar hasta ella desde el exterior.
 Ahora vamos con el código del Semantic Kernel. Para ello tendremos en este caso una aplicación web sencilla con ASP.NET dockerizada. Así, lo primero es traernos los paquetes NuGet que necesitaremos:
-•	Microsoft.SemanticKernel.Core
-•	Microsoft.SemanticKernel.Connectors.Memory.Qdrant
+- Microsoft.SemanticKernel.Core
+- Microsoft.SemanticKernel.Connectors.Memory.Qdrant
 Al trabajar con Qdrant en nuestro código, necesitaremos tener en cuenta tres parámetros:
-•	Host  el cual corresponde a la URL donde está desplegado Qdrant, y que en nuestro caso será el FQDN del ACA donde lo desplegamos.
-•	Port  el puerto por donde escucha solicitudes Qdrant, en nuestro caso será 443, ya que los ACAs reciben todos sus ingresos (ingress) por los puertos estándares de HTTP. Ya será el propio ACA que contiene el Qdrant el que se encargue de pasar las peticiones desde el puerto 443 al puerto 6333.
-•	Tamaño de vectores  Este es un término entero (int) que define el tamaño máximo de los vectores dentro de las colecciones. No es de mayor relevancia, por lo que suelo recomendar el valor por defecto de 1536. Lo importante a saber aquí es que valores pequeños para este parámetro implican que los vectores de un determinado embedding serán más pequeños y que la información estará más segmentada dentro de la colección, mientras que valores más grandes serán menos segmentados, pero podrían ser más lentos de procesar en búsquedas semánticas. La idea es buscar el valor más conveniente para nuestra aplicación. 
+- Host  el cual corresponde a la URL donde está desplegado Qdrant, y que en nuestro caso será el FQDN del ACA donde lo desplegamos.
+- Port  el puerto por donde escucha solicitudes Qdrant, en nuestro caso será 443, ya que los ACAs reciben todos sus ingresos (ingress) por los puertos estándares de HTTP. Ya será el propio ACA que contiene el Qdrant el que se encargue de pasar las peticiones desde el puerto 443 al puerto 6333.
+- Tamaño de vectores  Este es un término entero (int) que define el tamaño máximo de los vectores dentro de las colecciones. No es de mayor relevancia, por lo que suelo recomendar el valor por defecto de 1536. Lo importante a saber aquí es que valores pequeños para este parámetro implican que los vectores de un determinado embedding serán más pequeños y que la información estará más segmentada dentro de la colección, mientras que valores más grandes serán menos segmentados, pero podrían ser más lentos de procesar en búsquedas semánticas. La idea es buscar el valor más conveniente para nuestra aplicación. 
 Para gestionar estos valores, he creado una clase de opciones que he llamado QdrantOptions y que mapea a una sección en el appsettings.json o bien a valores dentro del Azure App Configuration:
  
 En el caso del propio Semantic Kernel también he creado una clase de opciones para gestionar por configuración algunos de sus parámetros. A dicha clase la he llamado SemanticKernelOptions:
  
 En esta clase se gestionan las siguientes opciones de configuración:
-•	CompletionsModel  corresponde al nombre del modelo para completaciones desplegado en nuestra cuenta de OpenAI, donde en mi ejemplo suelo usar text-davinci-003.
-•	EmbeddingsModel  corresponde al nombre del modelo para embeddings desplegado en nuestra cuenta de OpenAI y que usará el Semantic Kernel en conjunto con la memoria (en este caso la base de datos vectorial de Qdrant) para generar y leer los embeddings de los textos procesados y las consultas realizadas. En mi ejemplo suelo usar text-embedding-ada-002.
-•	Endpoint  es la URL al servicio de Azure OpenAI (o de OpenAI per se).
-•	Key  es la clave de acceso al servicio de OpenAI.
+- CompletionsModel  corresponde al nombre del modelo para completaciones desplegado en nuestra cuenta de OpenAI, donde en mi ejemplo suelo usar text-davinci-003.
+- EmbeddingsModel  corresponde al nombre del modelo para embeddings desplegado en nuestra cuenta de OpenAI y que usará el Semantic Kernel en conjunto con la memoria (en este caso la base de datos vectorial de Qdrant) para generar y leer los embeddings de los textos procesados y las consultas realizadas. En mi ejemplo suelo usar text-embedding-ada-002.
+- Endpoint  es la URL al servicio de Azure OpenAI (o de OpenAI per se).
+- Key  es la clave de acceso al servicio de OpenAI.
 
 Como os comentaba en la arquitectura de referencia, como estas aplicaciones están dockerizadas, lo más convenien te es tener estos parámetros y opciones de configuración en un Azure App Configuration:
  
@@ -191,13 +193,13 @@ Al agregar Semantic Kernel y Qdrant a nuestro proyecto, debemos hacerlo de la fo
 
 En las líneas 8 a 12, agregamos una memoria basada en Qdrant como una implementación del tipo de interfaz IMemoryStore. Este es el tipo de interface que permite definir conectores con bases y repositorios de datos. En este caso, para Qdrant, es más conveniente que la instancia de IMemoryStore sea un Singleton.
 En las líneas 15 a 32 configuramos el Semantic Kernel. Así:
-•	En las líneas 17 y 18 por inyección de dependencias obtenemos los parámetros de configuración para el Semantic Kernel así como una instancia válida de ILogger para enviar trazas y registros del comportamiento de nuestra aplicación al Azure Log Analytics Workspace a través de Azure Applications Insights, el cual estoy asumiendo habréis configurado previamente en el Program.cs 😉 (si no, tenéis el código en GitHub)
-•	En la línea 20 se crea la instancia del Semantic Kernel, el cual es una implementación de la interface IKernel que es la que inyectaremos en nuestro código en los constructores de las clases y tipos donde necesitemos acceder a éste para interactuar con las abstracciones que configuremos de Inteligencia Artificial.
-•	En la línea 22 configuramos cuál será el modelo que se emplee desde OpenAI para acciones de Inteligencia Artificial generativa, la típica que vemos en ChatGPT por ejemplo.
-•	En la línea 23 configuramos cuál será el modelo que se emplee desde OpenAI para la generación y procesamiento de embeddings. Esto es algo que pasará el Semantic Kernel a quien lo requiere, principalmente la abstracción de la memoria.
-•	En la línea 25 agregamos el ILogger al IKernel.
-•	En la línea 26 configuramos el almacén de memoria, y es aquí donde obtenemos por inyección de dependencias la instancia válida de IMemoryStore que configuramos previamente como una base de datos de Qdrant.
-•	En la línea 29, tras construir el Semantic Kernel, se lee de un directorio las funciones correspondientes las llamadas habilidades (skills) semánticas. Estas son básicamente, habilidades que se definen como prompts para cualquiera de los modelos de OpenAI, y de las cuales puedes encontrar más información aquí 👉 https://learn.microsoft.com/en-us/semantic-kernel/create-plugins/ 
+- En las líneas 17 y 18 por inyección de dependencias obtenemos los parámetros de configuración para el Semantic Kernel así como una instancia válida de ILogger para enviar trazas y registros del comportamiento de nuestra aplicación al Azure Log Analytics Workspace a través de Azure Applications Insights, el cual estoy asumiendo habréis configurado previamente en el Program.cs 😉 (si no, tenéis el código en GitHub)
+- En la línea 20 se crea la instancia del Semantic Kernel, el cual es una implementación de la interface IKernel que es la que inyectaremos en nuestro código en los constructores de las clases y tipos donde necesitemos acceder a éste para interactuar con las abstracciones que configuremos de Inteligencia Artificial.
+- En la línea 22 configuramos cuál será el modelo que se emplee desde OpenAI para acciones de Inteligencia Artificial generativa, la típica que vemos en ChatGPT por ejemplo.
+- En la línea 23 configuramos cuál será el modelo que se emplee desde OpenAI para la generación y procesamiento de embeddings. Esto es algo que pasará el Semantic Kernel a quien lo requiere, principalmente la abstracción de la memoria.
+- En la línea 25 agregamos el ILogger al IKernel.
+- En la línea 26 configuramos el almacén de memoria, y es aquí donde obtenemos por inyección de dependencias la instancia válida de IMemoryStore que configuramos previamente como una base de datos de Qdrant.
+- En la línea 29, tras construir el Semantic Kernel, se lee de un directorio las funciones correspondientes las llamadas habilidades (skills) semánticas. Estas son básicamente, habilidades que se definen como prompts para cualquiera de los modelos de OpenAI, y de las cuales puedes encontrar más información aquí 👉 https://learn.microsoft.com/en-us/semantic-kernel/create-plugins/ 
 
 Fijaos que el Semantic Kernel, a diferencia de la memoria, es configurado como Scoped. Esto es para asegurarnos de que durante el ciclo de vida de una llamada estaremos usando la misma instancia del Semantic Kernel, conservando las configuraciones, pasos y encadenamientos de las abstracciones a lo largo del flujo o regla de negocio que estemos ejecutando, pero que se eliminará (dispondrá) al final de éste.
 Es muy importante entender que es un error fatal agregar el Semantic Kernel como Singleton, porque cada flujo de negocio que ejecutemos podría tener que activar diferentes componentes, abstracciones o encadenamientos y habría una afectación entre ellos al compartirse la misma instancia, con efectos secundarios y comportamientos inesperados que son extremadamente muy difíciles de depurar. 
@@ -225,9 +227,9 @@ En el siguiente código, podemos ver una acción del controlador que toma una pr
 ![](../../../images/numero56/cloud-native-semantic-kernel/image1e.png)
 
 En la línea 30 se realiza la llamada a la memoria para que realice una búsqueda semántica por función de similitud a través del método SearchAsync, al cual se le pasa la pregunta, la colección donde tiene que realizar la búsqueda y dos parámetros más:
-•	Límite de resultados  corresponde al número máximo de resultados a obtener. Es como hacer un «SELECT TOP …» en bases de datos relacionales.
+- Límite de resultados  corresponde al número máximo de resultados a obtener. Es como hacer un «SELECT TOP …» en bases de datos relacionales.
 
-•	Un índice de similitud  es un valor entre 0 y 1 (básicamente un porcentaje) que determina que tan cercanos deben ser los resultados en similitud semántica para ser considerados como correctos al devolverlos. Cuanto menor sea este valor (más cercano a cero) más resultados obtendremos, pero probablemente con menor valor o similitud semántica; por el contrario, cuanto mayor sea el este valor (más cercano a uno) existe la probabilidad de que recibamos menos resultados, incluso el no obtener resultado alguno, pero que serán de mayor valor o similitud semántica.
+- Un índice de similitud  es un valor entre 0 y 1 (básicamente un porcentaje) que determina que tan cercanos deben ser los resultados en similitud semántica para ser considerados como correctos al devolverlos. Cuanto menor sea este valor (más cercano a cero) más resultados obtendremos, pero probablemente con menor valor o similitud semántica; por el contrario, cuanto mayor sea el este valor (más cercano a uno) existe la probabilidad de que recibamos menos resultados, incluso el no obtener resultado alguno, pero que serán de mayor valor o similitud semántica.
 
 Algo interesante es que tampoco tenemos que preocuparnos de cuál función de similitud se debe emplear, nuevamente es algo que se abstrae en Semantic Kernel, y que en realidad la librería delega al conector de memoria. En el caso de Qdrant, se emplea la función de similitud coseno, ya que es la que emplea OpenAI al generar los embeddings.
 Una vez que tenemos resultados desde la memoria, se los pasamos a una habilidad (skill) de Semantic Kernel que se encargará de usar el modelo de completación que hemos configurado en Program.cs para generar una respuesta más apropiada a la llamada. El tema de habilidades (skilling) se sale un poquito del alcance de este artículo – que ya de por sí está quedando bastante largo 😅 – pero tenéis un ejemplo completo el repo de GitHub.
