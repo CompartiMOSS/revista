@@ -119,26 +119,26 @@ Lo siguiente es configurar cómo será el ingreso al contenedor (ingress) para l
 2.	En el tipo de tráfico permitido, elegir la opción de «Limited to Container Apps Environment». Esta es la opción más importante en esta configuración pues la base de datos de código abierto (open source) de Qdrant no tiene seguridad alguna en cuanto a control de acceso. Es decir, carece de un usuario y contraseña, por lo cual es fundamental que sea absolutamente imposible llegar a ella desde el Internet, redes públicas o cualquier otro sistema que no esté bajo nuestro control dentro del mismo Azure Container Environment (ACE).
 3.	Como puerto de entrada o «Target port» debemos poner 6333 que es el puerto por defecto por el cual escucha Qdrant las peticiones.
  
-![Imagen 9.- Configuración del ingreso (ingress)  para el contenedor de Qdrant. Nótese que el acceso es limitado sólo a otras aplicaciones desplegadas dentro del mismo Azure Container Environment, lo cual se hace por temas de seguridad.](../../../images/numero56/cloud-native-semantic-kernel/image1.png)
+![Imagen 9.- Configuración del ingreso (ingress)  para el contenedor de Qdrant. Nótese que el acceso es limitado sólo a otras aplicaciones desplegadas dentro del mismo Azure Container Environment, lo cual se hace por temas de seguridad.](../../../images/numero56/cloud-native-semantic-kernel/image9.png)
 
 El resto de las opciones las podemos dejarla por defecto, y simplemente tenemos que esperar a que se aprovisione nuestro ACA con Qdrant.
 Mientras tanto, podemos ir creando el volumen en el cual preservar el estado de la base de datos. Al ser Qdrant una base de datos dockerizada es fundamental contar con un volumen montado y asociado a su ACA para que los archivos y estados de las colecciones que gestionen estén ubicadas fuera del contexto del contenedor, tal que, si este se cae, reinicia o sufre algún corte de servicio, la información no se pierda.
 El medio ideal y más fácil de configurar es un Azure File Share, ya que es el medio de integración de volúmenes que trae por defecto los Azure Container Environments (ACE).
 Para esto, lo primero es contar con un Azure Storage Account, en el cual crearemos un nuevo contenedor para File Share que llamaremos qdrant. Mi recomendación es que uséis el plan (tier) «Hot».
  
-![Imagen 10.- Creación de un Azure File Share para usar como volumen y preservar los datos de Qdrant.](../../../images/numero56/cloud-native-semantic-kernel/image9.png)
+![Imagen 10.- Creación de un Azure File Share para usar como volumen y preservar los datos de Qdrant.](../../../images/numero56/cloud-native-semantic-kernel/image10.png)
 
 Un punto importante antes de crear la conexión con nuestro ACE es buscar la clave de acceso del Azure Storage Account para poder realizar la vinculación, como muestro en la siguiente pantalla:
  
-![Imagen 11.- Donde encontrar las claves del Azure Storage Account, necesarias para crear la vinculación del Azure File Share como volumen en el Azure Container Environment.](../../../images/numero56/cloud-native-semantic-kernel/image1.png)
+![Imagen 11.- Donde encontrar las claves del Azure Storage Account, necesarias para crear la vinculación del Azure File Share como volumen en el Azure Container Environment.](../../../images/numero56/cloud-native-semantic-kernel/image11.png)
 
 Ahora sí, volvemos a nuestro ACE para agregar el Azure File Share y usarlo como espacio donde montar nuestro volumen para el contenedor de Qdrant. Es importante que el modo de acceso sea de lectura y escritura:
  
-![Imagen 12.- Configuración del Azure Files en el Azure Container Environment.](../../../images/numero56/cloud-native-semantic-kernel/image10.png)
+![Imagen 12.- Configuración del Azure Files en el Azure Container Environment.](../../../images/numero56/cloud-native-semantic-kernel/image12.png)
 
 Una vez hecho esto, tenemos que modificar la configuración del ACA de Qdrant. Para ello, usando el Azure CLI ejecutamos el siguiente comando:
  
-![Imagen 13.- Comando del Azure CLI para extraer la configuración del contenedor de Qdrant.](../../../images/numero56/cloud-native-semantic-kernel/image11.png)
+![Imagen 13.- Comando del Azure CLI para extraer la configuración del contenedor de Qdrant.](../../../images/numero56/cloud-native-semantic-kernel/image13.png)
 
 
 Este comando nos creará un fichero llamado app-qdrant.yaml el cual abriremos con nuestro editor de confianza (Visual Studio Code 😉) para editarlo:
@@ -160,7 +160,7 @@ volumeMounts:
 Aquí se vincula el punto de montaje del volumen con el volumen creado en el paso anterior. Así, cuando la base de datos Qdrant genere las colecciones en el directorio /qdrant/storage, realmente se estarán almacenando en el Azure File Share qdrant que creamos y vinculamos al ACE anteriormente.
 Ahora nos queda sólo actualizar el contenedor con el YAML modificado, para lo cual ejecutamos el siguiente comando en Azure CLI:
  
-![Imagen 14 - Comando de Azure CLI para actualizar el contenedor de Qdrant con la configuración modificada para que tenga un volumen vinculado donde dejar de forma permanente sus datos e información que gestiona.](../../../images/numero56/cloud-native-semantic-kernel/image1.png)
+![Imagen 14 - Comando de Azure CLI para actualizar el contenedor de Qdrant con la configuración modificada para que tenga un volumen vinculado donde dejar de forma permanente sus datos e información que gestiona.](../../../images/numero56/cloud-native-semantic-kernel/image14.png)
 
 Y listo, ya tenemos nuestra base de datos vectorial de Qdrant ejecutándose en un ACA con un acceso restringido a sólo el ACE donde vive, para asegurar que nadie podrá llegar hasta ella desde el exterior.
 Ahora vamos con el código del Semantic Kernel. Para ello tendremos en este caso una aplicación web sencilla con ASP.NET dockerizada. Así, lo primero es traernos los paquetes NuGet que necesitaremos:
@@ -182,7 +182,7 @@ En esta clase se gestionan las siguientes opciones de configuración:
 
 Como os comentaba en la arquitectura de referencia, como estas aplicaciones están dockerizadas, lo más convenien te es tener estos parámetros y opciones de configuración en un Azure App Configuration:
  
-![Imagen 15 - Opciones de configuración para Qdrant y Semantic Kernel mantenidas y gestionadas dentro de un Azure App Configuration.](../../../images/numero56/cloud-native-semantic-kernel/image12.png)
+![Imagen 15 - Opciones de configuración para Qdrant y Semantic Kernel mantenidas y gestionadas dentro de un Azure App Configuration.](../../../images/numero56/cloud-native-semantic-kernel/image15.png)
 
 Lo siguiente es agregar nuestras clases de opciones al contenedor de dependencias, para lo cual escribimos las siguientes líneas de código en nuestro Program.cs:
 
