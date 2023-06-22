@@ -73,7 +73,7 @@ Otra ventaja de Qdrant es que es muy rápida, muy simple y sencilla de administr
 La arquitectura de referencia
 La arquitectura que montaremos es 100% «Cloud Native», es decir, que usaremos exclusivamente recursos y servicios que sólo podemos obtener a partir del uso de una nube pública, en nuestro caso, Azure 😎
  
-![Imagen 2.- Arquitectura de referencia de la infraestructura 100% «Cloud Native» que montaremos.](../../../images/numero56/cloud-native-semantic-kernel/image1.png)
+![Imagen 2.- Arquitectura de referencia de la infraestructura 100% «Cloud Native» que montaremos.](../../../images/numero56/cloud-native-semantic-kernel/image2.png)
 
 Lo primero es contar con los servicios y recursos de soporte; para los cuales en este caso necesitaremos:
 - Un Azure Log Analytics Workspace donde enviar las trazas y métricas de los servicios de Azure, la base de datos Qdrant y nuestra aplicación con Semantic Kernel.
@@ -86,24 +86,24 @@ Esta arquitectura asume que tenéis aprovisionado un recurso de Azure OpenAI par
 Lo siguiente a aprovisionar es un Azure Container Environment (ACE) donde se alojarán las Azure Container Apps (ACA) correspondientes a la base de datos vectorial de Qdrant y nuestra aplicación con Semantic Kernel. De momento – hasta donde yo sé – no hay un modo de crear un ACE independientemente de un ACA desde el Portal de Azure, por lo cual usaremos el Azure CLI para hacerlo.
 Antes de eso, necesitamos averiguar la clave de conexión de nuestro Azure Log Analytics Workspace para conectarlo con el ACE. Para ello, desde el Azure Portal y dentro de nuestro Log Analytics Workspace, en el menú de la izquierda elegimos «Agents» y en la pantalla que nos aparece extendemos la sección «Log Analytics agent instructions» para poder ver los valores del ID del workspace y las claves (keys).
  
-![Imagen 3.- Donde encontrar el ID y la clave de nuestro Azure Log Analytics Workspace en el Portal de Azure.](../../../images/numero56/cloud-native-semantic-kernel/image1.png)
+![Imagen 3.- Donde encontrar el ID y la clave de nuestro Azure Log Analytics Workspace en el Portal de Azure.](../../../images/numero56/cloud-native-semantic-kernel/image3.png)
 
 Otra alternativa es usando el Azure CLI:
  
-![Imagen 4.- Como obtener el Workspace Id y las claves del Azure Log Analytics Workspace desde Azure CLI para usar al crear un Azure Container Environment.](../../../images/numero56/cloud-native-semantic-kernel/image1.png)
+![Imagen 4.- Como obtener el Workspace Id y las claves del Azure Log Analytics Workspace desde Azure CLI para usar al crear un Azure Container Environment.](../../../images/numero56/cloud-native-semantic-kernel/image4.png)
 
 Con estos datos ya podemos aprovisionar nuestro Azure Container Environment (ACE) mediante el siguiente comando del Azure CLI:
  
-![Imagen 5.- Usando el Azure CLI para crear un Azure Container Environment.](../../../images/numero56/cloud-native-semantic-kernel/image1.png)
+![Imagen 5.- Usando el Azure CLI para crear un Azure Container Environment.](../../../images/numero56/cloud-native-semantic-kernel/image5.png)
 
 La ejecución de este comando puede tomar unos varios minutos, así que se paciente y espera a que te retorne el resultado que seguro será exitoso.
 Una vez tenemos nuestro ACE, lo siguiente es crear los ACAs. Esto lo haremos desde el Azure Portal directamente (aunque también se puede desde el Azure CLI).
 El primer ACA que crearemos es el de Qdrant, para ello desde el Portal de Azure seguimos los pasos que te muestro en las siguientes imágenes:
  
-![Imagen 6.- Donde crear aplicaciones dentro de un Azure Container Environment específico.](../../../images/numero56/cloud-native-semantic-kernel/image1.png)
+![Imagen 6.- Donde crear aplicaciones dentro de un Azure Container Environment específico.](../../../images/numero56/cloud-native-semantic-kernel/image6.png)
 
  
-![Imagen 7.- Configurando los datos básicos de la Azure Container App para Qdrant.](../../../images/numero56/cloud-native-semantic-kernel/image1.png)
+![Imagen 7.- Configurando los datos básicos de la Azure Container App para Qdrant.](../../../images/numero56/cloud-native-semantic-kernel/image7.png)
 
 Al configurar el contenedor a desplegar es muy importante seguir los siguientes pasos:
 1.	Desmarcar la caja (checkbox) de «Use quickstart image».
@@ -112,7 +112,7 @@ Al configurar el contenedor a desplegar es muy importante seguir los siguientes 
 4.	El nombre y etiqueta (tag) de la imagen de Qdrant que usaremos es qdrant/qdrant:latest.
 5.	El resto de las opciones las dejaremos como están.
  
-![Imagen 8.- Configuración de la imagen de Qdrant para el Azure Container App.](../../../images/numero56/cloud-native-semantic-kernel/image1.png)
+![Imagen 8.- Configuración de la imagen de Qdrant para el Azure Container App.](../../../images/numero56/cloud-native-semantic-kernel/image8.png)
 
 Lo siguiente es configurar cómo será el ingreso al contenedor (ingress) para lo cual también es muy importante seguir estos pasos:
 1.	Habilitar el ingreso (ingress) marcando la caja (checkbox) de «Enabled».
@@ -126,7 +126,7 @@ Mientras tanto, podemos ir creando el volumen en el cual preservar el estado de 
 El medio ideal y más fácil de configurar es un Azure File Share, ya que es el medio de integración de volúmenes que trae por defecto los Azure Container Environments (ACE).
 Para esto, lo primero es contar con un Azure Storage Account, en el cual crearemos un nuevo contenedor para File Share que llamaremos qdrant. Mi recomendación es que uséis el plan (tier) «Hot».
  
-![Imagen 10.- Creación de un Azure File Share para usar como volumen y preservar los datos de Qdrant.](../../../images/numero56/cloud-native-semantic-kernel/image1.png)
+![Imagen 10.- Creación de un Azure File Share para usar como volumen y preservar los datos de Qdrant.](../../../images/numero56/cloud-native-semantic-kernel/image9.png)
 
 Un punto importante antes de crear la conexión con nuestro ACE es buscar la clave de acceso del Azure Storage Account para poder realizar la vinculación, como muestro en la siguiente pantalla:
  
@@ -134,11 +134,11 @@ Un punto importante antes de crear la conexión con nuestro ACE es buscar la cla
 
 Ahora sí, volvemos a nuestro ACE para agregar el Azure File Share y usarlo como espacio donde montar nuestro volumen para el contenedor de Qdrant. Es importante que el modo de acceso sea de lectura y escritura:
  
-![Imagen 12.- Configuración del Azure Files en el Azure Container Environment.](../../../images/numero56/cloud-native-semantic-kernel/image1.png)
+![Imagen 12.- Configuración del Azure Files en el Azure Container Environment.](../../../images/numero56/cloud-native-semantic-kernel/image10.png)
 
 Una vez hecho esto, tenemos que modificar la configuración del ACA de Qdrant. Para ello, usando el Azure CLI ejecutamos el siguiente comando:
  
-![Imagen 13.- Comando del Azure CLI para extraer la configuración del contenedor de Qdrant.](../../../images/numero56/cloud-native-semantic-kernel/image1.png)
+![Imagen 13.- Comando del Azure CLI para extraer la configuración del contenedor de Qdrant.](../../../images/numero56/cloud-native-semantic-kernel/image11.png)
 
 
 Este comando nos creará un fichero llamado app-qdrant.yaml el cual abriremos con nuestro editor de confianza (Visual Studio Code 😉) para editarlo:
@@ -182,7 +182,7 @@ En esta clase se gestionan las siguientes opciones de configuración:
 
 Como os comentaba en la arquitectura de referencia, como estas aplicaciones están dockerizadas, lo más convenien te es tener estos parámetros y opciones de configuración en un Azure App Configuration:
  
-![Imagen 15 - Opciones de configuración para Qdrant y Semantic Kernel mantenidas y gestionadas dentro de un Azure App Configuration.](../../../images/numero56/cloud-native-semantic-kernel/image1.png)
+![Imagen 15 - Opciones de configuración para Qdrant y Semantic Kernel mantenidas y gestionadas dentro de un Azure App Configuration.](../../../images/numero56/cloud-native-semantic-kernel/image12.png)
 
 Lo siguiente es agregar nuestras clases de opciones al contenedor de dependencias, para lo cual escribimos las siguientes líneas de código en nuestro Program.cs:
 
