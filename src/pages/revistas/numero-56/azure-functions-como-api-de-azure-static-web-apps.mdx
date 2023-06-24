@@ -1,0 +1,249 @@
+---
+title: Azure Static Web Apps con Azure Functions como API integrada
+slug: /revistas/numero-56/azure-functions-como-api-de-azure-static-web-apps
+date: 01/06/2023
+magazine: 56
+author: Santiago Porras Rodriguez
+authorId: santiago-porras-rodriguez
+keywords: ['Azure', 'Azure Static Web Apps', 'Azure Functions', 'API']
+featuredImage: ../../../images/numero56/azure-functions-como-api-de-azure-static-web-apps/image1.png
+---
+
+En números pasados ya hemos hablado de las [Azure Static Web
+Apps](https://www.compartimoss.com/revistas/numero-45/azure-static-web-apps-que-es-este-nuevo-servicio/)
+y de algunos de sus beneficios. Hoy las vuelvo a traer a la revista para
+hablar sobre cómo configurar un backend barato y eficiente que nos siga
+permitiendo disponer de un sitio web con un coste muy bajo a la vez que
+aportar la capacidad de trabajar con datos o realizar tareas programadas
+y no sólo servir contenido estático o consumir APIs de terceros.
+
+Azure Static Web Apps permiten la integración con diferentes tipos de
+servicios de Azure que sirvan como API y disponer de determinadas
+características como:
+
+-   **Seguridad integrada** con acceso directo a los datos de
+    autenticación y autorización basada en roles del usuario.
+
+-   **Enrutamiento de conexión directa** que hace que la ruta de "/api"
+    esté disponible para la aplicación web frontend sin necesidad de
+    reglas de CORS personalizadas.
+
+El modelo que tendríamos con Azure Static Web Apps sería el siguiente:
+
+![Diagram showing the static Apps overview
+model.](../../../images/numero56/azure-functions-como-api-de-azure-static-web-apps/image1.png)
+
+Los servicios que nos permiten esta integración son
+
+-   Azure Functions
+
+-   Azure API Management
+
+-   Azure App Service
+
+-   Azure Container Apps
+
+No obstante, hay algunas restricciones que debemos tener en cuenta a la
+hora de configurar una API en nuestra Azure Static Web App:
+
+-   Sólo se permite configurar una Api integrada
+
+-   El prefijo de la ruta debe ser "/api"
+
+-   Las reglas de enrutamiento sólo admiten redirecciones y protección
+    de ruta con roles
+
+-   Sólo se permiten peticiones Http
+
+-   No es compatible con WebSocket
+
+-   El timeout de cada petición a la Api es de 45 segundos
+
+-   No se admiten backend aislados de red.
+
+Vamos al grano y veamos cómo podemos configurar [Azure Static Web Apps
+con Azure Functions como
+Api](https://learn.microsoft.com/es-es/azure/static-web-apps/apis-functions),
+cosa que podemos realizar en dos modos:
+
+-   **Managed**: Es la opción predeterminada y nos permite tener la Api
+    en Azure Functions integrada con el servicio de Azure Static Web
+    Apps permitiendo su administración y despliegue conjunto con algunas
+    restricciones.
+
+-   **Bring your own**: Otra opción es proporcionar nuestra propia Api
+    con Azure Functions existente con todas las características de Azure
+    Functions. Con esta configuración, es responsable de controlar el
+    despliegue de forma independiente.
+
+## Beneficios de utilizar Azure Functions como backend en Azure Static Web Apps:
+
+Usar Azure Functions puede aportarnos muchos beneficios pero, entre
+ellos, algunos de los más relevantes son los siguientes:
+
+-   **Escalabilidad y rendimiento**: Azure Functions se escala
+    automáticamente según la demanda, asegurando un alto rendimiento
+    incluso en momentos de tráfico intenso.
+
+-   **Integración con servicios de Azure**: Puedes aprovechar la amplia
+    gama de servicios en la nube de Azure para interactuar con bases de
+    datos, almacenamiento, autenticación y más.
+
+-   **Flexibilidad en el lenguaje de programación**: Azure Functions
+    admite varios lenguajes de programación, lo que te permite elegir el
+    que mejor se adapte a tus necesidades y habilidades.
+
+-   **Costos reducidos**: Al utilizar Azure Functions como backend en
+    Azure Static Web Apps, solo pagas por los recursos de cómputo
+    utilizados durante la ejecución de tus funciones, lo que puede
+    resultar en ahorros significativos.
+
+## Paso a paso
+
+### Organizar la solución
+
+Antes de empezar, debemos elegir una carpeta donde crear el sitio web y
+la Azure Function. En este caso, he elegido una estructura como la que
+viene a continuación.
+
+El motivo de estar organización es tenerlo todo dentro de un mismo
+directorio raíz que podamos subir a un repo, en este ejemplo en GitHub.
+
+### Crear una SWA 
+
+Lo primero es crear una aplicación "estática", para lo que usaré la
+plantilla de React con Vite usando TypeScript mediante el siguiente
+comando
+
+> npm create vite@latest compartimoss-swa-fx \--template react-ts
+
+### Ejecutar la SWA localmente
+
+Al finalizar la configuración, tan sólo tendremos que instalar las
+dependencias y ejecutar la aplicación:
+
+> npm install
+>
+> npm run dev.
+
+![A screenshot of a computer Description automatically
+generated](../../../images/numero56/azure-functions-como-api-de-azure-static-web-apps/image2.png)
+
+### Crear Azure Function
+
+El siguiente paso es crear un proyecto de Azure Functions y, para ello,
+desde Visual Studio o desde línea de comandos, podemos crear el proyecto
+como se indica en [este artículo de la documentación de Azure
+Functions](https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-cli-csharp?tabs=azure-cli)
+
+Una vez creado el proyecto, escribiremos nuestras functions como
+HttpTriggers para que respondan ante llamadas Http. Para el ejemplo, he
+cambiado el nombre del endpoint que viene por defecto en el proyecto de
+Azure Functions
+
+![A screenshot of a computer program Description automatically generated
+with medium
+confidence](../../../images/numero56/azure-functions-como-api-de-azure-static-web-apps/image3.png)
+
+### Crear repositorio en GitHub
+
+A partir de nuestro código, vamos a crear un repositorio en GitHub
+(También lo podemos hacer desde [Azure DevOps como expliqué en este otro
+artículo](https://www.compartimoss.com/revistas/numero-52/azure-static-web-apps-deploy-from-azure-devops/))
+y, una vez subido, podemos proceder a crear nuestra Azure Static Web App
+(SWA).
+
+### Desplegar la SWA en Azure
+
+Para desplegar la SWA en Azure, lo podemos hacer desde Visual Studio
+Code, mediante la extensión de Azure SWA:
+
+1.  Abrir la paleta de comandos (podemos usar F1) y seleccionar "Crear
+    Static Web Apps...(Advanced)"
+
+![A screenshot of a computer Description automatically
+generated](../../../images/numero56/azure-functions-como-api-de-azure-static-web-apps/image4.png)
+
+2.  Completar lo que nos solicita el prompt
+
+    a.  Grupo de Recursos
+
+    b.  Nombre
+
+    c.  Región
+
+    d.  Lenguaje: "***React***"
+
+    e.  Ruta del código de la aplicación web:
+        "***compartimoss/src/front/compartimos-swa***"
+
+    f.  Ruta del código de la api:
+        "***compartimoss/src/front/compartimos-swa/compartimoss-swa-fx-api***"
+
+    g.  Ruta de la aplicación compilada: **"*dist*"**
+
+Una vez completado, se creará una GitHub Action que se encarga de
+realizar el despliegue del código y podremos acceder a ella una vez se
+complete la operación.
+
+![A black background with white text Description automatically generated
+with low
+confidence](../../../images/numero56/azure-functions-como-api-de-azure-static-web-apps/image5.png)
+
+![A screenshot of a computer Description automatically
+generated](../../../images/numero56/azure-functions-como-api-de-azure-static-web-apps/image6.png)
+
+Al terminar la GitHub Action, se habrá desplegado la Azure Static Web
+App con una Api Administrada conformada por nuestra Azure Function.
+
+### Comprobar que la SWA se comunica con nuestra Api en Azure Functions
+
+Para comprobar que todo funciona correctamente, en el ejemplo he
+modificado el componente App que se encuentra en el fichero App.tsx y le
+he añadido una variable de estado que, mediante un *useEffect* se
+establece su valor como resultado de la llamada al endpoint
+***hellocompartimoss*** con el parámetro *name* con el valor
+CompartiMOSS.
+
+![A screen shot of a computer screen Description automatically generated
+with low
+confidence](../../../images/numero56/azure-functions-como-api-de-azure-static-web-apps/image7.png)
+
+Después de realizar el cambio, actualizamos el código en GitHub
+mediante:
+
+![A screen shot of a computer Description automatically generated with
+medium
+confidence](../../../images/numero56/azure-functions-como-api-de-azure-static-web-apps/image8.png)
+
+Al subir cambios a la rama principal, se disparará la GitHub Action que
+se encarga del despliegue de la SWA y de la Azure Function. Tras un
+tiempo de unos 2 minutos, ya habrá terminado y tendremos el resultado
+que podemos observar a continuación.
+
+![A screenshot of a computer Description automatically
+generated](../../../images/numero56/azure-functions-como-api-de-azure-static-web-apps/image9.png)
+
+Conclusión
+
+Azure Static Web Apps y Azure Functions ofrecen una poderosa combinación
+para potenciar tus sitios estáticos con capacidades de backend. Con la
+integración de Functions en tu aplicación estática, puedes agregar
+funcionalidades dinámicas, interactuar con servicios externos y crear
+aplicaciones web más completas. Ya sea que estés construyendo un sitio
+web personal, una aplicación empresarial o una tienda en línea,
+considera utilizar Azure Static Web Apps y Azure Functions para llevar
+tu proyecto al siguiente nivel.
+
+Si quieres aprender más sobre Azure Static Web Apps, Microsoft tiene
+[este
+*training*](https://learn.microsoft.com/en-us/training/paths/azure-static-web-apps/)
+en su plataforma de Learn que nos servirá como punto de inicio.
+
+Puedes ver el código de esta demo en [mi repositorio de
+GitHub](https://github.com/santypr/compartimoss)
+
+**Santiago Porras** <br />
+MVP Developer Technologies <br />
+Software Architect & Frontend Lead at ENCAMINA <br />
+@saintwukong <br />

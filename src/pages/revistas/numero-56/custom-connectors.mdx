@@ -1,0 +1,155 @@
+---
+title: Utiliza directivas para mejorar tus conectores personalizados
+slug: /revistas/numero-56/custom-connectors
+date: 01/06/2023
+magazine: 56
+author: Mar Pedroche
+authorId: mar-pedroche
+keywords: ['Power Platform', 'Custom Connectors']
+featuredImage: ../../../images/numero56/custom-connectors/image1.png
+---
+
+
+En entornos empresariales cada vez más dinámicos y complejos, es
+necesaria la colaboración efectiva para impulsar la innovación y el
+éxito empresarial. Microsoft nos habla de este tipo de concepto en el
+llamado *Fusion Teams* que aprovecha la colaboración entre *Citizen
+developers,* usuarios más cercanos a negocio que desarrollan en *Low
+Code* o *No Code* y *Pro developers,* más especializados en la parte
+técnica de las soluciones. Para unir estos dos mundos existe lo que
+llamamos *Custom Connectors* o conectores personalizados que permiten
+unir los mundos de código bajo o poco bajo y el del desarrollo.
+
+**¿Qué son los *Custom Connectors*?**
+
+Los *Custom Connectors* de Microsoft son componentes que facilitan la
+integración de servicios externos con aplicaciones y servicios en la
+plataforma de Microsoft. Estos conectores personalizados actúan como
+puentes entre distintos sistemas y permiten la comunicación
+bidireccional de datos y eventos. Los desarrolladores pueden crear
+conectores personalizados para interactuar con servicios web, APIs,
+servicios en la nube y mucho más.
+
+El principal beneficio que obtenemos de utilizarlos es una mayor
+productividad, ya que es un componente reutilizable y desde el concepto
+de *Fusion Teams* ponemos a disposición de *Citizen Developers* un
+componente más que pueden utilizar en sus desarrollos.
+
+Además, nos permite ampliar la funcionalidad de nuestras soluciones en
+Power Platform otorgándoles una mayor flexibilidad y escalabilidad.
+
+Para crear conectores personalizados podemos hacerlo de diferentes
+formas que encontraréis en la documentación de Microsoft y en muchos
+otros recursos de la comunidad. [Crear un conector personalizado desde
+cero | Microsoft
+Learn](https://learn.microsoft.com/es-es/connectors/custom-connectors/define-blank?WT.mc_id=DX-MVP-5004708)
+
+Pero en este artículo el enfoque se centrará en como profesionalizar
+nuestros conectores haciendo uso de las directivas.
+
+**¿Qué son las directivas?**
+
+Las directivas son configuraciones que nos permiten modificar el
+comportamiento de nuestros conectores y que permiten en algunos casos
+facilitar o hacer más usable el conector a un usuario no desarrollador.
+
+![Interfaz de usuario gráfica, Texto, Aplicación, Correo electrónico
+Descripción generada
+automáticamente](../../../images/numero56/custom-connectors/image1.png)
+
+Dentro de los conectores podemos crear este tipo de directivas basadas
+en las plantillas disponibles:
+
+-   Convertir una matriz en un objeto.
+
+-   Convertir un objeto en una matriz.
+
+-   Establecer la URL del host.
+
+-   Enrutar una solicitud.
+
+-   Establecer el estado de la conexión en sin autenticar.
+
+-   Establecer encabezado HTTP.
+
+-   Establecer una propiedad.
+
+-   Establecer parámetro de cadena de consulta.
+
+-   Convertir una cadena delimitada en una matriz de objetos.
+
+![Interfaz de usuario gráfica, Texto, Aplicación, Correo electrónico
+Descripción generada
+automáticamente](../../../images/numero56/custom-connectors/image2.png)
+
+A continuación, vamos a ver unos ejemplos de cómo aplicar estas
+directivas.
+
+**Ejemplo 1: Establecer la URL del host**
+
+En algunos desarrollos es posible que tengamos un host diferente si
+estamos apuntando a un entorno de desarrollo o tipo *sandbox* o a un
+entorno de producción. Para ello, en la conexión deberemos establecer
+cuál es el host al que vamos a apuntar.
+
+![Interfaz de usuario gráfica, Texto, Aplicación, Correo electrónico
+Descripción generada
+automáticamente](../../../images/numero56/custom-connectors/image3.png)
+
+De esta forma al establecer la conexión nos que le indiquemos la URL del
+host para esa conexión.
+
+![Interfaz de usuario gráfica, Aplicación Descripción generada
+automáticamente](../../../images/numero56/custom-connectors/image4.png)
+
+**Ejemplo 2: Establecer encabezado HTTP**
+
+En ocasiones, las cadenas de conexión están en los encabezados y se
+requiere que para establecer la conexión pongamos *apikey YOUR_API_KEY*
+o en otros casos *Bearer YOUR_BEARER_TOKEN_VALUE*. Para solucionar esto
+aplicaremos una directiva para establecer el encabezado
+
+![Interfaz de usuario gráfica, Texto, Aplicación, Correo electrónico
+Descripción generada
+automáticamente](../../../images/numero56/custom-connectors/image5.png)
+
+Esta directiva sustituirá el valor que incluyamos en nuestro parámetro
+de conexión por el mismo añadiéndole delante apikey. Para ello en la
+parte de seguridad deberemos indicar que el nombre del parámetro es
+api_key como veis en la siguiente imagen.
+
+![Interfaz de usuario gráfica, Texto, Aplicación, Correo electrónico
+Descripción generada
+automáticamente](../../../images/numero56/custom-connectors/image6.png)
+
+**Ejemplo 3: Establecer parámetro de cadena de consulta**
+
+Algunas de las APIs utilizar parámetros de cadena de consulta que pueden
+ser variables. Es decir que ese parámetro puede ser diferente en función
+de la consulta que vayamos a realizar. Según el ejemplo que podemos ver
+en el video de Power Cat ([Use Policies for Better Custom Connectors -
+Power CAT Live - YouTube](https://www.youtube.com/watch?v=RMX7dPXHBS4))
+para el parámetro filtros dentro del conector para las analíticas de
+youtube podemos añadir un video, un playlist u otras cosas por lo que
+requiere que añadamos *video==YOUR_VIDEO_ID*
+
+![Interfaz de usuario gráfica, Texto, Aplicación, Correo electrónico
+Descripción generada
+automáticamente](../../../images/numero56/custom-connectors/image7.png)
+
+Con esta directiva, simplemente añadiendo el ID de la video funcionaria
+correctamente. Después de presentar algunos ejemplos donde se ha
+requerido el uso de directivas, podemos concluir que, al profesionalizar
+los conectores mediante el uso de directivas, se puede modificar su
+comportamiento y facilitar su uso incluso para usuarios no
+desarrolladores. Las directivas permiten personalizar y adaptar los
+conectores a las necesidades específicas de cada API, brindando
+flexibilidad y escalabilidad.
+
+En resumen, los *Custom Connectors* mejorados con directivas en los
+*Fusion Teams* de Microsoft promueven la colaboración, mejoran la
+productividad y permiten ampliar la funcionalidad de las soluciones en
+entornos empresariales dinámicos y complejos.
+
+**Mar Pedroche** <br />
+Business Apps MVP

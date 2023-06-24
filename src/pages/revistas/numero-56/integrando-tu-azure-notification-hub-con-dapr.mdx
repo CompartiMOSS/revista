@@ -1,0 +1,230 @@
+---
+title: Integrando tu Azure Notification Hub con Dapr (Http Output Binding)
+slug: /revistas/numero-56/integrando-tu-azure-notification-hub-con-dapr
+date: 01/06/2023
+magazine: 56
+author: Sergio Parra Guerra
+authorId: sergio-parra
+keywords: ['Dapr', 'Azure', 'Azure Notification Hub']
+featuredImage: ../../../images/numero56/integrando-tu-azure-notification-hub-con-dapr/image1.png
+---
+
+En un proyecto en el cual estoy participando actualmente se requiere
+enviar notificaciones push a una aplicación móvil a través de [**Azure
+Notification
+Hub**](https://learn.microsoft.com/es-es/azure/notification-hubs/notification-hubs-push-notification-overview).
+Como en este proyecto empleamos **Dapr** me dije... voy a ver si
+encuentro un componente que esté preparado para la integración. No lo
+encontré, pero sí te voy a contar cómo logramos conectarnos al
+**Notification Hub** y dejar a **Dapr** ser el encargado de realizar la
+integración, ¿te interesaría? Sigue leyendo que esto también lo puedes
+usar en cualquier otro servicio de Azure que disponga de API REST.
+
+**¿Qué es Azure Notification Hub?**
+
+**Azure Notification Hub** es un servicio de Azure que proporciona un
+motor de notificaciones **push** (de inserción) de escalabilidad
+horizontal y fácil uso que nos permite enviar notificaciones a cualquier
+plataforma (iOS, Android, Windows, etc.) desde cualquier backend (en la
+nube o local).
+
+Es compatible con las siguientes plataformas
+
+-   APNS (Apple Push Notification Service).
+
+-   GCM (Google Cloud Messaging).
+
+-   FCM (Firebase Cloud Messaging).
+
+-   WNS (Windows Push Notification Service).
+
+-   MPNS (Microsoft Push Notification Service).
+
+-   ADM (Amazon Device Messaging).
+
+-   Baidu (Android China).
+
+**¿Qué son las Notificaciones Push?**
+
+Creo que a estas alturas casi nadie desconoce qué es una notificación
+push, pero lo volveremos a recordar. Las **notificaciones push** son una
+forma de comunicación de aplicación a usuario que generalmente se
+muestra en un cuadro de diálogo o una ventana emergente en el
+dispositivo móvil. Algunas notificaciones son silenciosas, es decir, que
+se entregan en segundo plano para que la aplicación las procese en
+segundo plano y decida qué hacer.
+
+**Azure Notification Hub** dispone de una capacidad de filtrar el envío
+de notificaciones gracias a la funcionalidad de **etiquetado**, que
+permiten segmentar a los usuarios por actividad, interés, geografía,
+preferencia o cualquier otra etiqueta personalizada. Con esto
+conseguimos que el contenido se entregue a dispositivos concretos.
+
+**Una etiqueta puede tener una cadena de hasta 120 caracteres que
+incluya caracteres alfanuméricos y no alfanuméricos.**
+
+**Especificación del binding Dapr HTTP.**
+
+Vamos a repasar cómo definiremos el componente de **Dapr** para
+[**binding
+Http**](https://docs.dapr.io/reference/components-reference/supported-bindings/http/)
+aunque dejo el enlace de la documentación oficial.
+
+En nuestro caso establecemos únicamente el metadato de la URL de nuestro
+**Azure Notification Hub**.
+
+```yaml
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: http-push-notifications
+spec:
+  type: bindings.http
+  version: v1
+  metadata:
+  - name: url
+    value: https://[namespace].servicebus.windows.net/[notificationhubname]
+```
+
+Cuando realicemos una petición a este componente podremos realizar una
+de estas operaciones que coinciden con los verbos HTTP que manejamos
+habitualmente.
+
+-   **create**: igual que **post.**
+-   **get**: obtener datos.
+-   **head**: igual que **get**, pero el servidor no devuelve cuerpo en la respuesta.
+-   **post**: para crear datos o enviar comandos.
+-   **put**: actualizar datos, una entidad completa data/records.
+-   **patch**: actualización parcial de una entidad.
+-   **delete**: borrado de datos.
+-   **options**: si es factible la comunicación con el servidor.
+-   **trace**
+
+Como metadatos a enviar al **binding**, se establecerán los siguientes:
+
+-   **path**: La ruta para agregar a la URL base.
+-   **Headers**: Todos los campos que tienen una primera letra mayúscula se envían como encabezados de solicitud. Ejemplo serían "Content-Type", "Accept", etc.
+
+Vale, ya tenemos listo el **binding** y cómo usarlo. Ahora repasaremos
+un poquito el API REST de **Azure Notification Hub** para enviar una
+notificación como plantilla.
+
+**Especificación API REST Azure Notification Hub**
+
+Dejo por aquí el
+[enlace](https://learn.microsoft.com/es-es/rest/api/notificationhubs/send-template-notification)
+para que puedas consultarlo.
+
+Como vemos, la url para enviar un mensaje a nuestro **Notification Hub**
+es la siguiente
+
+```
+https://[namespace].servicebus.windows.net/[notificationhubname]/messages/?api-version=2015-01
+```
+
+Como definimos en nuestro componente que la url es
+https://[namespace].servicebus.windows.net/[notificationhubname],
+necesitamos usar el metadato "**path**" con el valor
+**"/messages/?api-version=2015-01**".
+
+Las siguientes cabeceras son obligatorias:
+
+-   **Authorization**: token generado tal y como se especifica en autenticación de firma de acceso compartido con Service Bus. Generaremos el token en tiempo de ejecución con código que se mostrará más adelante.
+
+-   **Content-Type**: establecemos con el valor "**application/json;charset=utf-8**".
+
+-   **ServiceBusNotification-Format**: establecemos con el valor "**template**".
+
+Si queremos enviar una notificación con un tag específico o una
+[expresión de
+etiquetas](https://learn.microsoft.com/es-es/azure/notification-hubs/notification-hubs-tags-segment-push-message),
+estableceremos la cabecera:
+
+-   **ServiceBusNotification-Tags**: como ejemplo "**(follows_RedSox || follows_Cardinals) && location_Boston**".
+
+Con todo esto, el cuerpo de la solicitud que se envía a **Azure
+Notificacion Hub** sería algo como:
+
+```json
+{
+    "operation": "post",
+    "metadata": {
+        "path": "/messages/?api-version=2015-01",
+        "Authorization": "SharedAccessSignature sr=https%3a%2f%2fnamespace.servicebus.windows.net%2fnotificationhubname%2fmessages%2f%3fapi-version%3d2015-01&sig=IhCVcSUDFsgEULcB%2fBrM8hBD44cWyGXZN1Xb3nuzfzQ%3d&se=1684406490&skn=DefaultFullSharedAccessSignature",
+        "Content-Type": "application/json;charset=utf-8",
+        "ServiceBusNotification-Format": "template",
+        "ServiceBusNotification-Tags": "(follows_RedSox || follows_Cardinals) && location_Boston"
+    }
+}
+```
+
+**Veamos cómo generar el token de autenticación.**
+
+Para generar el token de autenticación como requiere el servicio, es
+necesario pasarle como parámetro la url completa, un tiempo de
+expiración para el token, el nombre de la clave SAS a usar y la clave
+propiamente dicha para firmar.
+
+static string GenerateSasTokenForAzureNotificationHub(string uri, int
+minUntilExpire, string sasKeyName, string sasKeyValue)
+
+```csharp	
+{
+    TimeSpan sinceEpoch = DateTime.UtcNow - new DateTime(1970, 1, 1);
+    var expiry = Convert.ToString((int)sinceEpoch.TotalSeconds + minUntilExpire);
+    string stringToSign = HttpUtility.UrlEncode(uri) + "n" + expiry;
+    HMACSHA256 hmac = new(Encoding.UTF8.GetBytes(sasKeyValue));
+    var signature = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(stringToSign)));
+    var sasToken = string.Format(CultureInfo.InvariantCulture, "SharedAccessSignature sr={0}&sig={1}&se={2}&skn={3}",
+            HttpUtility.UrlEncode(uri), HttpUtility.UrlEncode(signature), expiry, sasKeyName);
+
+    return sasToken;
+}
+```
+
+Entonces nuestro método para enviar una notificación quedaría:
+
+```csharp
+async Task SendPushNotificationAsync(string message, IConfiguration configuration)
+{    
+    var outputBindingService = host.Services.GetService<IDaprOutputBindingService>()!;  
+
+    var connectionString = IDaprOutputBindingService.ParseConnectionStringForAzureNotificationHub(configuration["NotificationHub:ConnectionString"], configuration["NotificationHub:NotificationHubName"]);
+
+    var metadata = new Dictionary<string, string>()
+    {
+        { "path", CoreConstants.PUSH_NOTIFICATION_URI_PATH },
+        { CoreConstants.CONTENT_TYPE_HEADER_NAME, CoreConstants.JSON_UTF8 },
+        { CoreConstants.PUSH_NOTIFICATION_FORMAT_HEADER_NAME, CoreConstants.PUSH_NOTIFICATION_FORMAT_HEADER_VALUE },
+        { CoreConstants.PUSH_NOTIFICATION_TAGS_HEADER_NAME, "(follows_RedSox || follows_Cardinals) && location_Boston" },
+        { CoreConstants.AUTHORIZATION_HEADER_NAME,
+        IDaprOutputBindingService
+           .GenerateSasTokenForAzureNotificationHub(connectionString.GetNotificationHubUri(), 5, connectionString.SasKeyName, connectionString.SasKeyValue)}
+    };
+
+    var messageText = new
+    {
+        message
+    };
+
+    await outputBindingService.TryPublishMessageAsync(messageText, "post", metadata, CoreConstants.BINDING_NAME_HTTP_PUSH_NOTIFICATIONS);
+}
+```
+
+**¿Dónde puedo encontrar el código de ejemplo?**
+
+No os preocupéis si no lo tenéis claro, lo veréis mejor al descargar el
+código fuente en
+<https://github.com/sparraguerra/compartimoss/tree/master/DaprAndAzureNotificationHub>
+
+## Conclusiones
+
+Hemos visto lo sencillo que es integrar cualquier sistema externo con
+**Dapr** al aprovechar el **binding Http**, y también nuestro código ya
+no depende de ningún otro SDK o bibliotecas de terceros.
+
+Happy coding!
+
+**Sergio Parra Guerra** <br />
+Software & Cloud Architect at Encamina <br />
+https://twitter.com/sparraguerra

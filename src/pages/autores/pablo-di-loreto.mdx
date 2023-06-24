@@ -1,0 +1,34 @@
+---
+id: pablo-di-loreto
+title: Rodrigo Liberoff
+jobTitle: 💼 Engineering Manager #MODO 👨‍💻 Founder ConoSur.Tech 🎓 Professor 💡 Opinions are my own
+slug: /autores/pablo-di-loreto
+photo: ../../../images/Autores/pablo-di-loreto.png
+twitter: https://twitter.com/PabloDiLoreto
+blog: 
+type: author
+director: false
+content: >-
+    Professor. Techie. Ice cream fan (dulce de leche). My favorite phrase: "Todos los días pueden no ser buenos ... pero hay algo bueno en todos los días".
+    <br /><br />
+    Currently I´m Engineering Manager at MODO (https://modo.com.ar), the payment solution that allows you to connect your money and your world to simplify everyday life. Modo is a payment solution in which you can send, order and pay from your mobile device in the safest, most practical and convenient way.
+    <br /><br />
+    Over the years I have developed various initiatives:
+    <br /><br />
+    * PuertoTecCom (https://puertotec.com): an organization that provides consulting services in Microsoft solutions, and hosting services for web applications based on WordPress.
+    * SaberIT (https://aprender.it): a project that creates educational experiences to overcome professional challenges related to technology.
+    * ConoSurTech (https://conosur.tech): a non-profit initiative with which we connect technology communities and carry out training initiatives free of charge to everyone in the world.
+    * vOpen.Tech (https://vopen.tech) - Formerly known as .NET Conf (http://netconf.global), a Technology Conference that connects students, professionals and technology experts from around the world to share knowledge, experiences and promotion of technological innovation.
+    <br /><br />
+    I am from Berazategui City, Buenos Aires, Argentina [https://es.wikipedia.org/wiki/Partido_de_Berazategui]. When I was 16 years old, I started learning how to manage servers and create software with (very very old) several technologies. I am a Systems Analyst and Physical Education Teacher. I enjoy educational & technological talks and a good beer. If you want to talk with me, write me to pablodiloreto@hotmail.com or visit my website at https://pablodiloreto.com/.
+---
+
+import LayoutAuthor from '../../components/layout-author'
+import { graphql } from 'gatsby'
+import AuthorPage from '../../components/author-page';
+
+<AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
+
+export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "pablo-di-loreto"}}}){edges {node {frontmatter {title, author, slug}}}}}`
+
+export default LayoutAuthor  
