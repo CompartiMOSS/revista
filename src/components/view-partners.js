@@ -1,7 +1,7 @@
 import React from 'react';
 import { useStaticQuery, graphql } from "gatsby" 
 import PartnerItem from './partner-item';
-import { Grid } from "@material-ui/core"
+import { Grid } from "@mui/material/Grid"
 
 const ViewPartners = () => {
   const data = useStaticQuery(graphql`

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'gatsby';
-import { makeStyles } from "@material-ui/core"
+import { makeStyles } from "@mui/material/styles"
 
 const useStyles = makeStyles({
   ul: {

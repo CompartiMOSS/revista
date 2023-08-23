@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'gatsby';
-import { Container } from "@material-ui/core"
-import { makeStyles } from "@material-ui/core"
+import { Container } from "@mui/material"
+import { makeStyles } from "@mui/material/styles"
 
 import SocialShare from './social-share';
 import ArticleKeywords from './article-keywords';

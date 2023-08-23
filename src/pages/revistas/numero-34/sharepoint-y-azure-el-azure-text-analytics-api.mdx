@@ -24,7 +24,7 @@ El análisis de sentimiento produce un resultado sobre que tan positivo o negati
 
 Las tres partes de Text Analytics API aceptan texto Unicode codificado como UTF-8 o UTF-16 y con un máximo de 5000 caracteres por documento; una consulta puede contener hasta 1000 documentos, pero no debe exceder 1 MB de tamaño.
 
-Microsoft proporciona un simulador del API ([https://azure.microsoft.com/en-us/services/cognitive-services/text-analytics/](https&#58;//azure.microsoft.com/en-us/services/cognitive-services/text-analytics/)) que permite introducir un texto cualquiera y encontrar su idioma, palabras clave y sentimiento:
+Microsoft proporciona un simulador del API ([https://azure.microsoft.com/en-us/services/cognitive-services/text-analytics/](https://azure.microsoft.com/en-us/services/cognitive-services/text-analytics/)) que permite introducir un texto cualquiera y encontrar su idioma, palabras clave y sentimiento:
 
 ![Imagen 1.- Simulador de Text API.](../../../images/numero34/sharepoint-y-azure-el-azure-text-analytics-api/image1.png)
 
@@ -32,7 +32,7 @@ Microsoft proporciona un simulador del API ([https://azure.microsoft.com/en-us/s
 
 Para utilizar el Text API es necesario crear primero el servicio en Azure:
 
-(1)    Entre al portal de manejo de Azure ([https://portal.azure.com](https&#58;//portal.azure.com/)) utilizando sus credenciales.
+(1)    Entre al portal de manejo de Azure ([https://portal.azure.com](https://portal.azure.com/)) utilizando sus credenciales.
 (2)    Vaya a la sección de "Resource Groups" y cree un nuevo Grupo de Recursos (también es posible reutilizar un grupo ya existente).
 (3)    Cree una cuenta de Cognitive Services:
 -          En el Resource Group, utilice el botón de "+Add" para crear un recurso, busque por "cognitive services" en la casilla de búsqueda y seleccione "Cognitive Services" en los resultados.
@@ -624,6 +624,7 @@ En la misma rutina se crea un cliente del Analytics Text API utilizando la clave
 
 Cada consulta al Text Anaytics API puede contener múltiples documentos, como se indicó en la introducción del artículo. Cada documento tiene que tener un identificador, que es lo que inicialmente realiza la rutina: asignarle un GUID al texto a analizar. En este caso se esta enviando siempre un solo texto (un solo documento), por lo que solo es necesario crear un GUID. Inicialmente se extrae el lenguaje utilizado por medio del método "DetectLanguage", el que produce dos valores: el nombre del lenguaje y su abreviatura según ISO6391. Luego se extraen las palabras clave, y finalmente el valor del sentimiento. Todos los valores se almacenan en un objeto del tipo "CognitiveText" que está definido en la clase correspondiente:
 
+```
 public class CognitiveText
 
 {
@@ -641,6 +642,7 @@ public double? SentimentScore { get; set; }
 public List&lt;string&gt; KeyPhrases { get; set; }
 
 }
+```
 
 (1)      Otras tres clases definen objetos utilizados por el WebHook:
 

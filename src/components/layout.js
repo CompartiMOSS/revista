@@ -4,8 +4,8 @@ import {MDXProvider} from '@mdx-js/react'
 import CodeBlock from './CodeBlock'
 import Header from './layout/header'
 import Footer from './layout/footer';
-import { Container, CssBaseline } from "@material-ui/core"
-import { makeStyles } from "@material-ui/core"
+import { Container, CssBaseline } from "@mui/material"
+import { makeStyles } from "@mui/material/styles"
 import './layout/layout.css'
 
 const useStyles = makeStyles({

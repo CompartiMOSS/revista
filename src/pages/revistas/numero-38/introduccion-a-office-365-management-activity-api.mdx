@@ -31,7 +31,7 @@ Es importante notar que desde que se produce una actividad hasta que ésta se al
 
 **Operacion​es**
 
-Para poder empezar a trabajar con la API necesitamos saber las operaciones actualmente existentes[\[1\]](file&#58;///C&#58;/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftn1), y que se presentan a continuación:
+Para poder empezar a trabajar con la API necesitamos saber las operaciones actualmente existentes[\[1\]](file:///C:/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftn1), y que se presentan a continuación:
 
 - *Iniciar una suscripción*, de forma que podamos empezar a guardar la información del registro de auditoría de un tipo de contenido definido en los *Content BLOBs*.
 - *Parar una suscripción*, para dejar de guardar la información del registro de auditoría del tipo de contenido seleccionado.
@@ -49,7 +49,7 @@ Seguidamente presentaremos un ejemplo de cómo usar algunas de las operaciones i
 
 ![Imagen 2.- Operación para iniciar una suscripción.](../../../images/numero38/introduccion-a-office-365-management-activity-api/image2.png)
 
-Donde el primer parámetro corresponde al identificador del *tenant* en el que queremos iniciar la operación, mientras que el *publisherIdentifier* es un identificador que sirve para controlar quien está haciendo la operación, y que sirve para controlar el número de llamadas realizadas a la API (actualmente el límite se encuentra en 60K por minuto[\[2\]](file&#58;///C&#58;/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftn1)). Si no se indica este parámetro, se comparte la cuota con las otras peticiones que tampoco lo indiquen.
+Donde el primer parámetro corresponde al identificador del *tenant* en el que queremos iniciar la operación, mientras que el *publisherIdentifier* es un identificador que sirve para controlar quien está haciendo la operación, y que sirve para controlar el número de llamadas realizadas a la API (actualmente el límite se encuentra en 60K por minuto[\[2\]](file:///C:/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftn1)). Si no se indica este parámetro, se comparte la cuota con las otras peticiones que tampoco lo indiquen.
 
 A continuación, podríamos consultar las suscripciones actuales:
 
@@ -75,19 +75,19 @@ El resultado obtenido de esta operación, y que es lo que realmente nos importa 
 
 En el detalle del resultado se puede observar como tenemos el resultado de dos operaciones (*FileUplodaded* y *FileModified*), así como el servicio utilizado (*Workload: Onedrive*), la dirección IP desde la que se realizó la acción, el nombre del fichero, el usuario y otros datos adicionales.
 
-Es importante saber que existen diferentes esquemas según el tipo de contenido[\[3\]](file&#58;///C&#58;/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftn1), con lo que la información obtenida difiere entre éstos. Finalmente, y para acabar con este apartado, es muy importante notar que los *Content BLOBs* solo están disponibles para la consulta durante 7 días desde su fecha de creación.
+Es importante saber que existen diferentes esquemas según el tipo de contenido[\[3\]](file:///C:/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftn1), con lo que la información obtenida difiere entre éstos. Finalmente, y para acabar con este apartado, es muy importante notar que los *Content BLOBs* solo están disponibles para la consulta durante 7 días desde su fecha de creación.
 
 **Seguridad**
 
 Es obvio que para poder trabajar con la API en cualquier *tenant* necesitamos tener permiso para acceder a estos recursos. Por ello, en primer lugar, deberemos dar de alta nuestra aplicación en *Azure*
 
-*AD* (de nuestro *tenant*, ¡y no del cliente que queramos monitorizar!), y que solicitará los siguientes permisos[\[1\]](file&#58;///C&#58;/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftn1) al *tenant* que queramos monitorizar:
+*AD* (de nuestro *tenant*, ¡y no del cliente que queramos monitorizar!), y que solicitará los siguientes permisos[\[1\]](file:///C:/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftn1) al *tenant* que queramos monitorizar:
 
 ![Imagen 7.- Permisos para poder usar la API en un tenant.](../../../images/numero38/introduccion-a-office-365-management-activity-api/image7.png)
 
 
 
-El segundo paso consistirá en obtener un *token* para poder realizar cualquiera de las operaciones presentadas anteriormente (deberá ser un parámetro más de la llamada). Para ello se pueden usar dos mecanismos: El flujo de concesión de código de autorización o el flujo de credenciales de cliente[\[5\]](file&#58;///C&#58;/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftn1).
+El segundo paso consistirá en obtener un *token* para poder realizar cualquiera de las operaciones presentadas anteriormente (deberá ser un parámetro más de la llamada). Para ello se pueden usar dos mecanismos: El flujo de concesión de código de autorización o el flujo de credenciales de cliente[\[5\]](file:///C:/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftn1).
 
 ![Imagen 8.- Proceso de autorización para poder usar la API](../../../images/numero38/introduccion-a-office-365-management-activity-api/image8.png)
 
@@ -109,13 +109,13 @@ Finalmente obtendremos un token, con el que podremos hacer las llamadas a la API
 
 Para poder hacer las llamadas a la *Office 365 Management Activity API* únicamente hará falta añadir este token en la llamada con el formato *Authorization: Bearer &lt;token&gt;*.
 
-Puedes encontrar un ejemplo de utilización de la API en el siguiente repositorio de GitHub: [https://github.com/fchopo/BigBrotherOffice365](https&#58;//github.com/fchopo/BigBrotherOffice365).
+Puedes encontrar un ejemplo de utilización de la API en el siguiente repositorio de GitHub: [https://github.com/fchopo/BigBrotherOffice365](https://github.com/fchopo/BigBrotherOffice365).
 
 
 
 **Conclusión**
 
-En este artículo hemos visto cómo es posible consultar el registro de actividad de cualquier *tenant* de Office 365 mediante la *Management Activity API*. A partir de los tipos de contenido y las operaciones existentes podemos extraer valiosa información que nos puede servir para realizar informes o llevar a cabo auditorias sin los límites de tiempo que nos implica la consulta desde la interfaz gráfica del *Office 365 Security & Compliance* o el comando PowerShell *Search\_UnifiedAuditLog*[***\[6\]***](file&#58;///C&#58;/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftn1).
+En este artículo hemos visto cómo es posible consultar el registro de actividad de cualquier *tenant* de Office 365 mediante la *Management Activity API*. A partir de los tipos de contenido y las operaciones existentes podemos extraer valiosa información que nos puede servir para realizar informes o llevar a cabo auditorias sin los límites de tiempo que nos implica la consulta desde la interfaz gráfica del *Office 365 Security & Compliance* o el comando PowerShell *Search\_UnifiedAuditLog*[***\[6\]***](file:///C:/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftn1).
 
 Como posibles mejoras propondríamos la incorporación de nuevos tipos de contenido, e incluso un período más extenso para la retención de los *Content BLOBs*.
 
@@ -125,22 +125,22 @@ Como posibles mejoras propondríamos la incorporación de nuevos tipos de conten
 
 *IT Consultant & Trainer*
 
-[ferran@ferranchopo.com](mailto&#58;ferran@ferranchopo.com)
+[ferran@ferranchopo.com](mailto:ferran@ferranchopo.com)
 
 @fchopo
- [http://www.ferranchopo.com](http&#58;//www.ferranchopo.com/)
+ [http://www.ferranchopo.com](http://www.ferranchopo.com/)
 
 
 
-[\[1\]](file&#58;///C&#58;/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftnref1) [*https://msdn.microsoft.com/en-us/office-365/office-365-management-activity-api-reference*](https&#58;//msdn.microsoft.com/en-us/office-365/office-365-management-activity-api-reference)
+[\[1\]](file:///C:/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftnref1) [*https://msdn.microsoft.com/en-us/office-365/office-365-management-activity-api-reference*](https://msdn.microsoft.com/en-us/office-365/office-365-management-activity-api-reference)
 
-[2]​ [https://docs.microsoft.com/en-us/office/office-365-management-api/troubleshooting-the-office-365-management-activity-api](https&#58;//docs.microsoft.com/en-us/office/office-365-management-api/troubleshooting-the-office-365-management-activity-api)
+[2]​ [https://docs.microsoft.com/en-us/office/office-365-management-api/troubleshooting-the-office-365-management-activity-api](https://docs.microsoft.com/en-us/office/office-365-management-api/troubleshooting-the-office-365-management-activity-api)
 
-[\[3\]](file&#58;///C&#58;/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftnref1) [https://msdn.microsoft.com/en-us/office-365/office-365-management-activity-api-schema](https&#58;//msdn.microsoft.com/en-us/office-365/office-365-management-activity-api-schema)
+[\[3\]](file:///C:/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftnref1) [https://msdn.microsoft.com/en-us/office-365/office-365-management-activity-api-schema](https://msdn.microsoft.com/en-us/office-365/office-365-management-activity-api-schema)
 
-[\[4\]](file&#58;///C&#58;/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftnref1) [https://docs.microsoft.com/en-us/office/office-365-management-api/get-started-with-office-365-management-apis](https&#58;//docs.microsoft.com/en-us/office/office-365-management-api/get-started-with-office-365-management-apis) ​
+[\[4\]](file:///C:/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftnref1) [https://docs.microsoft.com/en-us/office/office-365-management-api/get-started-with-office-365-management-apis](https://docs.microsoft.com/en-us/office/office-365-management-api/get-started-with-office-365-management-apis) ​
 
-[\[5\]](file&#58;///C&#58;/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftnref1) [https://docs.microsoft.com/en-us/office/office-365-management-api/get-started-with-office-365-management-apis](https&#58;//docs.microsoft.com/en-us/office/office-365-management-api/get-started-with-office-365-management-apis)
+[\[5\]](file:///C:/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftnref1) [https://docs.microsoft.com/en-us/office/office-365-management-api/get-started-with-office-365-management-apis](https://docs.microsoft.com/en-us/office/office-365-management-api/get-started-with-office-365-management-apis)
 
-[\[6\]](file&#58;///C&#58;/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftnref1) [https://docs.microsoft.com/en-us/powershell/module/exchange/policy-and-compliance-audit/search-unifiedauditlog?view=exchange-ps](https&#58;//docs.microsoft.com/en-us/powershell/module/exchange/policy-and-compliance-audit/search-unifiedauditlog?view=exchange-ps) ​
+[\[6\]](file:///C:/compartimoss/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API/Ferr%C3%A1n%20Chopo%20-%20Office%20365%20Management%20Activity%20API.docx#_ftnref1) [https://docs.microsoft.com/en-us/powershell/module/exchange/policy-and-compliance-audit/search-unifiedauditlog?view=exchange-ps](https://docs.microsoft.com/en-us/powershell/module/exchange/policy-and-compliance-audit/search-unifiedauditlog?view=exchange-ps) ​
 

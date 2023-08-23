@@ -1,7 +1,7 @@
 import React from 'react';
 import AuthorPhoto from './author-photo';
 import AuthorLink from './author-link';
-import { makeStyles } from "@material-ui/core"
+import { makeStyles } from "@mui/material/styles"
 
 const useStyles = makeStyles({
   author: {

@@ -117,7 +117,7 @@ El resultado de respuesta podemos devolver por ejemplo lo que de vuelve nuestro 
 Si por ejemplo tuviéramos que el proceso pesado no es una Logic App, si no que debe ser un API Rest o una Functions, podemos tener dos opciones:
 
 - Simular el patrón Pulling, desde Logic App mediante temporizadores y do until (poco recomendable porque puede ser foco de control de errores, más coste y peor rendimiento que usando el patrón que nos aporta HTTP Action)
- Implementar nuestra Function o API con este patrón, tal y como refleja en este enlace ([https://docs.microsoft.com/es-es/archive/blogs/logicapps/long-running-tasks-in-logic-apps](https&#58;//docs.microsoft.com/es-es/archive/blogs/logicapps/long-running-tasks-in-logic-apps)). Al final, es controlar un ID de proceso que llevaremos mediante la cabecera Location ,que sí entiende nuestra Logic App y ofrecer los métodos de "check status" necesarios, para poder obtener el resultado final del proceso.
+ Implementar nuestra Function o API con este patrón, tal y como refleja en este enlace ([https://docs.microsoft.com/es-es/archive/blogs/logicapps/long-running-tasks-in-logic-apps](https://docs.microsoft.com/es-es/archive/blogs/logicapps/long-running-tasks-in-logic-apps)). Al final, es controlar un ID de proceso que llevaremos mediante la cabecera Location ,que sí entiende nuestra Logic App y ofrecer los métodos de "check status" necesarios, para poder obtener el resultado final del proceso.
 
 
 **Conexiones Webhook, una forma más refinada de controlar las llamadas Async**
@@ -146,7 +146,7 @@ A diferencia del patrón Polling, si suscribimos por Webhook una Action de Logic
 
 ![Imagen 22.- Acción de Webhook.](../../../images/numero43/logic-apps-y-http-actions-puedo-hacer-llamadas-async/image22.png)
 
-Nuestro API de pedidos debe admitir una suscripción vía webhook (podemos ver ejemplos en [https://github.com/logicappsio/LogicAppTriggersExample/blob/master/LogicAppTriggers/Controllers/WebhookTriggerController.cs](https&#58;//github.com/logicappsio/LogicAppTriggersExample/blob/master/LogicAppTriggers/Controllers/WebhookTriggerController.cs)) de como montar nuestro Cliente Webhook en un Azure Functions o un App Service.
+Nuestro API de pedidos debe admitir una suscripción vía webhook (podemos ver ejemplos en [https://github.com/logicappsio/LogicAppTriggersExample/blob/master/LogicAppTriggers/Controllers/WebhookTriggerController.cs](https://github.com/logicappsio/LogicAppTriggersExample/blob/master/LogicAppTriggers/Controllers/WebhookTriggerController.cs)) de como montar nuestro Cliente Webhook en un Azure Functions o un App Service.
 
 Cada vez que se produzca un evento al cual mi Logic App está suscrito, esta acción HTTP Webhook se disparará, y mientras eso no suceda el flujo seguirá en ejecución. Una vez se ejecute la acción de Webhook, esta se de-suscribe para este evento, y permite continuar al flujo, es importante configurar correctamente esta caja, para que pueda continuar el flujo de forma correcta.
 

@@ -1,12 +1,12 @@
 import React from 'react';
 import { useStaticQuery, graphql } from "gatsby";
-import { Grid } from "@material-ui/core"
 import LayoutHome from '../components/layout-home';
 import SEO from '../components/seo';
 import ViewPartners from '../components/view-partners';
 import NumberImage from '../components/number-image';
 import ViewArticlesRandom from '../components/view-articles-random';
-import { makeStyles } from "@material-ui/core"
+import { makeStyles } from "@mui/material/styles"
+import { Grid } from "@mui/material/Grid"
 
 const useStyles = makeStyles({
   divHeader: {

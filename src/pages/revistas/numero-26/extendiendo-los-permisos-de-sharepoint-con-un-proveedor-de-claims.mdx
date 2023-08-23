@@ -28,7 +28,7 @@ Visto así, podemos tratar un claim como una generalización de las propiedades 
 
 ![Imagen 1.- La autenticación clásica y la de claims en SharePoint 2010 y superiores.](../../../images/numero26/extendiendo-los-permisos-de-sharepoint-con-un-proveedor-de-claims/image0.png)
 
-Al tratar a todos los usuarios como claims, SharePoint tiene que usar un mecanismo coherente para identificarlos. Para ello, codifica los claims siguiendo un patrón[\[i\]](file&#58;///C&#58;/Users/adiaz/Downloads/Extendiendo%20los%20permisos%20de%20SharePoint%20con%20un%20proveedor%20de%20claims.docx). El usuario anterior para SharePoint sería **i:0#.w|spdemo\edin**o **i:0n.w|edin@spdemo.local**. Así sabemos que "i" es un claim identificador, "#" es un claim de tipo username, "n" es un claim UPN y "w" es la autenticación de Windows. Después del símbolo "|" viene el valor del claim.
+Al tratar a todos los usuarios como claims, SharePoint tiene que usar un mecanismo coherente para identificarlos. Para ello, codifica los claims siguiendo un patrón[\[i\]](file:///C:/Users/adiaz/Downloads/Extendiendo%20los%20permisos%20de%20SharePoint%20con%20un%20proveedor%20de%20claims.docx). El usuario anterior para SharePoint sería **i:0#.w|spdemo\edin**o **i:0n.w|edin@spdemo.local**. Así sabemos que "i" es un claim identificador, "#" es un claim de tipo username, "n" es un claim UPN y "w" es la autenticación de Windows. Después del símbolo "|" viene el valor del claim.
 
 ![Imagen 2.- La codificación de los claims (del artículo de Wictor Wilén)](../../../images/numero26/extendiendo-los-permisos-de-sharepoint-con-un-proveedor-de-claims/image1.png)
 
@@ -54,7 +54,7 @@ Las funcionalidades de claim provider son también de dos tipos. Una es **aument
 
 La otra funcionalidad de un claim provider es **mostrar los claims en la interfaz de SharePoint (control People Picker) para poder asignarlos como permisos**. Para ello, tenemos que rellenar unos métodos obligatorios y luego podemos elegir dar soporte a tres características: resolución de un claim al escribirlo, búsqueda (al escribir tres o más caracteres) y jerarquía (para aquellos claims que son de naturaleza jerárquica como las regiones, por ejemplo).
 
-Vamos a hacer el claims provider de ejemplo que expone un tipo de claims que refleja el nivel de seguridad para documentos ("Security Clearance"). El claim es del tipo [http://schema.spdemo.local/clearance](http&#58;//schema.spdemo.local/clearance) y puede ser "Normal" o "Confidential". Para ello definimos una nueva clase llamada **DemoClaimsProvider** que hereda de SPClaimProvider.
+Vamos a hacer el claims provider de ejemplo que expone un tipo de claims que refleja el nivel de seguridad para documentos ("Security Clearance"). El claim es del tipo [http://schema.spdemo.local/clearance](http://schema.spdemo.local/clearance) y puede ser "Normal" o "Confidential". Para ello definimos una nueva clase llamada **DemoClaimsProvider** que hereda de SPClaimProvider.
 
 Para declarar los nuevos claims, definimos la propiedad ClearanceClaimType de tipo string que devuelve el texto http://schema.spdemo.local/clearance. Tenemos que definir también el tipo del valor que devuelve el claim, así que hacemos una propiedad llamada ClearanceClaimValueType que devuelve el valor de  Microsoft.IdentityModel.Claims.ClaimValueTypes.String. Para los que ya usáis WIF en NET Framework 4.5, al ser SharePoint un código de NET 4.0 tenemos que usar el namespace Microsoft.IdentityModel en vez de System.IdentityModel. Además, tenemos que devolver estas propiedades en los métodos FillClaimTypes y FillClaimValueTypes del proveedor.
 
@@ -660,7 +660,7 @@ Vamos a probar la seguridad por claims. Voy a poner dos documentos en SharePoint
 
 Y con el usuario que tiene claims de nivel confidencial, SPDEMO\ekapic, podemos ver que el documento confidencial es visible.
 
-![Imagen 8&#58; El usuario autorizado sí que ve el documento confidencial](../../../images/numero26/extendiendo-los-permisos-de-sharepoint-con-un-proveedor-de-claims/image6.png)
+![Imagen 8: El usuario autorizado sí que ve el documento confidencial](../../../images/numero26/extendiendo-los-permisos-de-sharepoint-con-un-proveedor-de-claims/image6.png)
 
 **Conclusión**
 
@@ -668,17 +668,17 @@ El uso de los claims como autenticación de los usuarios por defecto en SharePoi
 
 De esta manera somos mucho más flexibles para gestionar la seguridad de los elementos de SharePoint.
 
-La solución de completa del claim provider de este artículo está disponible en mi OneDrive[\[ii\]](file&#58;///C&#58;/Users/adiaz/Downloads/Extendiendo%20los%20permisos%20de%20SharePoint%20con%20un%20proveedor%20de%20claims.docx).
+La solución de completa del claim provider de este artículo está disponible en mi OneDrive[\[ii\]](file:///C:/Users/adiaz/Downloads/Extendiendo%20los%20permisos%20de%20SharePoint%20con%20un%20proveedor%20de%20claims.docx).
 
 
 
 **Edin Kapić**
  Arquitecto SharePoint
- [edin.kapic@sogeti.com](mailto&#58;edin.kapic@sogeti.com) 
+ [edin.kapic@sogeti.com](mailto:edin.kapic@sogeti.com) 
 @ekapic
- [www.edinkapic.com](http&#58;//www.edinkapic.com/)
+ [www.edinkapic.com](http://www.edinkapic.com/)
 
-[\[ii\]](file&#58;///C&#58;/Users/adiaz/Downloads/Extendiendo%20los%20permisos%20de%20SharePoint%20con%20un%20proveedor%20de%20claims.docx) [http://1drv.ms/1PupReW](http&#58;//1drv.ms/1PupReW)
+[\[ii\]](file:///C:/Users/adiaz/Downloads/Extendiendo%20los%20permisos%20de%20SharePoint%20con%20un%20proveedor%20de%20claims.docx) [http://1drv.ms/1PupReW](http://1drv.ms/1PupReW)
 
-[\[i\]](file&#58;///C&#58;/Users/adiaz/Downloads/Extendiendo%20los%20permisos%20de%20SharePoint%20con%20un%20proveedor%20de%20claims.docx) [http://social.technet.microsoft.com/wiki/contents/articles/13921.sharepoint-2013-claims-encoding-also-valuable-for-sharepoint-2010.aspx](http&#58;//social.technet.microsoft.com/wiki/contents/articles/13921.sharepoint-2013-claims-encoding-also-valuable-for-sharepoint-2010.aspx)
+[\[i\]](file:///C:/Users/adiaz/Downloads/Extendiendo%20los%20permisos%20de%20SharePoint%20con%20un%20proveedor%20de%20claims.docx) [http://social.technet.microsoft.com/wiki/contents/articles/13921.sharepoint-2013-claims-encoding-also-valuable-for-sharepoint-2010.aspx](http://social.technet.microsoft.com/wiki/contents/articles/13921.sharepoint-2013-claims-encoding-also-valuable-for-sharepoint-2010.aspx)
 

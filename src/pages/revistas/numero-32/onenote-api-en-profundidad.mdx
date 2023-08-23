@@ -35,6 +35,8 @@ Para crear la aplicación seguiremos los siguientes pasos:
 Una vez ya tenemos nuestra aplicación registrada, vamos a autenticar la aplicación que va a hacer uso de la API de OneNote, para la autenticación ahora mismo vamos a utilizar la librería ADAL de la cual ya hemos hablado en anteriores artículos.
  
 El proceso de autenticación, seria en primer lugar obtener el token de autenticación para ellos bastaría con utilizar esta librería e introducir el siguiente código en C#:
+
+```
 public async Task&lt;string&gt; GetTokenAppOnly()
 
  {
@@ -46,17 +48,19 @@ public async Task&lt;string&gt; GetTokenAppOnly()
  var result = await authContext.AcquireTokenAsync(apiResourceId, clientCredential);
 
  return result.AccessToken;
+```
 
  
 Donde:
  
-- **Authority** es [https://login.microsoftonline.com/](https&#58;//login.microsoftonline.com/)  + el TenantID.
+- **Authority** es [https://login.microsoftonline.com/](https://login.microsoftonline.com/)  + el TenantID.
 - **ClientId y appKey**son los valores que hemos guardado en el registro de la Aplicación.
-- **apiResourceId** es la url sobre el recurso del que vamos a solicitar el token, en nuestro caso sería [https://onenote.com](https&#58;//onenote.com/) .
+- **apiResourceId** es la url sobre el recurso del que vamos a solicitar el token, en nuestro caso sería [https://onenote.com](https://onenote.com/) .
 
  
 Una vez tenemos el token ya podemos empezar a realizar las peticiones REST, para ello lo que tenemos que hacer es poner el token dentro de las cabeceras de la petición de la siguiente forma:
 
+```
 using (var client= new HttpClient())
 
  {
@@ -76,26 +80,28 @@ using (var client= new HttpClient())
 }
 
  } }
+```
 
 Peticiones REST Disponibles
  
 Como hemos visto en la imagen sobre el escenario de utilización, dependiendo del lugar donde está alojado el OneNote sobre el que queremos trabajar el endpoint de la API es uno u otro. Tenemos disponibles los siguientes:
 
-- **OneDrive for Bussiness/OneDrive Personal:** [https://www.onenote.com/api/v1.0/me/](https&#58;//www.onenote.com/api/v1.0/me/)
-  - **SharePoint :** [https://www.onenote.com/api/v1.0/myOrganization/siteCollections/{id}/sites/{id}/](https&#58;//www.onenote.com/api/v1.0/myOrganization/siteCollections/%7bid%7d/sites/%7bid%7d/)
-- **Groups:** [https://www.onenote.com/api/v1.0/myOrganization/groups/{id}/](https&#58;//www.onenote.com/api/v1.0/myOrganization/groups/%7bid%7d/)
+- **OneDrive for Bussiness/OneDrive Personal:** [https://www.onenote.com/api/v1.0/me/](https://www.onenote.com/api/v1.0/me/)
+  - **SharePoint :** [https://www.onenote.com/api/v1.0/myOrganization/siteCollections/\{id\}/sites/\{id\}/](https://www.onenote.com/api/v1.0/myOrganization/siteCollections/%7bid%7d/sites/%7bid%7d/)
+- **Groups:** [https://www.onenote.com/api/v1.0/myOrganization/groups/\{id\}/](https://www.onenote.com/api/v1.0/myOrganization/groups/%7bid%7d/)
 
  
 Como se puede observar en el caso de que usemos la Api de OneNote con elementos que alojados en SharePoint o en Groups deberemos conocer unos ID’s para poder empezar a realizar peticiones sobre esta API. En el caso de SharePoint disponemos de una petición que nos indica estos ID’s, la cual es esta:
   
-GET https: //www.onenote.com/api/v1.0/myOrganization/siteCollections/FromUrl(url='{full-path-to-SharePoint-site}')
+GET https: //www.onenote.com/api/v1.0/myOrganization/siteCollections/FromUrl(url='\{full-path-to-SharePoint-site\}')
  
-Authorization: Bearer {token}
+Authorization: Bearer \{token\}
  
 Accept: application/json
  
 La cual nos devolvería la siguiente respuesta:
 
+```
 {
  
 "@odata.context": "https://www.onenote.com/api/v1.0/$metadata#Microsoft.OneNote.Api.SiteMetadata" ,
@@ -105,7 +111,8 @@ La cual nos devolvería la siguiente respuesta:
 "siteId": "d9e4d5c8-683f-4363-89ae-18c4e3da91e9"
  
 }
- 
+```
+
 Dentro de SharePoint tiene unas limitaciones, el path url de SharePoint que estamos introduciendo solamente soporta OneNote que están en la biblioteca Documentos del sitio, si se indica una biblioteca de documentos diferente la petición NO funciona. Por último, también hay que tener en cuenta que esta petición para que muestre los datos, el contenido ha debido ser indexado previamente.
  
 **Nota:**Si alguien se plantea utilizar los ID obtenidos por CSOM, estos no son los mismos que los que devuelve esta petición por lo que la petición tampoco funciona.
@@ -113,27 +120,27 @@ Dentro de SharePoint tiene unas limitaciones, el path url de SharePoint que esta
 En el caso de que nuestro OneNote este en un Groups, para obtener el Identificador tendremos que consultar a la API de Grap para obtener este valor.
  **Operaciones con un OneNote :**
  - **GET /Notebooks à**Devuelve todos los OneNotes.
-- **GET /Notebooks/{id} à**Devuelve el OneNote indicado en el identificador.
+- **GET /Notebooks/\{id\} à**Devuelve el OneNote indicado en el identificador.
 - **POST/ Notebooks/ à**Crea un NoteBooks.
 
  **Operaciones con Páginas dentro del OneNote:**
  - **GET /Pages à**Devuelve todas las páginas que hay en la url introducida.
-- **GET /Pages/{id} à**Devuelve la página indicada.
+- **GET /Pages/\{id\} à**Devuelve la página indicada.
 - **POST /Pages à**Crea una página.
-- **DELETE /Pages/{id} à**Elimina la página indicada.
-- **GET /Section/{id}/Pages à**Devuelve las páginas de la sección indicada.
-- **GET /Section/{id}/Pages/Preview à**Devuelve una previsualización de la página indicada.
-- **POST /Section/{id}/Pages à**Crea una página en la sección indicada.
+- **DELETE /Pages/\{id\} à**Elimina la página indicada.
+- **GET /Section/\{id\}/Pages à**Devuelve las páginas de la sección indicada.
+- **GET /Section/\{id\}/Pages/Preview à**Devuelve una previsualización de la página indicada.
+- **POST /Section/\{id\}/Pages à**Crea una página en la sección indicada.
 
  **Operaciones con Secciones del OneNote:**
  - **GET /Sections à**Devuelve las secciones que hay en la url indicada.
-- **GET /notebooks/{id}/sections à**Devuelve todas las secciones de un Notebooks.
-- **POST /notebooks/{id}/sections à**Crea una sección dentro de un NoteBooks especificado.
+- **GET /notebooks/\{id\}/sections à**Devuelve todas las secciones de un Notebooks.
+- **POST /notebooks/\{id\}/sections à**Crea una sección dentro de un NoteBooks especificado.
 
 
 La API tiene algunas llamadas más, pero quiero centrarme en algunas que no son triviales y que además no están lo bien documentadas que se debería. Estas peticiones son relacionadas con el tema de permisos y compartir enlaces.
  **Permisos**
-Una de las cosas más potentes que nos trae la API es el tema de los permisos, pudiendo hacer algunas operaciones que desde la propia interfaz del producto no se pueden hacer. En este caso si nosotros queremos dar permisos sobre una sección a unos determinados usuarios y basta con hacer la petición REST sobre esa sección /Section/{id}/Permisions. En según qué circunstancias debemos de saber en qué plataforma está alojado OneNote para saber cómo funcionan estos permisos. Un ejemplo: Tengo un OneNote alojado en una biblioteca de documentos de SharePoint Online, este tiene dos secciones: Desarrolladores y Diseñadores. Mediante la API damos permisos que solo los desarrolladores tengan acceso a esta sección y lo mismo para Diseñadores. Ahora bien, si nos piden que Todo el mundo de la organización pueda ver esta sección, ¿Qué hacemos? Lo lógico es que hagamos la misma petición quitando los permisos al grupo de desarrolladores. Pues si hacemos esto lo que ocurrirá es que nadie visualizará esta sección ya que nadie tiene permisos para acceder. En este caso tenemos dos opciones, bien darles permisos a Todos mediante la API o bien utilizar CSOM y restaurar los permisos de este ítem.
+Una de las cosas más potentes que nos trae la API es el tema de los permisos, pudiendo hacer algunas operaciones que desde la propia interfaz del producto no se pueden hacer. En este caso si nosotros queremos dar permisos sobre una sección a unos determinados usuarios y basta con hacer la petición REST sobre esa sección /Section/\{id\}/Permisions. En según qué circunstancias debemos de saber en qué plataforma está alojado OneNote para saber cómo funcionan estos permisos. Un ejemplo: Tengo un OneNote alojado en una biblioteca de documentos de SharePoint Online, este tiene dos secciones: Desarrolladores y Diseñadores. Mediante la API damos permisos que solo los desarrolladores tengan acceso a esta sección y lo mismo para Diseñadores. Ahora bien, si nos piden que Todo el mundo de la organización pueda ver esta sección, ¿Qué hacemos? Lo lógico es que hagamos la misma petición quitando los permisos al grupo de desarrolladores. Pues si hacemos esto lo que ocurrirá es que nadie visualizará esta sección ya que nadie tiene permisos para acceder. En este caso tenemos dos opciones, bien darles permisos a Todos mediante la API o bien utilizar CSOM y restaurar los permisos de este ítem.
  
 **NOTA:** Si hacéis una consulta CAML sobre una biblioteca de documentos donde haya un OneNote, podéis observar que hay un ítem por cada una de las secciones/páginas que tenga este documento.
  **Compartir OneNote con otros usuarios**
@@ -142,12 +149,13 @@ Aunque por lo que hemos visto la API no tiene ningún fallo llamativo, no es oro
 Para compartir el documento, bien podemos utilizar CSOM (siempre que estemos en SharePoint) o bien apoyarnos en la API Graph para que nos genere este enlace. Un ejemplo de los pasos que tendríamos que hacer para compartir un OneNote de SharePoint utilizando API Graph sería lo siguiente:
 
 1. Obtenemos el Token de Autenticación, de la misma forma que solicitamos el token para trabajar con la API de OneNote, pero en este caso el resourceID tendría que será la url de Graph (https://graph.microsoft.com )
-2. Al estar dentro de SharePoint el siguiente paso que debemos de hacer es solicitar los ID de Site Collection y Site para con los elementos que hay en Graph para consultar sitios de SharePoint podemos hacerlos: /v1.0/sharepoint:{id} donde el id es la url relativa de nuestra Colección de sitios
-3. Una vez tenemos los ID, nos apoyamos en la parte de búsqueda que hay en la API para obtener el DriveID y el ID del documento. Para ello que nos proporciona OneDrive para obtener el Drive donde está almacenado para ello hacemos la siguiente petición REST: v1.0/sharepoint/sites/{siteCollectionId},{siteId}/drive/search(q='{nameFile}') NOTA: para que esta petición el fichero que estamos buscando debe de estar indexado.
+2. Al estar dentro de SharePoint el siguiente paso que debemos de hacer es solicitar los ID de Site Collection y Site para con los elementos que hay en Graph para consultar sitios de SharePoint podemos hacerlos: /v1.0/sharepoint:\{id\} donde el id es la url relativa de nuestra Colección de sitios
+3. Una vez tenemos los ID, nos apoyamos en la parte de búsqueda que hay en la API para obtener el DriveID y el ID del documento. Para ello que nos proporciona OneDrive para obtener el Drive donde está almacenado para ello hacemos la siguiente petición REST: v1.0/sharepoint/sites/\{siteCollectionId\},\{siteId\}/drive/search(q='\{nameFile\}') NOTA: para que esta petición el fichero que estamos buscando debe de estar indexado.
 
 
-Por último, ya solo nos quedaría hacer una petición POST los datos obtenidos anteriormente para poder obtener el enlace. Esta petición seria la siguiente: @"/v1.0/sharepoint/sites/{siteCollection},{siteSiteId}/drives/{driveId}/items/{itemId}/CreateLink" En el cuerpo de esta llamada deberemos de incluir el tipo de enlace que vamos si va a tener permisos para editar el documento o solo verlo, y el ámbito bien usuario anonymo o bien introducir el/los usuario/s con los que se quiere compartir este documento. Un ejemplo de body para generar un enlace anónimo sería el siguiente:
+Por último, ya solo nos quedaría hacer una petición POST los datos obtenidos anteriormente para poder obtener el enlace. Esta petición seria la siguiente: @"/v1.0/sharepoint/sites/\{siteCollection\},\{siteSiteId\}/drives/\{driveId\}/items/\{itemId\}/CreateLink" En el cuerpo de esta llamada deberemos de incluir el tipo de enlace que vamos si va a tener permisos para editar el documento o solo verlo, y el ámbito bien usuario anonymo o bien introducir el/los usuario/s con los que se quiere compartir este documento. Un ejemplo de body para generar un enlace anónimo sería el siguiente:
 
+```
 {
  
 "type": "view",
@@ -155,8 +163,11 @@ Por último, ya solo nos quedaría hacer una petición POST los datos obtenidos 
 "spcope": "anonymous"
  
 }
+```
 
 Esperemos que con los cambios anunciados en el Build y la integración de esta API dentro de Graph se supla esta carencia y se muestre una API más completa.
+
+
  **Resumen**
 Microsoft por fin está ofreciendo Servicios REST 100% que funcionan según los estándares, este cambio es un gran avance para los desarrolladores ya que estandariza la forma en la que se consume dichos servicios. Además, que estos cambios estén en productos nuevos y los cuales su utilización está creciendo abre muchos escenarios de su utilización.
 
@@ -168,9 +179,9 @@ Por último, al estar en un sistema integrado con otros servicios podemos aprove
  **Adrián Diaz Cervera -- Architect Software Lead at Encamina**
 MVP Office Development
  
-[http://blogs.encamina.com/desarrollandosobresharepoint](http&#58;//blogs.encamina.com/desarrollandosobresharepoint)
+[http://blogs.encamina.com/desarrollandosobresharepoint](http://blogs.encamina.com/desarrollandosobresharepoint)
   
-[http://geeks.ms/blogs/adiazcervera](http&#58;//geeks.ms/blogs/adiazcervera)
+[http://geeks.ms/blogs/adiazcervera](http://geeks.ms/blogs/adiazcervera)
  
 adiaz@encamina.com @AdrianDiaz81
 

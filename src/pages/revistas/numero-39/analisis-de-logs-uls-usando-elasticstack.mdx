@@ -54,6 +54,7 @@ En el servidor con el resto de las funciones, hay 2 elementos importantes a "ret
 
 En %Logstash\_home%/Config, creamos un fichero llamado Sharepoint\_ULS.conf, con el siguiente contenido:
 
+```
 *input {*
 
 *beats {*
@@ -99,13 +100,13 @@ En %Logstash\_home%/Config, creamos un fichero llamado Sharepoint\_ULS.conf, con
 *}*
 
 *}*
-
+```
 ​​
 
 Esto es tal vez el mayor quebradero de cabeza, puesto que es donde hacemos la transformación de los datos.  Así que lo despiezo:
 
-- *Input { beats { port =&gt; "5044"} }*  Esto le dice a logstash de dónde va a obtener los datos, en este caso serán Beats que vendrán a través del puerto 5044.  Estos BEATS vienen como un JSON.
-- *Filter {*  Esto es el inicio de las transformaciones que hará el Logstash.  Tiene dos partes:
+- *Input \{ beats \{ port =&gt; "5044"\} \}*  Esto le dice a logstash de dónde va a obtener los datos, en este caso serán Beats que vendrán a través del puerto 5044.  Estos BEATS vienen como un JSON.
+- *Filter \{*  Esto es el inicio de las transformaciones que hará el Logstash.  Tiene dos partes:
     - el GROK que es una estructura basada en RegularExpressions.  Este filtro es lo que nos permite separar el contenido de cada línea e identificar los distintos campos que vienen informados en el log ULS: Fecha/hora, Proceso, PID, Area, Categoria, Severidad, Mensaje, etc.
     - La segunda parte es la transformación del campo fecha.  Es importante porque la configuración predeterminada de Logstash no entiende que en el JSON venga informado un campo numérico/fecha con un cero previo:  Prefiere 1/15/2018 en vez de 01/15/2018.
 - *output.*    Esta sección indica los distintos tipos de salida y pueden ser por pantalla (en cuyo caso le digo que quiero que lo formatee como un JSON), a una consola o a un repositorio (ElasticSearch).  En este último caso hay que indicar el servidor al que debe ir y cómo se van a nombrar los índices.
@@ -173,6 +174,5 @@ Si bien es cierto que hoy en día con topologías híbridas o basadas en la nube
 
 
 
-**Daniel Pérez Aguiar**
+**Daniel Pérez Aguiar** <br />
  perezaguiar@programmer.net
-

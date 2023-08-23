@@ -38,7 +38,8 @@ En primer lugar lo que vamos a implementar es una clase "Notification" que tendr
 
 
 La primera vez que ejecutamos el canal no tenemos aún la dirección URI y solo tendremos una dirección URI valida en el momento que se lance el evento ChannelUriUpdate, por lo que hasta que no tengamos esta dirección valida no podremos registrar nuestro dispositivo en la aplicación.
- 
+
+```
 public static void OpenNotificationChannel( bool isInitialRegistration)
  
 {
@@ -102,13 +103,14 @@ CloseChannel();
 }
 
 }
+```
 
 Una vez ya tenemos el canal abierto, el siguiente paso a realizar es implementar los manejadores:
 
 **ChannelUriUpdate:**En este evento lo que vamos a realizar es que cada vez que se ejecute, subscribiremos este dispositivo. Pueden darse dos situaciones: la primera vez en la que registramos el dispositivo y para la que valdría el siguiente método. En la segunda, simplemente realizamos la subscripción.
 
 
- 
+```
 /// &lt;summary&gt;
  
 /// Suscribir el servicio en una lista de Sharepoint
@@ -156,9 +158,11 @@ ShowMessage(args.Exception.Message, "Error Subscribiendo" );
 });
  
 }
+```
 
 Pero el problema es que la dirección URI puede cambiar, ¿y entonces que hacemos cuando se modifica un dirección? Pues bien primero llamaremos a la siguiente función que lo que hace es actualizar la Dirección URI en SharePoint, en caso de que no exista no hace nada. Posteriormente, si procede, llamamos a la función de arriba.
  
+```
 /// &lt;summary&gt;
  
 /// Actualizo el Canar Uri en el Servidor
@@ -288,7 +292,7 @@ handler( this , new PropertyChangedEventArgs (propertyName));
 }
  
 }
-
+```
 
 
 Una vez creado la definición del modelo nos creamos la capa de donde se obtienen los datos y ahí es donde entra en juego SharePoint. Antes de empezar a ver cómo hacerlos. Hay que saber las opciones que tenemos para obtener los datos de un SharePoint:
@@ -299,6 +303,7 @@ Una vez creado la definición del modelo nos creamos la capa de donde se obtiene
 
 En este ejemplo vamos a realizarlo a través la opción 1, entonces nos creamos una clase MainArticleViewModel que va a tener una esctructura como la siguiente:
  
+```
 public class MainArticleViewModel : INotifyPropertyChanged
  
 {
@@ -412,13 +417,15 @@ this .Items.Add(itemArticle);
 }
 
 }
+```
 
 **Creando las aplicaciones**
 
 Una vez tenemos la clase con toda la funcionalidad disponible vamos a crear la aplicación de Windows Phone. Lo primero que tenemos que hacer es agregar la referencia a la librería que habíamos creado anteriormente.
 
 A continuación nos vamos a la página MainPage.xaml y a la página le añadimos un objeto de tipo "Pivots " y en los "Bindings" tendremos que poner los nombres de los campos de nuestro modelo en nuestro caso Article y Phone
- 
+
+``` 
 &lt;controls:Pivot Title="MI APLICACIÓN"&gt;
  
 &lt;!--Elemento Pivot uno--&gt;
@@ -450,11 +457,12 @@ A continuación nos vamos a la página MainPage.xaml y a la página le añadimos
 &lt;/controls:PivotItem&gt;
  
 &lt;/controls:Pivot&gt;
- 
+```
 
 
 El siguiente paso es irnos a al APP.CS y añadir este propiedad:
- 
+
+```
 public static MainArticleViewModel ViewModel
  
 {
@@ -476,11 +484,12 @@ return viewModel;
 }
  
 }
-
+```
 
 
 Y dentro del evento cuando se active añadir esta llamada:
- 
+
+```
 if (! App .ViewModel.IsDataLoaded)
  
 {
@@ -488,11 +497,12 @@ if (! App .ViewModel.IsDataLoaded)
 App .ViewModel.LoadData();
  
 }
-
+```
 
 
 Ahora nos dirigimos a la MainPage.cs y aquí tendremos que establecer el contexto de esta pantalla que con el View Model quedaría de la siguiente forma:
- 
+
+```
 // Constructor
  
 public MainPage()
@@ -528,6 +538,7 @@ App .ViewModel.LoadData();
 }
  
 }
+```
 
 Una vez realizado esto si ejecutamos nuestra aplicación se visualizará la siguiente pantalla:
 
@@ -551,7 +562,8 @@ Esto solo es un ejemplo de como se pueden enviar notificaciones desde una lista 
 El desarrollo es al 90% igual para un sistema que para el otro, la unica diferencia es que en 2010 no tenemos el metodo de subscribir al dispositivo a una lista y por lo tanto lo tendremos que hacer de forma manual. Viendo la solución que habia planteado con anterioridad esta claro lo que tenemos que hacer. Hay que insertar un elemento en una lista de SharePoint y esto utilizando las librerias clientes de SharePoint es muy sencillo de hacer.
 
 Lo que va a realizar la siguiente función es: en primer lugar consultamos  si tenemos este elemento en la lista y en caso que afirmativo actualizamos la dirección URI y sino existe insertamos el elemento en la lista.
- 
+
+```
 private void SubscribeToService( string Guid, string ChannelUri)
  
 {
@@ -633,7 +645,7 @@ oListItem.Update();
 context.ExecuteQuery();
 
 }
-
+```
 
 
 **Conclusiones**
@@ -643,8 +655,8 @@ En este articulos hemos visto lo sencillo que es crear Apps para Windows Phone t
 **Referencias**
 
 - Windows Phone 7.5 Desarrollo de aplicaciones en Silverlight- Josué Yeray Julian.
-- Notificaciones de empuje para el desarrollo de Windows Phone [http://blogs.ligasilverlight.com](http&#58;//blogs.ligasilverlight.com/)
-- Push Notifications with SharePoint 2013-based Windows Phone apps [http://www.deviantpoint.com/post/2012/07/27/Push-Notifications-with-SharePoint-2013-based-Windows-Phone-apps.aspx](http&#58;//www.deviantpoint.com/post/2012/07/27/Push-Notifications-with-SharePoint-2013-based-Windows-Phone-apps.aspx)
+- Notificaciones de empuje para el desarrollo de Windows Phone [http://blogs.ligasilverlight.com](http://blogs.ligasilverlight.com/)
+- Push Notifications with SharePoint 2013-based Windows Phone apps [http://www.deviantpoint.com/post/2012/07/27/Push-Notifications-with-SharePoint-2013-based-Windows-Phone-apps.aspx](http://www.deviantpoint.com/post/2012/07/27/Push-Notifications-with-SharePoint-2013-based-Windows-Phone-apps.aspx)
 
 
 
@@ -655,9 +667,9 @@ SharePoint Developer at Encamina
 
 MCPD SharePoint 2010 MAP y MCC 2012
 
-[http://blogs.encamina.com/desarrollandosobresharepoint](http&#58;//blogs.encamina.com/desarrollandosobresharepoint)
+[http://blogs.encamina.com/desarrollandosobresharepoint](http://blogs.encamina.com/desarrollandosobresharepoint)
 
-[adiaz@encamina.com](mailto&#58;adiaz@encamina.com)
+[adiaz@encamina.com](mailto:adiaz@encamina.com)
 
 @AdrianDiaz81
 

@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types'
 import Layout from './layout';
 import SEO from './seo'
-import { makeStyles } from "@material-ui/core"
+import { makeStyles } from "@mui/material/styles"
 import ArticleHeader from './article-header'
 
 const useStyles = makeStyles({

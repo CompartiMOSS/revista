@@ -105,7 +105,7 @@ Una vez qué tenemos creados todos los elementos necesarios para evaluar el func
 - El servicio WCF consta de una clase que hereda de la interfaz **IRemoteEventService**. Esta interfaz define dos métodos decorados con el atributo **OperationContact** que son **ProcessEvent()** y **ProcesOneWayEvent()**. El primero de los eventos permite qué el servicio reaccione a eventos de tipo síncrono ("ing") ocurridos en el sitio. El segundo, garantiza respuesta por parte del manejador a eventos de naturaleza asíncrona ("ed").
 - Por ejemplo, podemos codificar el método **ProcessEvent()** de acuerdo al Listado 2.
 
-
+```
 public SPRemoteEventResult ProcessEvent(SPRemoteEventProperties properties)
 
 {
@@ -149,7 +149,7 @@ break;
 return result;
 
 }
-
+```
 
 
 Como se puede apreciar, por una parte el objeto **properties** (de tipo **SPRemoteEventProperties**) contiene la información relativa al evento qué ha ocurrido (propiedad **EventType**). Por otra parte, para cada tipo de evento síncrono simplemente se accede a la columna **Title**(cuyo valor a cambiado) del elemento de la lista y se actualiza su valor concatenando una cadena de texto. Esto es posible gracias al objeto **result** que es de tipo **SPRemoteEventResult** lo que permite acceder a la(s) columna(s) cuyo valor ha(n) cambiado en el elemento y modificarlas a posteriori y antes de que se guarde el elemento en la lista.
@@ -158,7 +158,7 @@ Como se puede apreciar, por una parte el objeto **properties** (de tipo **SPRemo
 
 
 
-
+```
 public void ProcessOneWayEvent(SPRemoteEventProperties properties)
 
 {
@@ -206,7 +206,7 @@ ctx.ExecuteQuery();
 }
 
 }
-
+```
 
 
 En este caso como se trata de procesar un evento síncrono, si queremos hacer algún tipo de operación con el elemento de la lista tendremos que acceder al mismo una vez añadido (para el caso de ejemplo). Como el acceso se realiza de forma remota desde un servicio WCF, tenemos que recurrir al modelo de objetos en cliente para poder recuperar el elemento y realizar el procesado requerido. De nuevo, el objeto **properties** nos da toda la información necesaria (a través de la propiedad **ItemEventProperties**) para poder crear instancias de objetos **ClientContext**, **List** y **ListItem**. Cada vez que necesitemos información del sitio de SharePoint, es necesario definir la operación a realizar y posteriormente llamar al método **ExecuteQuery** del objeto **ClientContext**creado.
@@ -263,7 +263,7 @@ Los manejadores de eventos remotos vienen a cubrir una capacidad muy demandada p
 
 **Juan Carlos González Martín**
  MVP de SharePoint Server, Arquitecto de soluciones en el CIIN
- [jgonzalez@gruposodercan.es](mailto&#58;jgonzalez@gruposodercan.es) 
+ [jgonzalez@gruposodercan.es](mailto:jgonzalez@gruposodercan.es) 
  @jcgm1978 
- [http://geeks.ms/blogs/ciin](http&#58;//geeks.ms/blogs/ciin)
+ [http://geeks.ms/blogs/ciin](http://geeks.ms/blogs/ciin)
 

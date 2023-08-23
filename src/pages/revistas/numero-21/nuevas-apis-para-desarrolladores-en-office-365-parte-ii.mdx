@@ -106,7 +106,7 @@ La devolución de esta petición es el propio fichero.
 
 
 
-| {<br /><br />'\_\_metadata':<br /><br />{<br /><br />'type':'MS.FileServices.File'<br /><br />},<br /><br />Name : '&lt;FileName&gt;'<br /><br />} |
+| \{<br /><br />'\_\_metadata':<br /><br />\{<br /><br />'type':'MS.FileServices.File'<br /><br />\},<br /><br />Name : '&lt;FileName&gt;'<br /><br />\} |
 | --- |
 
 
@@ -271,7 +271,7 @@ Para la creación de un usuario realizaremos la siguiente petición POST:
 Donde tendremos que sustituir mytenantdomain por el nombre de nuestro dominio. En esa petición tendremos que enviar en el cuerpo de la solicitud un formato JSON como el siguiente:
 
 
-| {<br /><br />"accountEnabled": true,<br /><br />"displayName": "Adrian Díaz",<br /><br />"mailNickname": "adiaz",<br /><br />"passwordProfile": { "password" : "xxxxx", "forceChangePasswordNextLogin": false },<br /><br />"userPrincipalName": "adiaz@encamina.com"<br /><br />} |
+| \{<br /><br />"accountEnabled": true,<br /><br />"displayName": "Adrian Díaz",<br /><br />"mailNickname": "adiaz",<br /><br />"passwordProfile": \{ "password" : "xxxxx", "forceChangePasswordNextLogin": false \},<br /><br />"userPrincipalName": "adiaz@encamina.com"<br /><br />\} |
 | --- |
 
 
@@ -302,7 +302,7 @@ Donde tendremos que sustituir mytenantdomain por el nombre de nuestro dominio. E
 En el cuerpo de la solicitud enviaremos un JSON con las propiedades que deseamos modificar. Por ejemplo para modificar el departamento y la ubicación del usuario seria de la siguiente forma:
 
 
-| {<br /><br />"department":"Development",<br /><br />"usageLocation":"ES"<br /><br />} |
+| \{<br /><br />"department":"Development",<br /><br />"usageLocation":"ES"<br /><br />\} |
 | --- |
 
 
@@ -322,7 +322,7 @@ Si la operación ha ido correctamente la API REST nos devolverá un código de e
 
 
 
-| GET [https://graph.windows.net/mytenantdomain/users/&lt;objectId||userPrincipalName&gt;/$links/directReports?api-version=2013-04-05](https&#58;//graph.windows.net/mytenantdomain/users/%3CobjectId||userPrincipalName%3E/$links/directReports?api-version=2013-04-05) |
+| GET [https://graph.windows.net/mytenantdomain/users/&lt;objectId||userPrincipalName&gt;/$links/directReports?api-version=2013-04-05](https://graph.windows.net/mytenantdomain/users/%3CobjectId||userPrincipalName%3E/$links/directReports?api-version=2013-04-05) |
 | --- |
 
 
@@ -343,7 +343,7 @@ Para recuperar las personas que dependen directamente de un contacto, especifica
 Dentro del cuerpo de la solicitud de la petición tendremos que enviar un JSON donde tenga una propiedad "passwordProfile". Esta propiedad debe de tener un valor válido que contiene una contraseña que cumple la directiva de complejidad de contraseñas del inquilino.
 
 
-| {<br /><br />"passwordProfile":<br /><br />{<br /><br />"password":"Test123456",<br /><br />"forceChangePasswordNextLogin":false<br /><br />}<br /><br />} |
+| \{<br /><br />"passwordProfile":<br /><br />\{<br /><br />"password":"Test123456",<br /><br />"forceChangePasswordNextLogin":false<br /><br />\}<br /><br />\} |
 | --- |
 
 
@@ -356,7 +356,7 @@ Dentro del cuerpo de la solicitud de la petición tendremos que enviar un JSON d
 **Requisitos Previos**
 
 - Visual Studio 2013.
-- Descargar Office 365 API Tools bien directamente desde esta dirección [http://visualstudiogallery.msdn.microsoft.com/7e947621-ef93-4de7-93d3-d796c43ba34f](http&#58;//visualstudiogallery.msdn.microsoft.com/7e947621-ef93-4de7-93d3-d796c43ba34f) o directamente desde Nuget.
+- Descargar Office 365 API Tools bien directamente desde esta dirección [http://visualstudiogallery.msdn.microsoft.com/7e947621-ef93-4de7-93d3-d796c43ba34f](http://visualstudiogallery.msdn.microsoft.com/7e947621-ef93-4de7-93d3-d796c43ba34f) o directamente desde Nuget.
 
 
 **Manos a la obra**
@@ -414,7 +414,7 @@ Una vez analizado el código, en la página principal de nuestra aplicación (Ma
 En primer lugar modificaremos el XAML de MainPage.xam añadiendo el siguiente código dentro del GRID que hay por defecto:
 
 
-| &lt;TextBlock Grid.Row="0" x:Name="pageTitle" Text="Demo Office 365" Style="{StaticResource HeaderTextBlockStyle}"<br /><br />IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="50,0,30,40"/&gt;<br /><br />&lt;StackPanel Grid.Row="1"&gt;<br /><br />&lt;TextBlock TextWrapping="Wrap" Margin="30,30,30,50" FontSize="20"  HorizontalAlignment="Center"&gt;<br /><br />APIS Office 365 by CompartIMOSS<br /><br />&lt;/TextBlock&gt;<br /><br />&lt;Grid Margin="30,0,10,30"&gt;<br /><br />&lt;Grid.ColumnDefinitions&gt;<br /><br />&lt;ColumnDefinition Width="\*" /&gt;<br /><br />&lt;ColumnDefinition Width="\*" /&gt;<br /><br />&lt;ColumnDefinition Width="\*" /&gt;<br /><br />&lt;/Grid.ColumnDefinitions&gt;<br /><br />&lt;StackPanel Grid.Column="0" Margin="20,20,20,20"&gt;<br /><br />&lt;Button x:Name="buttonPeople" FontSize="30" Click="ButtonPeople\_OnClick"&gt;People&lt;/Button&gt;<br /><br />&lt;TextBlock TextWrapping="Wrap" Margin="0,30,0,0" FontSize="20" Text="Obtenermos los contactos del Active Directory." /&gt;<br /><br />&lt;/StackPanel&gt;<br /><br />&lt;StackPanel Grid.Column="1" Margin="20,20,20,20"&gt;<br /><br />&lt;Button x:Name="buttonDocuments" FontSize="30" Click="ButtonDocuments\_OnClick"&gt;Documents&lt;/Button&gt;<br /><br />&lt;TextBlock TextWrapping="Wrap" Margin="0,30,0,0" FontSize="20" Text="Obtenemos los ficheros de SharePoint." /&gt;<br /><br />&lt;/StackPanel&gt;<br /><br />&lt;/Grid&gt;<br /><br />&lt;/StackPanel&gt; |
+| &lt;TextBlock Grid.Row="0" x:Name="pageTitle" Text="Demo Office 365" Style="\{StaticResource HeaderTextBlockStyle\}"<br /><br />IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="50,0,30,40"/&gt;<br /><br />&lt;StackPanel Grid.Row="1"&gt;<br /><br />&lt;TextBlock TextWrapping="Wrap" Margin="30,30,30,50" FontSize="20"  HorizontalAlignment="Center"&gt;<br /><br />APIS Office 365 by CompartIMOSS<br /><br />&lt;/TextBlock&gt;<br /><br />&lt;Grid Margin="30,0,10,30"&gt;<br /><br />&lt;Grid.ColumnDefinitions&gt;<br /><br />&lt;ColumnDefinition Width="\*" /&gt;<br /><br />&lt;ColumnDefinition Width="\*" /&gt;<br /><br />&lt;ColumnDefinition Width="\*" /&gt;<br /><br />&lt;/Grid.ColumnDefinitions&gt;<br /><br />&lt;StackPanel Grid.Column="0" Margin="20,20,20,20"&gt;<br /><br />&lt;Button x:Name="buttonPeople" FontSize="30" Click="ButtonPeople\_OnClick"&gt;People&lt;/Button&gt;<br /><br />&lt;TextBlock TextWrapping="Wrap" Margin="0,30,0,0" FontSize="20" Text="Obtenermos los contactos del Active Directory." /&gt;<br /><br />&lt;/StackPanel&gt;<br /><br />&lt;StackPanel Grid.Column="1" Margin="20,20,20,20"&gt;<br /><br />&lt;Button x:Name="buttonDocuments" FontSize="30" Click="ButtonDocuments\_OnClick"&gt;Documents&lt;/Button&gt;<br /><br />&lt;TextBlock TextWrapping="Wrap" Margin="0,30,0,0" FontSize="20" Text="Obtenemos los ficheros de SharePoint." /&gt;<br /><br />&lt;/StackPanel&gt;<br /><br />&lt;/Grid&gt;<br /><br />&lt;/StackPanel&gt; |
 | --- |
 
 
@@ -423,7 +423,7 @@ En primer lugar modificaremos el XAML de MainPage.xam añadiendo el siguiente c�
 A continuación implementamos la funcionalidad de los dos botones. La funcionalidad de estos botones es muy simple, navegará a la opción de la API seleccionada.
 
 
-| private void ButtonPeople\_OnClick(object sender, RoutedEventArgs e)<br /><br />{<br /><br />this.Frame.Navigate(typeof(ActiveDirectorySamplePage));<br /><br />}<br /><br /><br /><br />private void ButtonDocuments\_OnClick(object sender, RoutedEventArgs e)<br /><br />{<br /><br />this.Frame.Navigate(typeof(SharePointSamplePage));<br /><br />}<br /><br /> |
+| private void ButtonPeople\_OnClick(object sender, RoutedEventArgs e)<br /><br />\{<br /><br />this.Frame.Navigate(typeof(ActiveDirectorySamplePage));<br /><br />\}<br /><br /><br /><br />private void ButtonDocuments\_OnClick(object sender, RoutedEventArgs e)<br /><br />\{<br /><br />this.Frame.Navigate(typeof(SharePointSamplePage));<br /><br />\}<br /><br /> |
 | --- |
 
 
@@ -447,8 +447,8 @@ Office 365 es un producto clave dentro de la estrategia que está trazando Satya
 
 **Referencias:**
 
-- [http://msdn.microsoft.com/EN-US/library/office/dn605900(v=office.15).aspx](http&#58;//msdn.microsoft.com/EN-US/library/office/dn605900%28v=office.15%29.aspx) [http://blogs.msdn.com/b/officeapps/archive/2014/03/12/announcing-office-365-api-tools-for-visual-studio-preview.aspx](http&#58;//blogs.msdn.com/b/officeapps/archive/2014/03/12/announcing-office-365-api-tools-for-visual-studio-preview.aspx)
-- [http://msdn.microsoft.com/es-es/library/azure/hh974476.aspx](http&#58;//msdn.microsoft.com/es-es/library/azure/hh974476.aspx)
+- [http://msdn.microsoft.com/EN-US/library/office/dn605900(v=office.15).aspx](http://msdn.microsoft.com/EN-US/library/office/dn605900%28v=office.15%29.aspx) [http://blogs.msdn.com/b/officeapps/archive/2014/03/12/announcing-office-365-api-tools-for-visual-studio-preview.aspx](http://blogs.msdn.com/b/officeapps/archive/2014/03/12/announcing-office-365-api-tools-for-visual-studio-preview.aspx)
+- [http://msdn.microsoft.com/es-es/library/azure/hh974476.aspx](http://msdn.microsoft.com/es-es/library/azure/hh974476.aspx)
 
 
 
@@ -456,7 +456,7 @@ Office 365 es un producto clave dentro de la estrategia que está trazando Satya
 **Adrián Diaz Cervera**
 Sharepoint Architect at Encamina
 MVP de SharePoint Server
-[http://blogs.encamina.com/desarrollandosobresharepoint](http&#58;//blogs.encamina.com/desarrollandosobresharepoint) 
-[http://geeks.ms/blogs/adiazcervera](http&#58;//geeks.ms/blogs/adiazcervera)     
-[adiaz@encamina.com](mailto&#58;adiaz@encamina.com) @AdrianDiaz81
+[http://blogs.encamina.com/desarrollandosobresharepoint](http://blogs.encamina.com/desarrollandosobresharepoint) 
+[http://geeks.ms/blogs/adiazcervera](http://geeks.ms/blogs/adiazcervera)     
+[adiaz@encamina.com](mailto:adiaz@encamina.com) @AdrianDiaz81
 

@@ -1,5 +1,5 @@
 import Highlight, { defaultProps } from 'prism-react-renderer';
-import theme from 'prism-react-renderer/themes/nightOwl';
+import { themes } from 'prism-react-renderer';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -26,7 +26,7 @@ export const LineNo = styled.span`
 
 const Code = ({ codeString, language, ...props }) => {
   return (
-    <Highlight {...defaultProps} code={codeString} language={language} theme={theme}>
+    <Highlight {...defaultProps} code={codeString} language={language} theme={themes.nightOwl}>
       {({ className, style, tokens, getLineProps, getTokenProps }) => (
         <Pre className={className} style={style}>
           {tokens.map((line, i) => (

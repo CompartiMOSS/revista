@@ -1,7 +1,7 @@
 import React from 'react';
 import DownloadPDF from "./download-pdf";
-import { Grid } from "@material-ui/core"
-import { makeStyles } from "@material-ui/core"
+import { makeStyles } from "@mui/material/styles"
+import { Grid } from "@mui/material/Grid"
 
 const useStyles = makeStyles({
   header: {

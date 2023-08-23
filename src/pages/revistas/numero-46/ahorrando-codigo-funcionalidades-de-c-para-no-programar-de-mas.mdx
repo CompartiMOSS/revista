@@ -16,7 +16,7 @@ featuredImage: ../../../images/numero46/ahorrando_codigo/image1.png
 En un artículo anterior explorábamos una forma de hacer llegar conceptos
 de programación básicos y avanzados a programadores que están en
 formación
-(<http://www.compartimoss.com/revistas/numero-44/el-comic-como-medio-de-ensenanza-de-conceptos-de-programacion>).
+(https://www.compartimoss.com/revistas/numero-44/el-comic-como-medio-de-ensenanza-de-conceptos-de-programacion).
 En este artículo también pretendemos hacer llegar conceptos de
 programación a un sector de programadores, pero con la diferencia de que
 están enfocados al único propósito de ahorrar escribir código y que nos
@@ -59,7 +59,7 @@ métodos, dificultando su mantenimiento, además de invertir tiempo en una
 tarea tediosa y repetitiva. Para paliar estos problemas, se necesita la
 ayuda del IDE (autogeneración de estos métodos) o bien, en caso de Java,
 de librerías externas como el proyecto *Lombok*
-(<https://projectlombok.org/>).
+(https://projectlombok.org/).
 
 C\# soluciona este problema dentro del propio lenguaje, con una serie de
 alternativas de generación de métodos get / set de uso muy sencillo y
@@ -152,25 +152,25 @@ formas de solucionar el problema, y C\# provee varias:
 
 | **Fichero1**                     | **Fichero2**                     |
 |----------------------------------|----------------------------------|
-| public partial class Network {   | public partial class Network {   |
+| public partial class Network \{   | public partial class Network \{   |
 |                                  |                                  |
-| public int Mask {get; init;}     | public string BaseIP {get;       |
-|                                  | init;}                           |
+| public int Mask \{get; init;\}     | public string BaseIP \{get;       |
+|                                  | init;\}                           |
 | public partial string            |                                  |
 |                                  | public partial string            |
 | GetNetWorkDescriptor() =\>       |                                  |
 |                                  | GetNetWorkDescriptor();          |
 | BaseIP + \"/\" + Mask;           |                                  |
-|                                  | }                                |
-| }                                |                                  |
+|                                  | \}                                |
+| \}                                |                                  |
 |----------------------------------|----------------------------------|
 | \...                             |                                  |
 |                                  |                                  |
 | //Todas las partes de la clase   |                                  |
 | están disponibles sin problema   |                                  |
 |                                  |                                  |
-| var n = new Network () {BaseIP = |                                  |
-| \"156.45.34.0\", Mask = 24};     |                                  |
+| var n = new Network () \{BaseIP = |                                  |
+| \"156.45.34.0\", Mask = 24\};     |                                  |
 |                                  |                                  |
 | Console.Writ                     |                                  |
 | eLine(n.GetNetWorkDescriptor()); |                                  |
@@ -257,7 +257,7 @@ hacer algo como lo que se muestra en la imagen 5.
 
 * Tipo anónimo creado en este punto. Los nombres de los atributos
 pueden omitirse y se usaría el nombre de la instancia usada para darle
-valor (var redPC = new {n, computer2} sería valido) *
+valor (var redPC = new \{n, computer2\} sería valido) *
 
 ```csharp
 var redPC = new {
@@ -431,25 +431,25 @@ ambos casos Method1 se puede llamar con 1, 2 o 3 parámetros.
 
 |     |     |
 | --- | --- | 
-| public string Method1 (int p1) { | public string Method1B (int p1,  |
-|                                  | int p2=0, int p3= 0) {           |
+| public string Method1 (int p1) \{ | public string Method1B (int p1,  |
+|                                  | int p2=0, int p3= 0) \{           |
 | \...                             |                                  |
 |                                  | return null;                     |
-| }                                |                                  |
-|                                  | }                                |
+| \}                                |                                  |
+|                                  | \}                                |
 | public string Method1(int p1,    |                                  |
-| int p2) {                        |                                  |
+| int p2) \{                        |                                  |
 |                                  |                                  |
 | return null;                     |                                  |
 |                                  |                                  |
-| }                                |                                  |
+| \}                                |                                  |
 |                                  |                                  |
 | public string Method1(int p1,    |                                  |
-| int p2, int p3) {                |                                  |
+| int p2, int p3) \{                |                                  |
 |                                  |                                  |
 | return null;                     |                                  |
 |                                  |                                  |
-| }                                |                                  |
+| \}                                |                                  |
 
 *¿De verdad hace falta todo esto para empezar un programa?*
 
@@ -467,9 +467,9 @@ operativo.
 
 |     |     |
 | --- | --- | 
-| public static class Application {      | Console.WriteLine(args); |
+| public static class Application \{      | Console.WriteLine(args); |
 |                                        |                          |
-| public static int Main (string args) { |                          |
+| public static int Main (string args) \{ |                          |
 |                                        |                          |
 | Console.WriteLine(args);               |                          |
 |                                        |                          |
@@ -477,9 +477,9 @@ operativo.
 |                                        |                          |
 | return 0;                              |                          |
 |                                        |                          |
-| }                                      |                          |
+| \}                                      |                          |
 |                                        |                          |
-| }                                      |                          |
+| \}                                      |                          |
 
 *¿Comprobar null antes de acceder a una variable? Sí, pero más fácil*
 
@@ -555,7 +555,7 @@ introducido además la posibilidad de usar \_ para descartar algún
 parámetro que no tenga sentido en algún uso particular de una expresión
 lambda, de forma que, aunque un parámetro no se use en un momento dado,
 la expresión siga siendo compatible con un delegado que las contenga
-determinado (ver <https://docs.microsoft.com/es-es/dotnet/csharp/language-reference/operators/lambda-expressions>).
+determinado (ver https://docs.microsoft.com/es-es/dotnet/csharp/language-reference/operators/lambda-expressions).
 
 *¿Comparadores? ¿Equals? Eso es muy \"clásico"*
 
@@ -566,20 +566,20 @@ de esta.
 
 | **Forma Orientada a Objetos**    | **Forma Funcional**              |
 |----------------------------------|----------------------------------|
-| class Person {                   | *(solo tenemos que indicar el    |
+| class Person \{                   | *(solo tenemos que indicar el    |
 |                                  | criterio de ordenación como una  |
-| public string Name {get; set;}   | expresión lambda)*               |
+| public string Name \{get; set;\}   | expresión lambda)*               |
 |                                  |                                  |
-| public string NIF {get; set;}    | var sorted =                     |
+| public string NIF \{get; set;\}    | var sorted =                     |
 |                                  | persons.OrderBy(person =\>       |
 | public override string           | person.NIF);                     |
-| ToString() {                     |                                  |
+| ToString() \{                     |                                  |
 |                                  |                                  |
 | return Name + \"; \" + NIF;      |                                  |
 |                                  |                                  |
-| }                                |                                  |
+| \}                                |                                  |
 |                                  |                                  |
-| }                                |                                  |
+| \}                                |                                  |
 |                                  |                                  |
 | *Tenemos que implementar una     |                                  |
 | clase que implemente IComparer   |                                  |
@@ -588,16 +588,16 @@ de esta.
 | Apellidos\...):*                 |                                  |
 |                                  |                                  |
 | class PersonByNameComparator :   |                                  |
-| IComparer\<Person\> {            |                                  |
+| IComparer\<Person\> \{            |                                  |
 |                                  |                                  |
 | public int Compare(Person x,     |                                  |
-| Person y) {                      |                                  |
+| Person y) \{                      |                                  |
 |                                  |                                  |
 | return x.Name.CompareTo(y.Name); |                                  |
 |                                  |                                  |
-| }                                |                                  |
+| \}                                |                                  |
 |                                  |                                  |
-| }                                |                                  |
+| \}                                |                                  |
 |                                  |                                  |
 | \...                             |                                  |
 |                                  |                                  |
@@ -666,7 +666,7 @@ este caso la suma de todos los primos menos que 100.
 | numbers =                        | Console.Wri                      |
 | OOPNumberGenerator(100);         | teLine(LazyNumberGenerator(100). |
 |                                  |                                  |
-| var result = 0;                  | Aggregate((accum, number) =\> {  |
+| var result = 0;                  | Aggregate((accum, number) =\> \{  |
 |                                  |                                  |
 | foreach (var number in numbers)  | if (IsPrime(number))             |
 |                                  |                                  |
@@ -674,7 +674,7 @@ este caso la suma de todos los primos menos que 100.
 |                                  |                                  |
 | result += number;                | return accum;                    |
 |                                  |                                  |
-| Console.WriteLine(result);       | }));                             |
+| Console.WriteLine(result);       | \}));                             |
 |                                  |                                  |
 |                                  | *Aunque en este caso concreto    |
 |                                  | también se admitiría:*           |
@@ -709,47 +709,47 @@ además que el IEnumerable generado siga automáticamente una política
 | **Forma Orientada a Objetos**    | **Forma Funcional**              |
 |----------------------------------|----------------------------------|
 | class MyList\<T\>:               | *Usando programación funcional   |
-| IEnumerable\<T\> {               | no tenemos que crear otra clase  |
+| IEnumerable\<T\> \{               | no tenemos que crear otra clase  |
 |                                  | que implemente                   |
 | public IEnumerator\<T\>          | IEnumerator\<T\>:*               |
-| GetEnumerator() {                |                                  |
+| GetEnumerator() \{                |                                  |
 |                                  | class                            |
 | return new                       | MyListEnumeratorFunctional\<T\>: |
 | MyListEnumerator\<T\>(this);     |                                  |
-|                                  | IEnumerable\<T\> {               |
-| }                                |                                  |
+|                                  | IEnumerable\<T\> \{               |
+| \}                                |                                  |
 |                                  | public T GetElement(int pos)     |
-| IEnumerator                      | {...}                            |
+| IEnumerator                      | \{...\}                            |
 | IEnumerable.GetEnumerator()      |                                  |
-|                                  | public int Length {get; init;}   |
-| { return GetEnumerator(); }      |                                  |
+|                                  | public int Length \{get; init;\}   |
+| \{ return GetEnumerator(); \}      |                                  |
 |                                  | public IEnumerator\<T\>          |
-| }                                | GetEnumerator() {                |
+| \}                                | GetEnumerator() \{                |
 |                                  |                                  |
 | *Necesitamos otra clase que      | for (int i = 0; i\<this.Length;  |
 | implemente IEnumerator\<T\>:*    | i++)                             |
 |                                  |                                  |
 | class                            | yield return GetElement(i);      |
 | MyListE                          |                                  |
-| numerator\<T\>:IEnumerator\<T\>{ | }                                |
+| numerator\<T\>:IEnumerator\<T\>\{ | \}                                |
 |                                  |                                  |
 | public                           | IEnumerator                      |
-| MyListEnumerator(MyList\<T\>     | IEnumerable.GetEnumerator() {    |
-| listToEnumerate) {...}           | return GetEnumerator(); }        |
+| MyListEnumerator(MyList\<T\>     | IEnumerable.GetEnumerator() \{    |
+| listToEnumerate) \{...\}           | return GetEnumerator(); \}        |
 |                                  |                                  |
-| public void Dispose() {...}      | }                                |
+| public void Dispose() \{...\}      | \}                                |
 |                                  |                                  |
-| public bool MoveNext() {...}     |                                  |
+| public bool MoveNext() \{...\}     |                                  |
 |                                  |                                  |
-| public void Reset() {...}        |                                  |
+| public void Reset() \{...\}        |                                  |
 |                                  |                                  |
-| public T Current {get;}          |                                  |
+| public T Current \{get;\}          |                                  |
 |                                  |                                  |
-| object IEnumerator.Current {     |                                  |
+| object IEnumerator.Current \{     |                                  |
 |                                  |                                  |
-| get {return Current;}}           |                                  |
+| get \{return Current;\}\}           |                                  |
 |                                  |                                  |
-| }                                |                                  |
+| \}                                |                                  |
 
 Esta misma aproximación se puede usar también para la generación de
 colecciones de números u otros elementos que sigan un determinado patrón
@@ -759,8 +759,8 @@ funcional además sería *lazy*).
 | **Forma Orientada a Objetos**    | **Forma Funcional**              |
 |----------------------------------|----------------------------------|
 | int \[\] OOPNumberGenerator (int | IEnumerable\<int\>               |
-| limit) {                         | LazyNumberGenerator (int limit)  |
-|                                  | {                                |
+| limit) \{                         | LazyNumberGenerator (int limit)  |
+|                                  | \{                                |
 | int counter = 0;                 |                                  |
 |                                  | int counter = 0;                 |
 | int \[\] temp = new              |                                  |
@@ -768,11 +768,11 @@ funcional además sería *lazy*).
 |                                  |                                  |
 | while (counter \< limit)         | yield return counter++;          |
 |                                  |                                  |
-| temp\[counter\] = counter++;     | }                                |
+| temp\[counter\] = counter++;     | \}                                |
 |                                  |                                  |
 | return temp;                     |                                  |
 |                                  |                                  |
-| }                                |                                  |
+| \}                                |                                  |
 
 *Patrones para comparaciones avanzadas y ahorro de código (C\#9)*
 
@@ -800,9 +800,9 @@ Finalmente, la imagen 21 contiene un ejemplo de uso de *pattern
 matching* que haría la misma labor que una estructura clásica if-else
 anidada, pero usando mucho menos código.
 
+```csharp
 enum Cathegory {Bronze, Silver, Gold}
 
-```csharp
 ...
 
 public Cathegory DetermineCathegory(int points) => points switch {

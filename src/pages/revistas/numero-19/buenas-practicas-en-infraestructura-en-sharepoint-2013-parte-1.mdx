@@ -32,7 +32,7 @@ Es posible instalar y configurar una granja de SharePoint utilizando una única 
 
 Aquí se detallan las diferentes cuentas administrativas necesarias para instalar y configurar una granja de SharePoint y los permisos necesarios:
 
-[http://www.sinsharepointnohayparaiso.com/Blog/Entrada/92/Cuentas-administrativas-para-instalar-configurar-SharePoint-2013](http&#58;//www.sinsharepointnohayparaiso.com/Blog/Entrada/92/Cuentas-administrativas-para-instalar-configurar-SharePoint-2013)
+[http://www.sinsharepointnohayparaiso.com/Blog/Entrada/92/Cuentas-administrativas-para-instalar-configurar-SharePoint-2013](http://www.sinsharepointnohayparaiso.com/Blog/Entrada/92/Cuentas-administrativas-para-instalar-configurar-SharePoint-2013)
 
 De todas estas, las mínimas son:
 
@@ -59,7 +59,7 @@ Tras usarlo, todo funciona aparentemente, pero hay problemas:
 
 **Error #3: Requisitos de hardware incorrectos**
 
-Todas las máquinas del entorno deben cumplir con el mínimo de TechNet: [http://technet.microsoft.com/es-es/library/cc262485.aspx](http&#58;//technet.microsoft.com/es-es/library/cc262485.aspx)
+Todas las máquinas del entorno deben cumplir con el mínimo de TechNet: [http://technet.microsoft.com/es-es/library/cc262485.aspx](http://technet.microsoft.com/es-es/library/cc262485.aspx)
 
 En cuanto a memoria, si SharePoint tiene poca RAM apaga funcionalidades, cachea menos en los pool de aplicación del IIS y los reinicia con más frecuencia. Además, los procesos de búsqueda en 2013 consumen mucha memoria RAM.
 
@@ -83,7 +83,7 @@ En base de datos, la separación ideal para un buen rendimiento sería tener sep
 
 **Error #4: Mal funcionamiento o configuración de SQL Server**
 
-El rendimiento y velocidad de SharePoint se puede ver muy afectado si SQL Server no funciona de manera óptima. Hay que dedicar mucho esfuerzo y dedicación a configurar los servidores de SQL Server para conseguir un entorno robusto. Debemos asegurarnos que se cumplen los requisitos mínimos de hardware ([http://technet.microsoft.com/es-es/library/cc262485.aspx](http&#58;//technet.microsoft.com/es-es/library/cc262485.aspx)) y que analizamos correctamente las capacidades de SQL Server ([http://technet.microsoft.com/es-es/library/cc298801(v=office.15).aspx)](http&#58;//technet.microsoft.com/es-es/library/cc298801%28v=office.15%29.aspx%29).
+El rendimiento y velocidad de SharePoint se puede ver muy afectado si SQL Server no funciona de manera óptima. Hay que dedicar mucho esfuerzo y dedicación a configurar los servidores de SQL Server para conseguir un entorno robusto. Debemos asegurarnos que se cumplen los requisitos mínimos de hardware ([http://technet.microsoft.com/es-es/library/cc262485.aspx](http://technet.microsoft.com/es-es/library/cc262485.aspx)) y que analizamos correctamente las capacidades de SQL Server ([http://technet.microsoft.com/es-es/library/cc298801(v=office.15).aspx)](http://technet.microsoft.com/es-es/library/cc298801%28v=office.15%29.aspx%29).
 
 Como recomendación adicional, es bueno configurar la conexión entre SharePoint y SQL Server utilizando un SQL Alias. Un alias es un nombre por el cual un servidor identifica a una instancia de SQL Server. Cuando se conecte SharePoint a SQL Server, se puede usar un alias en vez del nombre concreto SERVIDOR\INSTANCIA. De esa forma, si en el futuro se cambia el servidor de SQL Server o se sustituye por otro entorno, no afecta a SharePoint, ya que basta con reconfigurar el alias.
 
@@ -95,7 +95,7 @@ Es posible evitar el tocar a mano un web.config en la mayoría de las ocasiones:
 
 - Si se quiere registrar una DLL en el web.config, se debe llevar en un paquete WSP, que actualice las referencias en el web.config de forma automática.
 - Si se quiere añadir datos clave-valor, en vez de meter entradas a mano en la sección de appsettings del web.config, pueden usarse Property Bags de SharePoint.
-- Si se quiere realizar cualquier otra modificación en el web.config, puede hacerse un WSP que lance un código que use la clase SPWebModification de la API para modificarlo. Ejemplos en [http://www.codeproject.com/Articles/390545/SharePoint-web-config-modifications](http&#58;//www.codeproject.com/Articles/390545/SharePoint-web-config-modifications).
+- Si se quiere realizar cualquier otra modificación en el web.config, puede hacerse un WSP que lance un código que use la clase SPWebModification de la API para modificarlo. Ejemplos en [http://www.codeproject.com/Articles/390545/SharePoint-web-config-modifications](http://www.codeproject.com/Articles/390545/SharePoint-web-config-modifications).
 
 
 Si se añade un nuevo servidor frontal web a la granja de SharePoint, puede que cree las aplicaciones y no añada personalizaciones a mano del web.config. En cambio, si hemos usado WSP para añadirlas, SharePoint desplegará los WSP y se añadirán los cambios.
@@ -172,7 +172,7 @@ Cuando SharePoint crea las bases de datos, toma algunas decisiones que pueden af
 
 **Error #8: No habilitar el cacheo de BLOB**
 
-El cacheo de BLOB se utiliza para guardar temporalmente en disco objetos binarios (como imágenes y videos) que se utilizan frecuentemente para mejorar el rendimiento de la granja y de la aplicación. Por defecto está deshabilitado y es muy útil, sobretodo en aplicaciones con muchas imágenes y vídeo. Para configurar: [http://www.gavd.net/servers/sharepointv4/spsv4\_item.aspx?top=inf&itm=1468](http&#58;//www.gavd.net/servers/sharepointv4/spsv4_item.aspx?top=inf&amp;itm=1468)
+El cacheo de BLOB se utiliza para guardar temporalmente en disco objetos binarios (como imágenes y videos) que se utilizan frecuentemente para mejorar el rendimiento de la granja y de la aplicación. Por defecto está deshabilitado y es muy útil, sobretodo en aplicaciones con muchas imágenes y vídeo. Para configurar: [http://www.gavd.net/servers/sharepointv4/spsv4\_item.aspx?top=inf&itm=1468](http://www.gavd.net/servers/sharepointv4/spsv4_item.aspx?top=inf&amp;itm=1468)
 
 **Error #9: usar la cuenta spfarm para todo**
 
@@ -181,7 +181,7 @@ La cuenta de conexión a base de datos (generalmente llamada spfarm) es la cuent
 Una vez configurada esta cuenta, la recomendación es no utilizarla. De hecho, no debe ser administrador local en los servidores de SharePoint, luego su uso puede ser hasta incómodo. Si se requiere hacer operaciones con configuración o mantenimiento sobre la granja vía Administración Central o PowerShell, hay dos opciones más recomendables:
 
 - Utilizar la cuenta de instalación (generalmente llamada spsetup), ya que tiene permisos suficientes para ejecutar cualquier operación administrativa de PowerShell.
-- Dar permiso a otra cuenta en las bases de datos que se desee mediante el comando [Add-SPShellAdmin](http&#58;//technet.microsoft.com/es-es/library/ff607596.aspx) (**nunca a mano en SQL Server**).
+- Dar permiso a otra cuenta en las bases de datos que se desee mediante el comando [Add-SPShellAdmin](http://technet.microsoft.com/es-es/library/ff607596.aspx) (**nunca a mano en SQL Server**).
 
 
 **Error #10: No hacer que los servidores SharePoint apunten a sí mismos**
@@ -198,7 +198,7 @@ En la próxima parte del artículo veremos las mejores recomendaciones para estr
 
 **Miguel Tabera Pacheco**
  SharePoint Server MVP 
-[miguel.tabera@outlook.com](mailto&#58;miguel.tabera@outlook.com) 
+[miguel.tabera@outlook.com](mailto:miguel.tabera@outlook.com) 
 @migueltabera
- [http://www.sinsharepointnohayparaiso.com](http&#58;//www.sinsharepointnohayparaiso.com/)
+ [http://www.sinsharepointnohayparaiso.com](http://www.sinsharepointnohayparaiso.com/)
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from "gatsby" 
 import PartnerLogo from './partner-logo'
-import { makeStyles } from "@material-ui/core"
+import { makeStyles } from "@mui/material/styles"
 
 const useStyles = makeStyles({
     partner: {

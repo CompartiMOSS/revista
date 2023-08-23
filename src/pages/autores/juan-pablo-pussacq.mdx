@@ -17,9 +17,6 @@ import AuthorPage from '../../components/author-page';
 
 <AuthorPage frontmatter={props.pageContext.frontmatter} articles={props.data.allMdx} />
 
-
-<ViewArticles articles={props.data.allMdx} title="Índice" />
-
 export const pageQuery = graphql`query {allMdx(filter: {frontmatter: {authorId: {eq: "juan-pablo-pussacq"}}}){edges {node {frontmatter {title, author, slug}}}}}`
 
 export default LayoutAuthor  

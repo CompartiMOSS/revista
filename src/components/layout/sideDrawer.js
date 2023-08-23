@@ -1,8 +1,8 @@
 import * as React from "react"
-import { IconButton, List, ListItem, ListItemText, Drawer, ListItemIcon } from "@material-ui/core"
-import { Menu } from "@material-ui/icons"
+import { IconButton, List, ListItem, ListItemText, Drawer, ListItemIcon } from "@mui/material"
+import { Menu } from "@mui/icons-material"
 import { useState } from "react"
-import { makeStyles } from "@material-ui/core/styles"
+import { makeStyles } from "@mui/material/styles"
 
 const useStyles = makeStyles({
     list: {

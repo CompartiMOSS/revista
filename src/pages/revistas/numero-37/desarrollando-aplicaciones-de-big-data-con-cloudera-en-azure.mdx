@@ -88,23 +88,23 @@ Volvamos a Big Data. Crear un cluster (un grupo de máquinas que trabajan en con
 
 ·       Deploying and Scaling Cloudera Enterprise on Microsoft Azure:
 
-( [https://ondemand.cloudera.com/courses/course-v1:Cloudera+Azure+180601/info](https&#58;//ondemand.cloudera.com/courses/course-v1&#58;Cloudera+Azure+180601/info) )
+( [https://ondemand.cloudera.com/courses/course-v1:Cloudera+Azure+180601/info](https://ondemand.cloudera.com/courses/course-v1:Cloudera+Azure+180601/info) )
 
 ![Imagen 2.- Azure Deploying and Scaling Cloudera Enterprise on Microsoft Azure.](../../../images/numero37/desarrollando-aplicaciones-de-big-data-con-cloudera-en-azure/image2.png)
 
-Si le interesa aprender cómo instalar *on-premises* en vez de Azure o incluso en AWS, tengo algunos cursos disponibles en Pluralsight que talvez le puedan interesar: [https://www.pluralsight.com/search?q=xavier+cloudera&categories=all](https&#58;//www.pluralsight.com/search?q=xavier+cloudera&amp;categories=all)
+Si le interesa aprender cómo instalar *on-premises* en vez de Azure o incluso en AWS, tengo algunos cursos disponibles en Pluralsight que talvez le puedan interesar: [https://www.pluralsight.com/search?q=xavier+cloudera&categories=all](https://www.pluralsight.com/search?q=xavier+cloudera&amp;categories=all)
 
 Pero bueno, vamos a lo importante. Ahora sí, veamos cuáles son las maneras en las que se puede instalar un cluster, y que tipo de clusters hay.
 
 **#1 Instalación desde Cero Utilizando Cloudera Manager (Para Desarrollo)**
 Esta es la manera más fácil para instalar un cluster de desarrollo. Digo de desarrollo pues es una instalación automatizada, que utiliza una base de datos "embedded", es decir que trae como parte de la instalación.
 
-Lo primero que ocupamos es una máquina Linux. La recomendación es CentOS y acá hay un link con las instrucciones de cómo crear una máquina virtual en Microsoft Azure con dichas características desde ekl portal de Azure (portal.azure.com): [https://docs.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal](https&#58;//docs.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal) (el articulo indica Ubuntu, pero como les comente, les recomiendo utilizar CentOS).
+Lo primero que ocupamos es una máquina Linux. La recomendación es CentOS y acá hay un link con las instrucciones de cómo crear una máquina virtual en Microsoft Azure con dichas características desde ekl portal de Azure (portal.azure.com): [https://docs.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal) (el articulo indica Ubuntu, pero como les comente, les recomiendo utilizar CentOS).
 
 ![Imagen 3.- Selección del tipo de máquina virtual a crear.](../../../images/numero37/desarrollando-aplicaciones-de-big-data-con-cloudera-en-azure/image3.png)
 
 Una vez que la máquina está corriendo y se han conectado vía SSH, vamos a proceder a seguir las instrucciones para instalar Cloudera, con lo cual podemos después proceder a crear un cluster. Vamos a seguir estas instrucciones:
-[https://www.cloudera.com/documentation/enterprise/latest/topics/cm\_ig\_non\_production.html](https&#58;//www.cloudera.com/documentation/enterprise/latest/topics/cm_ig_non_production.html)
+[https://www.cloudera.com/documentation/enterprise/latest/topics/cm\_ig\_non\_production.html](https://www.cloudera.com/documentation/enterprise/latest/topics/cm_ig_non_production.html)
 
 Siendo tres los comandos que nos interesan:
 $ wget https://archive.cloudera.com/cm5/installer/5.15.0/cloudera-manager-installer.bin
@@ -123,9 +123,9 @@ Y finalmente tendremos un cluster donde podemos ya usar Hive, Impala, Spark, Hue
 
 ![Imagen 6.- Cloudera Manager.](../../../images/numero37/desarrollando-aplicaciones-de-big-data-con-cloudera-en-azure/image6.png)
 
-Y así de fácil, logramos instalar un cluster de desarrollo en Microsoft Azure. ¿Y qué tal si quisiéramos un cluster ya de producción? Los pasos están bien documentados, aunque son un poco más largos. Esto es lo que se llama un *Path B Install*, y la principal diferencia con el paso anterior es que es necesario crear una base de datos que puede ser MySQL, MariaDB, PostgreSQL, u Oracle. Estos son los pasos por si les interesa conocer más a fondo: [https://www.cloudera.com/documentation/enterprise/latest/topics/installation.html](https&#58;//www.cloudera.com/documentation/enterprise/latest/topics/installation.html).
+Y así de fácil, logramos instalar un cluster de desarrollo en Microsoft Azure. ¿Y qué tal si quisiéramos un cluster ya de producción? Los pasos están bien documentados, aunque son un poco más largos. Esto es lo que se llama un *Path B Install*, y la principal diferencia con el paso anterior es que es necesario crear una base de datos que puede ser MySQL, MariaDB, PostgreSQL, u Oracle. Estos son los pasos por si les interesa conocer más a fondo: [https://www.cloudera.com/documentation/enterprise/latest/topics/installation.html](https://www.cloudera.com/documentation/enterprise/latest/topics/installation.html).
 
-No obstante, hay una forma todavía más sencilla de instalar un cluster de producción, el Enterprise Data Hub, en Microsoft Azure.  Esta metodología utiliza Azure Resource Manager para crear un cluster a base de una plantilla. Acá está el link por si desean hacer la instalación ustedes mismos: [https://azuremarketplace.microsoft.com/en-us/marketplace/apps/cloudera.clouderaedh](https&#58;//azuremarketplace.microsoft.com/en-us/marketplace/apps/cloudera.clouderaedh)
+No obstante, hay una forma todavía más sencilla de instalar un cluster de producción, el Enterprise Data Hub, en Microsoft Azure.  Esta metodología utiliza Azure Resource Manager para crear un cluster a base de una plantilla. Acá está el link por si desean hacer la instalación ustedes mismos: [https://azuremarketplace.microsoft.com/en-us/marketplace/apps/cloudera.clouderaedh](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/cloudera.clouderaedh)
 
 Pero, en resumen, los pasos son sencillos. Se carga la plantilla de Azure Resource Manager, se especifica los detalles de las máquinas a utilizar, se le da un nombre a un cluster, se seleccionan los servicios y al finalizar de llenar la información, se espera aproximadamente 30 minutos para tener un cluster de Hadoop en la nube.
 

@@ -27,7 +27,7 @@ La principal novedad en cuanto a tipos de Granja de SharePoint server 2016 la ap
 - **Personalizado**, es decir, Servidores que hospedan las Aplicaciones de Servicio, Servicios y Componentes personalizados que están fuera de la topología de MinRole. Un ejemplo de Aplicación de Servicio que se hospedaría en un servidor con este Rol es la de Reporting Services.
 
 
-Como se verá a continuación, el Rol de un servidor se especifica en el momento en el que se crea una nueva Granja o bien se une un nuevo servidor a una Granja existente. SharePoint se encarga de configurar de forma automática los servicios de cada servidor de la Granja de acuerdo al Rol asignado. Para más información sobre MinRole: [**https://technet.microsoft.com/EN-US/library/mt346114(v=office.16).aspx**](https&#58;//technet.microsoft.com/EN-US/library/mt346114%28v=office.16%29.aspx).
+Como se verá a continuación, el Rol de un servidor se especifica en el momento en el que se crea una nueva Granja o bien se une un nuevo servidor a una Granja existente. SharePoint se encarga de configurar de forma automática los servicios de cada servidor de la Granja de acuerdo al Rol asignado. Para más información sobre MinRole: [**https://technet.microsoft.com/EN-US/library/mt346114(v=office.16).aspx**](https://technet.microsoft.com/EN-US/library/mt346114%28v=office.16%29.aspx).
 
 **Particularidades en la instalación de una Granja de varios Servidores**
 
@@ -35,24 +35,24 @@ A continuación, se detallan las particularidades en la instalación de una Gran
 
 - Existe un Directorio Activo creado y pre-configurado al que previamente se han unido cada uno de los Servidores de la Granja.
 - Existe un Servidor en el que se ha instalado y configurado una versión de SQL Server soportada por SharePoint Server 2016 (SQL Server 2014 o bien SQL Server 2016 CTP 3.3).
-- Se han creado las cuentas de instalación y configuración necesarias para instalar y configurar SharePoint Server 2016. A modo de ejemplo, recomiendo seguir el siguiente artículo de Vlad Catrinescu como referencia de cuentas requeridas: [https://absolute-sharepoint.com/2013/01/sharepoint-2013-service-accounts-best-practices-explained.html](https&#58;//absolute-sharepoint.com/2013/01/sharepoint-2013-service-accounts-best-practices-explained.html)
+- Se han creado las cuentas de instalación y configuración necesarias para instalar y configurar SharePoint Server 2016. A modo de ejemplo, recomiendo seguir el siguiente artículo de Vlad Catrinescu como referencia de cuentas requeridas: [https://absolute-sharepoint.com/2013/01/sharepoint-2013-service-accounts-best-practices-explained.html](https://absolute-sharepoint.com/2013/01/sharepoint-2013-service-accounts-best-practices-explained.html)
 
 
 Con estas premisas de partida, el proceso de instalación de cada uno de los Roles de la Granja es el siguiente:
 
 - Descargar SharePoint Server 2016 Beta2 y el parche relativo a la RC de los siguientes enlaces:
     - SharePoint Server 2016 Beta 2:
-        - [https://www.microsoft.com/en-us/download/details.aspx?id=49961](https&#58;//www.microsoft.com/en-us/download/details.aspx?id=49961)
+        - [https://www.microsoft.com/en-us/download/details.aspx?id=49961](https://www.microsoft.com/en-us/download/details.aspx?id=49961)
     - SharePoint Server 2016 RC:
-        - [https://www.microsoft.com/en-us/download/details.aspx?id=50737](https&#58;//www.microsoft.com/en-us/download/details.aspx?id=50737)
+        - [https://www.microsoft.com/en-us/download/details.aspx?id=50737](https://www.microsoft.com/en-us/download/details.aspx?id=50737)
 
 
 Adicionalmente, para la RC necesitaremos seguir las instrucciones de instalación específicas y descargar e instalar (dependiendo del idioma base para la Beta 2) el paquete o paquetes de idiomas necesarios:
 
     - Instrucciones de instalación de la RC:
-    - [https://technet.microsoft.com/library/mt674910(v=office.16).aspx](https&#58;//technet.microsoft.com/library/mt674910%28v=office.16%29.aspx)
+    - [https://technet.microsoft.com/library/mt674910(v=office.16).aspx](https://technet.microsoft.com/library/mt674910%28v=office.16%29.aspx)
     - Paquetes de idioma para la RC:
-        - [https://www.microsoft.com/en-us/download/details.aspx?id=50736](https&#58;//www.microsoft.com/en-us/download/details.aspx?id=50736)
+        - [https://www.microsoft.com/en-us/download/details.aspx?id=50736](https://www.microsoft.com/en-us/download/details.aspx?id=50736)
 
 
 - Instalación y configuración de los pre-requisitos de software necesarios para SharePoint 2016. Durante el proceso de instalación y configuración de los pre-requisitos, el servidor se re-iniciará 1-2 veces.
@@ -93,7 +93,7 @@ Una vez que se ha configurado el primer servidor de la Granja con el Role de Apl
 
 ![Imagen 6.- Ventana “Especificar los parámetros de la base de datos de configuración” en el segundo y siguientes servidores a con](../../../images/numero27/particularidades-instalacion-granja-varios-servidores-sharepoint-2016/image6.png)
 
-**Nota**: Puede ocurrir que al intentar recuperar la BD de configuración del Servidor de BD se muestre un error indicando que no es posible realizar la comunicación con el servidor. Este problema puede ser debido a que en el servidor de BD no se ha configurado el Firewall de Windows para abrir los puertos requeridos tal y como se detalla en el siguiente artículo de Microsoft TechNet: [https://msdn.microsoft.com/en-us/library/cc646023.aspx](https&#58;//msdn.microsoft.com/en-us/library/cc646023.aspx)
+**Nota**: Puede ocurrir que al intentar recuperar la BD de configuración del Servidor de BD se muestre un error indicando que no es posible realizar la comunicación con el servidor. Este problema puede ser debido a que en el servidor de BD no se ha configurado el Firewall de Windows para abrir los puertos requeridos tal y como se detalla en el siguiente artículo de Microsoft TechNet: [https://msdn.microsoft.com/en-us/library/cc646023.aspx](https://msdn.microsoft.com/en-us/library/cc646023.aspx)
 
 - En la ventana "Especificar configuración de seguridad del conjunto de servidores" especifique la frase de contraseña configurada al instalar el Rol de "Aplicación" y haga clic en "Siguiente" de forma que se muestre la pantalla "Especifique el rol del servidor".  Seleccione en este caso "Buscar" y presione "Siguiente".
 
@@ -119,6 +119,6 @@ SharePoint Server 2016 únicamente permite realizar instalación y configuració
 **Juan Carlos González Martín**
  Office Servers and Services MVP
  Cloud & Productivity Advisor en MVP CLUSTER
- [jcgonzalez](mailto&#58;jcgonzalez)martin1978@hotmail.com
- @jcgm1978 | [https://jcgonzalezmartin.wordpress.com/](https&#58;//jcgonzalezmartin.wordpress.com/)
+ [jcgonzalez](mailto:jcgonzalez)martin1978@hotmail.com
+ @jcgm1978 | [https://jcgonzalezmartin.wordpress.com/](https://jcgonzalezmartin.wordpress.com/)
 

@@ -18,7 +18,7 @@ keywords: ['SharePoint 2013','JavaScript']
 
 CSR es un Framework que permite personalizar el diseño en las vistas y formularios que trae SharePoint de forma predeterminada. Digamos que este Framework aplica tanto a SharePoint 2013 como a Office 365 (al menos por ahora, febrero 2016).
 
-Básicamente, lo que hace CSR es transformar un objeto de JavaScript en HTML y después insertarlo en el [DOM](https&#58;//developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
+Básicamente, lo que hace CSR es transformar un objeto de JavaScript en HTML y después insertarlo en el [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
 
 ![Imagen 1.- Proceso de transformación de CSR.](../../../images/numero27/sharepoint-2013-client-side-rendering-en-detalle/image1.png)
 
@@ -304,9 +304,9 @@ Vemos como para cada ámbito o Template se almacena una sub-estructura de datos 
 
 Para ver más información sobre:
 
-- ViewStyle: [http://www.codeproject.com/Articles/620110/SharePoint-Client-Side-Rendering-List-Views](http&#58;//www.codeproject.com/Articles/620110/SharePoint-Client-Side-Rendering-List-Views)
-- ListTemplateType: [http://msdn.microsoft.com/en-us/library/microsoft.sharepoint.client.listtemplatetype](http&#58;//msdn.microsoft.com/en-us/library/microsoft.sharepoint.client.listtemplatetype)
-- BaseViewID: [http://sharepoint.stackexchange.com/questions/28349/how-can-i-use-normal-paging-on-a-custom-view/28538#28538](http&#58;//sharepoint.stackexchange.com/questions/28349/how-can-i-use-normal-paging-on-a-custom-view/28538#28538)
+- ViewStyle: [http://www.codeproject.com/Articles/620110/SharePoint-Client-Side-Rendering-List-Views](http://www.codeproject.com/Articles/620110/SharePoint-Client-Side-Rendering-List-Views)
+- ListTemplateType: [http://msdn.microsoft.com/en-us/library/microsoft.sharepoint.client.listtemplatetype](http://msdn.microsoft.com/en-us/library/microsoft.sharepoint.client.listtemplatetype)
+- BaseViewID: [http://sharepoint.stackexchange.com/questions/28349/how-can-i-use-normal-paging-on-a-custom-view/28538#28538](http://sharepoint.stackexchange.com/questions/28349/how-can-i-use-normal-paging-on-a-custom-view/28538#28538)
 
 
 Después se invoca a la función \_RegisterTemplatesInternal que hace un merge entre las Templates aplicadas hasta el momento, obtenidas en el objeto anteriormente mostrado y las Templates pasadas como parámetro.
@@ -337,19 +337,19 @@ El objetivo de este artículo es conocer a fondo la tecnología Client-side rend
 - Podemos usar CSR sin JSLink, simplemente haciendo una llamada a RegisterTemplateOverrides después de que se ejecute el fichero clienttemplates.js. Por ejemplo, desde un Script Editor.
 - Con CSR es posible implementar diferentes personalizaciones para la misma vista y lista en páginas de SharePoint distintas.
 - No se puede usar CSR para aplicar dos personalizaciones diferentes para la misma vista y lista dentro de la misma página de SharePoint. Por ejemplo, tenemos una custom list y queremos aplicar diferentes presentaciones de ella en la misma página usando la misma vista. Esto no sería posible porque como hemos visto en el artículo, solamente se almacena una función JS por ListTemplateType y BaseViewID. Hay diferentes formas para hacerle workaround a esto, pero no estoy seguro que estén 100 soportadas.
-- Debemos tener en cuenta que cuando se usan múltiples instancias de un List View Web Part en la misma página y se aplica CSR a una de las instancias, el diseño del resto de los List View Web Part puede también cambiar porque internamente SharePoint utiliza el mismo framework. ([https://msdn.microsoft.com/en-us/magazine/dn745867.aspx](https&#58;//msdn.microsoft.com/en-us/magazine/dn745867.aspx))
+- Debemos tener en cuenta que cuando se usan múltiples instancias de un List View Web Part en la misma página y se aplica CSR a una de las instancias, el diseño del resto de los List View Web Part puede también cambiar porque internamente SharePoint utiliza el mismo framework. ([https://msdn.microsoft.com/en-us/magazine/dn745867.aspx](https://msdn.microsoft.com/en-us/magazine/dn745867.aspx))
 - No lo he probado, pero parece posible usar diferentes funciones para la misma vista y lista si se cambia el ViewStyle. Esto podría darnos alguna flexibilidad en algunos escenarios.
 
 
 **Referencias**
 
-- Artículo de Andrei (en inglés) [http://www.codeproject.com/Articles/620110/SharePoint-Client-Side-Rendering-List-Views](http&#58;//www.codeproject.com/Articles/620110/SharePoint-Client-Side-Rendering-List-Views)
-- Artículo original en inglés ([http://josharepoint.com/2016/01/14/sharepoint-2013-client-side-rendering-register-templates-overrides-in-detail](http&#58;//josharepoint.com/2016/01/14/sharepoint-2013-client-side-rendering-register-templates-overrides-in-detail))
+- Artículo de Andrei (en inglés) [http://www.codeproject.com/Articles/620110/SharePoint-Client-Side-Rendering-List-Views](http://www.codeproject.com/Articles/620110/SharePoint-Client-Side-Rendering-List-Views)
+- Artículo original en inglés ([http://josharepoint.com/2016/01/14/sharepoint-2013-client-side-rendering-register-templates-overrides-in-detail](http://josharepoint.com/2016/01/14/sharepoint-2013-client-side-rendering-register-templates-overrides-in-detail))
 
 
 
 
 **José Quinto**
  @jquintozamora
- [http://www.josharepoint.com](http&#58;//www.josharepoint.com/)
+ [http://www.josharepoint.com](http://www.josharepoint.com/)
 

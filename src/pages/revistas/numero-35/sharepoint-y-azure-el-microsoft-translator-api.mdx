@@ -24,7 +24,7 @@ El Azure Translator API es una herramienta ideal para utilizar en SharePoint: un
 
 Para utilizar el Translator API es necesario crear primero el servicio en Azure:
 
-1.          Entre al portal de manejo de Azure ( [https://portal.azure.com](https&#58;//portal.azure.com/) ) utilizando sus credenciales.
+1.          Entre al portal de manejo de Azure ( [https://portal.azure.com](https://portal.azure.com/) ) utilizando sus credenciales.
 
 2.         Vaya a la sección de "Resource Groups" y cree un nuevo Grupo de Recursos (también es posible reutilizar un grupo ya existente).
 
@@ -53,7 +53,7 @@ En el siguiente ejemplo se van a utilizar dos Listas de Anuncios de SharePoint e
 8  .         Reemplace toda la rutina "Run" con el siguiente código:
 
 
-
+```
 [FunctionName("TranslationFunction")]
 
 public static async Task&lt;HttpResponseMessage&gt; Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]HttpRequestMessage req, TraceWriter log)
@@ -135,7 +135,7 @@ GetChanges(SPClientContext, oneNotification.Resource, log);
 return new HttpResponseMessage(HttpStatusCode.OK);
 
 }
-
+```
 
 
 Esta rutina primero se encarga de hacer el registro del WebHook (si la consulta contiene un parámetro "validationtoken" en el Query String). Después de registrado el WebHook, cada consulta es procesada para extraer las notificaciones que contiene. En cada notificación de la colección de notificaciones se hace un logeo en SharePoint para obtener los cambios detectados en la Lista (por medio de la rutina "GetChanges").
@@ -143,7 +143,7 @@ Esta rutina primero se encarga de hacer el registro del WebHook (si la consulta 
 9 .         La rutina "GetChanges" recibe el contexto de SharePoint y el identificador de la Lista, y tiene la forma:
 
 
-
+```
 static void GetChanges(ClientContext SPClientContext, string ListId, TraceWriter log)
 
 {
@@ -245,7 +245,7 @@ SPClientContext.ExecuteQuery();
 }
 
 }
-
+```
 
 
 Primero se crean dos objetos que contienen las Listas de Anuncios de SharePoint. Luego se crea una consulta de cambio (variable "myChangeQuery") que especifica que se requieren los cambios ocurridos en el ultimo minuto, que ocurren en elementos de la Lista y que sean del tipo "Add", es decir, elementos nuevos. Luego de ejecutar la consulta, se examina cada uno de los cambios y se obtiene un objeto con el Anuncio agregado (el que contiene, a su vez, el texto del "Body").
@@ -254,6 +254,7 @@ En la misma rutina se llama a la rutina "getTraduccion", la que se encarga de ha
 
 10  .         La rutina "getTraduccion" recibe como parámetros de entrada el texto a traducir, los idiomas de origen y de destino y la clave del servicio de Traducción:
 
+```
 static string getTraduccion(string TextoParaTraducir, string LenguajeDe, string LenguajeA, string ApiKey)
 
 {
@@ -295,13 +296,14 @@ txtTraducido = (string)mySerializer.ReadObject(stream);
 return txtTraducido;
 
 }
+```
 
 Cada consulta al Translation API se realiza por medio de una llamada REST a un URL pre-especificado del servicio de Traducción, utilizando como parámetros los dos valores de los idiomas y el texto a traducir. En este caso se está utilizando el método "Translate" en la llamada REST, pero existen otros 12 métodos que se pueden utilizar, incluyendo métodos para traducir no un texto solo sino también un array de textos en una sola llamada, detectar el idioma original, enumerar los idiomas que se pueden utilizar y separar palabras en un texto completo.
 
 Esta rutina llama inicialmente el método "GetAccessTokenAsync" de la clase "AzureAuthToken" para obtener el token de acceso al servicio de traducción utilizando la llave obtenida al momento de configuración descrito en el punto 4. Esta clase tiene un método sincrónico y otro asincrónico para obtener el token, pero Microsoft especifica que es preferible utilizar el método asincrónico. La clase ha sido creada por Microsoft, se puede encontrar en la información de Azure y tiene la forma:
 
 
-
+```
 using System;
 
 using System.Net;
@@ -667,6 +669,7 @@ public string NotificationUrl { get; set; }
 public string Resource { get; set; }
 
 }​
+```
 
 12 .         Registre el WebHook en la Lista de Anuncios en español (utilizando Postman, por ejemplo, como se indica en el artículo mencionado al principio del artículo) y cree un anuncio nuevo en la Lista. El WebHook hará que la Función realice su trabajo, traduzca el texto, y cree un nuevo Anuncio en la Lista de Anuncios en inglés:
 

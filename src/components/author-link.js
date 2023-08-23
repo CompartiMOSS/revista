@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { makeStyles } from "@material-ui/core"
+import { makeStyles } from "@mui/material/styles"
 import twitter from '../images/icons/Twitter-Bird-48.png';
 import blog from '../images/icons/Blog-48.png';
 

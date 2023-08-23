@@ -1,7 +1,7 @@
 import * as React from "react"
-import { AppBar, Toolbar, Container, Hidden, Fab } from "@material-ui/core"
-import { KeyboardArrowUp } from "@material-ui/icons"
-import { makeStyles } from "@material-ui/core"
+import { AppBar, Toolbar, Container, Hidden, Fab } from "@mui/material"
+import { KeyboardArrowUp } from "@mui/icons-material"
+import { makeStyles } from "@mui/material/styles"
 import SideDrawer from "./sideDrawer"
 import HideOnScroll from "./hideOnScroll"
 import BackToTop from "./backToTop";

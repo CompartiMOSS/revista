@@ -22,13 +22,13 @@ En SharePoint 2013 tenemos de forma nativa un tipo de columna (field type) para 
 
 Este tipo de campo nuevo se implementa en SharePoint 2013 en sus dos capas:
 
-- Almacenamiento de coordenadas. La forma en la que SharePoint almacena la información de las coordenadas es a través de un tipo de columna nuevo y esto a nivel de SQL Server queda representado con los nuevos tipos de datos geometry, geography y hierarchy ID, que requieren tener instalado SQLSysClrTypes.msi en el servidor de SQL Server. Para descargarlo, podemos usar este paquete: [Microsoft® SQL Server® 2008 R2 SP1 Feature Pack](http&#58;//www.microsoft.com/en-us/download/details.aspx?id=26728) [1].
+- Almacenamiento de coordenadas. La forma en la que SharePoint almacena la información de las coordenadas es a través de un tipo de columna nuevo y esto a nivel de SQL Server queda representado con los nuevos tipos de datos geometry, geography y hierarchy ID, que requieren tener instalado SQLSysClrTypes.msi en el servidor de SQL Server. Para descargarlo, podemos usar este paquete: [Microsoft® SQL Server® 2008 R2 SP1 Feature Pack](http://www.microsoft.com/en-us/download/details.aspx?id=26728) [1].
 - Representación gráfica de mapas: En cuanto a la representación gráfica de los puntos geográficos, SharePoint 2013 utiliza los mapas de Bing, concretamente "Bing Maps Ajax control V7". Además de representarse el mapa en la propiedad en sí, también tenemos un nuevo tipo de vista que es de tipo Mapa.
 
 
 Esto es la teoría, pero ahora, ¿cómo hacemos para crear este campo en SharePoint?
 
-Lo primero que tenemos que hacer es activar y configurar la clave de Bing Maps para que se enlace nuestro SharePoint con algunos credenciales aptos para usar el API de Bing. Para obtener tu clave de Bing Maps, puedes entrar en esta dirección [http://bingmapsportal.com](http&#58;//bingmapsportal.com/) [2], requiere registro con un Live ID y la creación de una clave donde te pedirán la URL de tu aplicación donde vas a utilizar el mapa. Una vez tengamos activado esto a nivel de granja (en SharePoint OnPremise) o a nivel de sitio / colección de sitios (en SharePoint Online 2013), el siguiente paso es crear un campo de tipo Geolocation en cualquier lista que lo requiera. Como en todo, siempre hay varias formas de hacer lo mismo, a continuación veremos cómo hacer todos estos pasos de varias formas tanto para SharePoint 2013 OnPremise como para SharePoint 2013 Online, que como bien sabemos lo lanzaron dentro del paquete [Office 365](http&#58;//office.microsoft.com/) [3] el pasado 27 de Febrero de 2013.
+Lo primero que tenemos que hacer es activar y configurar la clave de Bing Maps para que se enlace nuestro SharePoint con algunos credenciales aptos para usar el API de Bing. Para obtener tu clave de Bing Maps, puedes entrar en esta dirección [http://bingmapsportal.com](http://bingmapsportal.com/) [2], requiere registro con un Live ID y la creación de una clave donde te pedirán la URL de tu aplicación donde vas a utilizar el mapa. Una vez tengamos activado esto a nivel de granja (en SharePoint OnPremise) o a nivel de sitio / colección de sitios (en SharePoint Online 2013), el siguiente paso es crear un campo de tipo Geolocation en cualquier lista que lo requiera. Como en todo, siempre hay varias formas de hacer lo mismo, a continuación veremos cómo hacer todos estos pasos de varias formas tanto para SharePoint 2013 OnPremise como para SharePoint 2013 Online, que como bien sabemos lo lanzaron dentro del paquete [Office 365](http://office.microsoft.com/) [3] el pasado 27 de Febrero de 2013.
 
 Configurar la clave de Bing Maps en SharePoint 2013
 
@@ -38,6 +38,7 @@ Set-SPBingMapsKey –BingKey "&lt;clave de Bing Maps&gt;"
 
 No obstante, si nuestro SharePoint 2013 es Online, es decir, pertenece a un Office 365, no podremos activar la clave de Bing con este método y tendremos que ejecutar un programa de consola que acceda a la propiedad
 
+```
 Uri oUri = new Uri("&lt;url&gt;");
 
 MsOnlineClaimsHelper claimsHelper = new MsOnlineClaimsHelper(oUri, "&lt;id&gt;", "&lt;password&gt;");
@@ -57,8 +58,9 @@ web.Update();
 context.ExecuteQuery();
 
 }
+```
 
-Para ver más detalles sobre configurar la clave de Bing en SharePoint Online, véase el post de [Sundar Narasiman](http&#58;//msmvps.com/blogs/sundar_narasiman/archive/2012/11/22/how-to-add-geolocation-fields-to-sharepoint-2013-site.aspx) [4]. Además con el fin de facilitar la tarea adjunto el código que me he montado para probar esta asignación de clave en SharePoint 2013 Online. Lo podéis descargar desde el vínculo dado en la referencia [5]. ([ConfigurarClaveBingSharePointOnline.zip](http&#58;//blogs.solidq.com/sharepoint/Documents/ConfigurarClaveBingSharePointOnline.zip)).
+Para ver más detalles sobre configurar la clave de Bing en SharePoint Online, véase el post de [Sundar Narasiman](http://msmvps.com/blogs/sundar_narasiman/archive/2012/11/22/how-to-add-geolocation-fields-to-sharepoint-2013-site.aspx) [4]. Además con el fin de facilitar la tarea adjunto el código que me he montado para probar esta asignación de clave en SharePoint 2013 Online. Lo podéis descargar desde el vínculo dado en la referencia [5]. ([ConfigurarClaveBingSharePointOnline.zip](http://blogs.solidq.com/sharepoint/Documents/ConfigurarClaveBingSharePointOnline.zip)).
 
 Una vez que tenemos configurada la clave el siguiente paso es crear la columna de tipo GeoLocation.
 
@@ -66,6 +68,7 @@ Añadir Campo de tipo GeoLocation en SharePoint 2013
 
 La mala noticia es que no se puede añadir este tipo de campo desde la interfaz gráfica de SharePoint 2013. Por el contrario si se podrá añadir mediante código, por lo que la forma más rápida y común usada por un desarrollador es arremangarse y decir, ¡lo tengo!, esto es una aplicación de consola J. Entonces abrimos Visual Studio 2012 (por supuesto, la última versión) y añadimos este sencillo código en un proyecto de tipo "Console Application":
 
+```
 class Program
 
 {
@@ -99,6 +102,7 @@ context.ExecuteQuery();
 }
 
 }
+```
 
 Pero claro, ahora nos queda la duda de si cada vez que queramos crear un campo de este tipo vamos a tener a mano este programa para ejecutarlo, además de la duda de si este código va a funcionar bien en SharePoint Online o no. Entonces es cuando pasamos a la segunda fase de superación y decidimos hacer la creación de esta columna con modelo de objetos cliente, pero de JavaScript con toda la idea de poner esto en una página web (con un Content Editor o un Code Embed) y ya tenemos una página desde la cual crear este tipo de columnas.
 
@@ -118,7 +122,7 @@ Veamos como ejemplo la creación de esta página en un SharePoint 2013 Online:
 
 - Copiamos este código
 
-
+```
 &lt;script type="text/javascript"&gt;
 
 var contexto;
@@ -190,6 +194,7 @@ alert('Error: ' + args.get\_message() + '\n' + args.get\_stackTrace());
 &lt;input type="button" value="CrearColumna" onClick="CrearColumna();" /&gt;
 
 &lt;/div&gt;
+```
 
 - Click en Insert
 - Guardamos la página y ya tenemos algo parecido a esto:
@@ -248,17 +253,17 @@ Esta forma en la que se representan los mapas, se puede cambiar mediante código
 
 **Referencias**
 
-[1]          Microsoft® SQL Server® 2008 R2 SP1 Feature Pack: [http://www.microsoft.com/en-us/download/details.aspx?id=26728](http&#58;//www.microsoft.com/en-us/download/details.aspx?id=26728)
+[1]          Microsoft® SQL Server® 2008 R2 SP1 Feature Pack: [http://www.microsoft.com/en-us/download/details.aspx?id=26728](http://www.microsoft.com/en-us/download/details.aspx?id=26728)
 
-[2]          Registrarse y obtener clave de Bing Maps: [http://bingmapsportal.com](http&#58;//bingmapsportal.com/)
+[2]          Registrarse y obtener clave de Bing Maps: [http://bingmapsportal.com](http://bingmapsportal.com/)
 
-[3]          Office 365: [http://office.microsoft.com](http&#58;//office.microsoft.com/)
+[3]          Office 365: [http://office.microsoft.com](http://office.microsoft.com/)
 
-[4]          How to add geolocation fields to SharePoint 2013 site: [http://msmvps.com/blogs/sundar\_narasiman/archive/2012/11/22/how-to-add-geolocation-fields-to-sharepoint-2013-site.aspx](http&#58;//msmvps.com/blogs/sundar_narasiman/archive/2012/11/22/how-to-add-geolocation-fields-to-sharepoint-2013-site.aspx)
+[4]          How to add geolocation fields to SharePoint 2013 site: [http://msmvps.com/blogs/sundar\_narasiman/archive/2012/11/22/how-to-add-geolocation-fields-to-sharepoint-2013-site.aspx](http://msmvps.com/blogs/sundar_narasiman/archive/2012/11/22/how-to-add-geolocation-fields-to-sharepoint-2013-site.aspx)
 
-[5]          Office 365 - SharePoint 2013 Online. Establecer clave de Bing Maps para el campo de tipo Geolocation: [http://bit.ly/BingMapsSharePointOnline](http&#58;//bit.ly/BingMapsSharePointOnline)
+[5]          Office 365 - SharePoint 2013 Online. Establecer clave de Bing Maps para el campo de tipo Geolocation: [http://bit.ly/BingMapsSharePointOnline](http://bit.ly/BingMapsSharePointOnline)
 
-[6]          eBook Gratuito de SharePoint 2013 Apps: [http://bit.ly/SharePoint2013AppsEbook](http&#58;//bit.ly/SharePoint2013AppsEbook)
+[6]          eBook Gratuito de SharePoint 2013 Apps: [http://bit.ly/SharePoint2013AppsEbook](http://bit.ly/SharePoint2013AppsEbook)
 
 
 
@@ -266,9 +271,9 @@ Esta forma en la que se representan los mapas, se puede cambiar mediante código
 
 MCPD y MCITP en SharePoint 2010
 
-[jquinto@solidq.com](mailto&#58;jquinto@solidq.com)
+[jquinto@solidq.com](mailto:jquinto@solidq.com)
 
 @jquintozamora
 
-[http://blogs.solidq.com/sharepoint](http&#58;//blogs.solidq.com/sharepoint)
+[http://blogs.solidq.com/sharepoint](http://blogs.solidq.com/sharepoint)
 
