@@ -1,81 +1,75 @@
 import * as React from "react"
 import { AppBar, Toolbar, Container, Hidden, Fab } from "@mui/material"
 import { KeyboardArrowUp } from "@mui/icons-material"
-import { makeStyles } from "@mui/material/styles"
+import { styled } from '@mui/styles';
 import SideDrawer from "./sideDrawer"
 import HideOnScroll from "./hideOnScroll"
 import BackToTop from "./backToTop";
 import { Link } from 'gatsby'
 import logo from '../../images/layout/Logo380x109.png';
 
+const AppBarStyled = styled(AppBar)({
+    height: 200,
+    backgroundColor: '#303030 !important',
+    padding: '0 20px',
+    boxSizing: 'border-box'
+});
 
-const useStyles = makeStyles({
-    appBar: {
-        height: 200,
-        backgroundColor: '#303030',
-        padding: '0 20px',
-        boxSizing: 'border-box'
-    },
-    logo: {
-        float: 'left',
-        backgroundImage: `url(${logo});`,
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 0,
-        width: 400,
-        height: 200
-    },
-    toolbar: {
-        height: 200
-    },
-    link: {
-        alignSelf: 'center'
-    },
-    linkMobile: {
-        alignSelf: 'center',
-        width: 200,
-        '& img': {
-            width: 200
-        }
-    },
-    navbarDisplayFlex: {
-        display: `flex`,
-        height: '100%',
-        justifyContent: `space-between`,
-    },
-    navDisplayFlex: {
-        display: `flex`,
-        justifyContent: `space-between`,
-        height: 100,
-        margin: '20px 0'
-    },
-    divNav: {
-        width: 130,
-        backgroundColor: '#f8922c',
-        margin: '0 2px',
-        position: 'relative',
-        '&:hover': {
-            backgroundColor: '#f90b39 !important'
-        }
-    },
-    linkNav: {
-        textDecoration: `none`,
-        color: `white`,
-        fontSize: '27px',
-        fontFamily: 'Segoe UI',
-        fontWeight: 300,
-        width: 130,
-        height: 100,
-        position: 'absolute'
-    },
-    selectedNav: {
-      backgroundColor: '#f90b39 !important'
-    },
-    divLink: {
-        position: 'absolute',
-        bottom: 0,
-        right: 0,
-        padding: 5
+const ToolbarStyled = styled(Toolbar)({
+    height: 200
+});
+
+const ContainerStyled = styled(Container)({
+    display: `flex !important`,
+    height: '100%',
+    justifyContent: `space-between`,
+})
+
+const LinkMobile = styled(Link)({
+    alignSelf: 'center',
+    width: 200,
+    '& img': {
+        width: 200
     }
+});
+
+const LinkStyled = styled(Link)({
+    alignSelf: 'center'
+});
+
+const MainMenu = styled('div')({
+    display: `flex`,
+    justifyContent: `space-between`,
+    height: 100,
+    margin: '20px 0'
+});
+
+const Nav = styled('div')({
+    width: 130,
+    backgroundColor: '#f8922c',
+    margin: '0 2px',
+    position: 'relative',
+    '&:hover': {
+        backgroundColor: '#f90b39 !important'
+    }
+});
+
+const LinkNav = styled(Link)({
+    textDecoration: `none`,
+    color: `white`,
+    fontSize: '27px',
+    fontFamily: 'Segoe UI',
+    fontWeight: 300,
+    width: 130,
+    height: 100,
+    position: 'absolute'
+});
+
+const DivLink = styled('div')({
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    padding: 5
 });
 
 const navLinks = [
@@ -86,45 +80,43 @@ const navLinks = [
 ]
 
 const Header = () => {
-    const classes = useStyles();
-
     return (
         <>
             <HideOnScroll>
-                <AppBar position="fixed" className={classes.appBar}>
-                    <Toolbar className={classes.toolbar}>
-                        <Container maxWidth="xl" className={classes.navbarDisplayFlex}>
+                <AppBarStyled position="fixed">
+                    <ToolbarStyled>
+                        <ContainerStyled maxWidth="xl">
                             <Hidden mdUp>
-                                <Link to="/" className={classes.linkMobile}>
+                                <LinkMobile to="/" >
                                     <img src={logo} alt="CompartiMOSS logo" />
-                                </Link>
+                                </LinkMobile>
                             </Hidden>
                             <Hidden smDown>
-                                <Link to="/" className={classes.link}>
+                                <LinkStyled to="/">
                                     <img src={logo} alt="CompartiMOSS logo" />
-                                </Link>
+                                </LinkStyled>
                             </Hidden>
                             <Hidden mdUp>
                                 <SideDrawer navLinks={navLinks} />
                             </Hidden>
                             <Hidden smDown>
-                                <div id="mainMenu" className={classes.navDisplayFlex}>
+                                <MainMenu id="mainMenu">
                                     {navLinks.map(({ title, path }) => (
-                                        <div className={classes.divNav} key={title}>
-                                            <Link to={path} className={classes.linkNav} activeClassName={classes.selectedNav}>
-                                                <div className={classes.divLink}>
+                                        <Nav key={title}>
+                                            <LinkNav to={path} activeStyle={{backgroundColor: '#f90b39 !important'}} >
+                                                <DivLink>
                                                     <span>{title}</span>
-                                                </div>
-                                            </Link>
-                                        </div>
+                                                </DivLink>
+                                            </LinkNav>
+                                        </Nav>
                                     ))}                                    
-                                </div>
+                                </MainMenu>
                             </Hidden>
-                        </Container>
-                    </Toolbar>
-                </AppBar>        
+                        </ContainerStyled>
+                    </ToolbarStyled>
+                </AppBarStyled>        
             </HideOnScroll>
-            <Toolbar id="back-to-top-anchor" className={classes.toolbar}/>
+            <ToolbarStyled id="back-to-top-anchor"/>
             <BackToTop>
                 <Fab color="secondary" size="large" aria-label="scroll back to top">
                     <KeyboardArrowUp />

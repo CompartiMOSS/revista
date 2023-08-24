@@ -2,7 +2,7 @@ import React from 'react';
 import AuthorHeader from './author-header';
 import AuthorAside from './author-aside';
 import ViewArticlesAuthor from './view-articles-author';
-import { Grid } from "@mui/material/Grid"
+import { Grid } from "@mui/material"
 
 const AuthorPage = ({ frontmatter, articles, ...props }) => {
   return (

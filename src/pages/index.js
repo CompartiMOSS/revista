@@ -1,32 +1,32 @@
 import React from 'react';
+import { styled } from '@mui/material/styles';
 import { useStaticQuery, graphql } from "gatsby";
 import LayoutHome from '../components/layout-home';
 import SEO from '../components/seo';
 import ViewPartners from '../components/view-partners';
 import NumberImage from '../components/number-image';
 import ViewArticlesRandom from '../components/view-articles-random';
-import { makeStyles } from "@mui/material/styles"
-import { Grid } from "@mui/material/Grid"
+import { Grid } from "@mui/material"
 
-const useStyles = makeStyles({
-  divHeader: {
-    color: 'white',
-    '& h1': {
-      color: 'white'
-    },
-    '& p': {
-      fontSize: '19px'
-    }
+const PREFIX = 'HomePage';
+
+const DivHeader = styled(Grid)({
+  color: 'white',
+  '& h1': {
+    color: 'white'
   },
-  divImage: {
-    '& img': {
-      width: '100%'
-    }
+  '& p': {
+    fontSize: '19px'
   }
-})
+});
+
+const DivImage = styled(Grid)({
+  '& img': {
+    width: '100%'
+  }
+});
 
 const HomePage = ({}) => {
-  const classes = useStyles();
   const data = useStaticQuery(graphql`{
   current: allMdx(
     filter: {frontmatter: {magazine: {eq: 56}, type: {eq: "number"}}}
@@ -64,15 +64,15 @@ const HomePage = ({}) => {
   return (
     <LayoutHome>
       <Grid container>
-        <Grid item xs={12} className={classes.divHeader}>
+        <DivHeader item xs={12}>
           <SEO title="Home" keywords={['Microsoft', 'Microsoft 365', 'Azure', 'Office 365']} />
           <h1>Bienvenidos al sitio de CompartiMOSS</h1>
           <p>La revista digital de habla hispana en la que se escribe sobre la tecnología Microsoft y todo lo relacionado con ésta</p>
-        </Grid>
+        </DivHeader>
         <Grid container>
-          <Grid item xs={12} md={3} xl={4} className={classes.divImage} >
+          <DivImage item xs={12} md={3} xl={4}>
             <NumberImage frontmatter={data.current.edges[0].node.frontmatter} />
-          </Grid>
+          </DivImage>
           <Grid item xs={12} md={9} xl={8}>
             <ViewArticlesRandom articles={data.articles} />
           </Grid>
@@ -82,7 +82,7 @@ const HomePage = ({}) => {
         </Grid>
       </Grid>
     </LayoutHome>
-  )
+  );
 }
 
 export default HomePage

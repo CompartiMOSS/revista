@@ -1,64 +1,63 @@
 import React from 'react';
 import { Link } from 'gatsby';
 import { Container } from "@mui/material"
-import { makeStyles } from "@mui/material/styles"
+import { styled } from '@mui/styles';
 
 import SocialShare from './social-share';
 import ArticleKeywords from './article-keywords';
 import numberImage from '../images/layout/Back-Magazine-Number.png'
 
-const useStyles = makeStyles({
-  articleHeader: {
-    marginTop: '24px'
-  },
-  backToNumber: {
-    display: 'inline-block',
-    transition: 'top .5s ease-in-out',
-    background: `url(${numberImage}) no-repeat 0`,
-    top: 180,
-    left: 0,
-    position: 'absolute',
-    zIndex: 2000,    
-    '& a': {
-      display: 'block',
-      padding: '6px 6px 6px 12px',
-      color: '#fff',
-      textDecoration: 'none',
-      fontSize: 20      
-    }
-  },
-  info: {
-    '& a': {
-      textDecoration: 'none',
-      color: '#f8922c'
-    }
+
+const ArticleHeaderStyled = styled('header')({
+  marginTop: '24px'
+});
+
+const DivBack = styled('div')({
+  display: 'inline-block',
+  transition: 'top .5s ease-in-out',
+  background: `url(${numberImage}) no-repeat 0`,
+  top: 180,
+  left: 0,
+  position: 'absolute',
+  zIndex: 2000,
+  '& a': {
+    display: 'block',
+    padding: '6px 6px 6px 12px',
+    color: '#fff',
+    textDecoration: 'none',
+    fontSize: 20
   }
-})
+});
+
+const DivInfo = styled('div')({
+  '& a': {
+    textDecoration: 'none',
+    color: '#f8922c'
+  }
+});
 
 const ArticleHeader = ({ frontmatter, ...props }) => {
-  const classes = useStyles();
-
   return (
-    <header className={classes.articleHeader}>
-      <div className={classes.backToNumber}>
+    <ArticleHeaderStyled>
+      <DivBack>
         <Link to={`/revistas/numero-${frontmatter.magazine}`}>
           {`Número ${frontmatter.magazine}`}
         </Link>
-      </div>
+      </DivBack>
       <Container maxWidth="md">
         <h1>
           {frontmatter.title}
         </h1>
-        <div className={classes.info}>
+        <DivInfo>
           <span>Escrito por &nbsp;</span>
           <span>
             <Link to={`/autores/${frontmatter.authorId}`}>{frontmatter.author}</Link>
           </span>
-        </div>
+        </DivInfo>
         <ArticleKeywords>{frontmatter.keywords}</ArticleKeywords>
         <SocialShare frontmatter={frontmatter} />
       </Container>
-    </header>
+    </ArticleHeaderStyled>
   );
 };
 

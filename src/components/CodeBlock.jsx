@@ -1,7 +1,6 @@
 import React from 'react'
 import styled from "styled-components";
-import Highlight, { defaultProps } from 'prism-react-renderer'
-import { themes } from 'prism-react-renderer';
+import { Highlight, themes } from 'prism-react-renderer'
 
 const Pre = styled.pre`
   text-align: left;
@@ -35,7 +34,7 @@ export default ({ children, className }) => {
   }
  
   return (
-    <Highlight {...defaultProps}
+    <Highlight 
       code={children}
       language={language}
       theme={themes.nightOwl}

@@ -1,15 +1,21 @@
 import React from 'react'
+import { styled } from '@mui/material/styles';
 import PropTypes from 'prop-types'
 import {MDXProvider} from '@mdx-js/react'
 import CodeBlock from './CodeBlock'
 import Header from './layout/header'
 import Footer from './layout/footer';
 import { Container, CssBaseline } from "@mui/material"
-import { makeStyles } from "@mui/material/styles"
 import './layout/layout.css'
 
-const useStyles = makeStyles({
-  body: {
+const PREFIX = 'Layout';
+
+const classes = {
+  body: `${PREFIX}-body`
+};
+
+const Root = styled(' MDXProvider')({
+  [`& .${classes.body}`]: {
     minHeight: 'calc(100vh - 80px - 200px)'
   }
 });
@@ -20,7 +26,7 @@ const components = {
 };
 
 const Layout = ({ children, pageContext }) => {
-  const classes = useStyles();
+
 
   return (
     <MDXProvider components={components}>

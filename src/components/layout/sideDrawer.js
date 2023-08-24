@@ -2,25 +2,24 @@ import * as React from "react"
 import { IconButton, List, ListItem, ListItemText, Drawer, ListItemIcon } from "@mui/material"
 import { Menu } from "@mui/icons-material"
 import { useState } from "react"
-import { makeStyles } from "@mui/material/styles"
+import { styled } from '@mui/styles';
 
-const useStyles = makeStyles({
-    list: {
-        width: 250,
-        backgroundColor: '#303030'
-    },
-    linkText: {
-        textDecoration: `none`,
-        textTransform: `uppercase`,
-        color: `white`,
-    },
-    paper: {
-        backgroundColor: '#303030'
-      }    
-})
+const ListDiv = styled('div')({
+    width: 250,
+    backgroundColor: '#303030'
+});
+
+const LinkText = styled('a')({
+    textDecoration: `none`,
+    textTransform: `uppercase`,
+    color: `white`,
+});
+
+const DrawerStyled = styled(Drawer)({
+    backgroundColor: '#303030'
+});
 
 const SideDrawer = ({ navLinks }) => {
-    const classes = useStyles();
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleDrawer = (open) => (event) => {
@@ -32,25 +31,20 @@ const SideDrawer = ({ navLinks }) => {
     }
 
     const sideDrawerList = (anchor) => (
-        <div
-            className={classes.list}
-            role="presentation"
-            onClick={toggleDrawer(false)}
-            onKeyDown={toggleDrawer(false)}
-        >
+        <ListDiv role="presentation" onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
             <List component="nav">
                 {navLinks.map(({ title, path, icon }) => (
-                    <a href={path} key={title} className={classes.linkText}>
+                    <LinkText href={path} key={title}>
                         <ListItem button>
                             <ListItemIcon>
                                 <img src={icon} alt="inicio" />
                             </ListItemIcon>
                             <ListItemText primary={title} />
                         </ListItem>
-                    </a>
+                    </LinkText>
                 ))}
             </List>
-        </div>
+        </ListDiv>
     );
 
     return (
@@ -58,9 +52,9 @@ const SideDrawer = ({ navLinks }) => {
             <IconButton edge="start" aria-label="menu" onClick={toggleDrawer(true)}>
                 <Menu fontSize="large" style={{ color: `white` }} />
             </IconButton>
-            <Drawer anchor="right" open={isOpen} onClose={toggleDrawer(false)} classes={{ paper: classes.paper }}>
+            <DrawerStyled anchor="right" open={isOpen} onClose={toggleDrawer(false)}>
                 {sideDrawerList("right")}
-            </Drawer>            
+            </DrawerStyled>            
         </React.Fragment>
     )
 }
