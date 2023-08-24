@@ -82,18 +82,16 @@ KeywordsPage.propTypes = {
 
 export default KeywordsPage
 
-export const pageQuery = graphql`
-  query {
-    site {
-      siteMetadata {
-        title
-      }
-    }
-    allMdx(limit: 2000) {
-      group(field: frontmatter___keywords) {
-        fieldValue
-        totalCount
-      }
+export const pageQuery = graphql`{
+  site {
+    siteMetadata {
+      title
     }
   }
-`
+  allMdx(limit: 2000) {
+    group(field: {frontmatter: {keywords: SELECT}}) {
+      fieldValue
+      totalCount
+    }
+  }
+}`
