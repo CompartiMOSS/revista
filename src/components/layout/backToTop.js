@@ -5,7 +5,7 @@ const style = {
   position: 'fixed',
   bottom: '50px',
   right: '60px',
-  zIndex: 99,
+  zIndex: 99
 }
 
 const BackToTop = ({ children }) => {

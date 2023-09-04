@@ -39,3 +39,13 @@ exports.createSchemaCustomization = ({ actions }) => {
     }
   `)
 }
+
+exports.onCreateWebpackConfig = ({ actions, stage, getConfig }) => {
+  if (stage === `develop` || stage === `develop-html`) {
+    actions.setWebpackConfig({
+      cache: {
+        compression: "gzip",
+      },
+    })
+  }
+}

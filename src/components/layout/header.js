@@ -118,7 +118,7 @@ const Header = () => {
             </HideOnScroll>
             <ToolbarStyled id="back-to-top-anchor"/>
             <BackToTop>
-                <Fab color="secondary" size="large" aria-label="scroll back to top">
+                <Fab sx={{"backgroundColor": "#f50057 !important"}} color="secondary" size="large" aria-label="scroll back to top">
                     <KeyboardArrowUp />
                 </Fab>
             </BackToTop>            
