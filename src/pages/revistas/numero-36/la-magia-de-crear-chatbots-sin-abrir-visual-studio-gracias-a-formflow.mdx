@@ -36,9 +36,7 @@ Las variables del modelo pueden ser de tipos básicos (los distintos tipos de en
 
 ```
  public enum Nombres {  Godric,  Helga,  Rowena,  Salazar };   public enum Cualidades {  Valentía,   Honestidad,  Inteligencia,  Ambición };  public enum Colores {  Rojo,   Amarillo,  Azul,  Verde };  public enum ColoresDeJoyas {  Oro,  Negro,  Bronce,  Plata };  public enum Animales {  Leon,  Tejon,  Aguila,  Serpiente };  public enum LugaresParaVivir {  TorreOscura,  Bodega,  TorreLuminosa,  Mazmorras };  public enum Titulos {  Sir,  Fraile,  Dama,  Barón };  public enum Amigos {  Ron,  Neville,  Hermione,  Harry };  public enum Accesorios {  Espada,  Copa,  Diadema,  Guardapelo }  [Serializable] public class SortingTest     {         public Nombres? Nombre;  public Cualidades? Cualidad;  public Colores? Color;  public ColoresDeJoyas? ColorDeJoyas;  public Animales? Animal;  public LugaresParaVivir? LugarParaVivir;  public Titulos? Titulo;  public Amigos? Amigo;  public Accesorios? Accesorio;
-```
 
-```
          public static IForm<SortingTest> BuildForm()         {              OnCompletionAsyncDelegate<SortingTest> evaluate = async (context, state) =>              {                  await context.PostAsync(“OK”);              };return new FormBuilder<SortingTest>()                      .Message(“Hola”)                      .OnCompletion(evaluate)                      .Build();         }     };
 ```
 
@@ -48,13 +46,7 @@ Si ahora decidiéramos manejar nueva información como el nombre o la fecha de n
 
 ```
                public string TuNombre;
-```
 
-```
-
-```
-
-```
                public DateTime? FechaDeNacimiento;
 ```
  ​
@@ -67,17 +59,8 @@ Además, tendremos que hacer unos cambios menores en el controlador para que use
 
 ```
         internal static IDialog<SortingTest> MakeRootDialog()
-```
-
-```
         {
-```
-
-```
             return Chain.From(() => FormDialog.FromForm(SortingTest.BuildForm));
-```
-
-```
         }​
 ```
 ​
@@ -111,3 +94,7 @@ FormFlow tiene más capacidades, pero con esto hemos podido hacer un poco de "ma
  @javilopezg
  https://javilopezg.com​​
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber
