@@ -1,0 +1,223 @@
+---
+title: Usando Azure OpenAI Completions API desde SPFx en modo Stream
+slug: /revistas/numero-57/usando-azure-openai-api-desde-spfx-en-modo-stream
+date: 01/09/2023
+magazine: 57
+author: Luis Mañez
+authorId: luis-manez
+keywords: ['SPFx', 'SharePoint', 'Office 365', 'GPT', 'OpenAI']
+featuredImage: ../../../images/numero57/usando-azure-openai-api-desde-spfx-en-modo-stream/image1.png
+---
+
+En este artículo vamos a ver cómo podemos invocar la API de Azure OpenAI
+desde nuestros proyectos SPFx. Serán llamadas "en crudo" a la propia
+API, usando el modo "Stream", lo que nos permite ir renderizando
+resultados conforme van llegando, e incluso tener la opción de "stop
+generating".
+
+**Introducción**
+
+Empecemos con algunas aclaraciones previas. Primero de todo, debemos
+distinguir entre OpenAI y Azure OpenAI. OpenAI es la startup que ha
+popularizado / democratizado los servicios de AI, creadora entre otros
+del archiconocido ChatGPT. En dicha startup Microsoft ha invertido
+muchísimos recursos, y tiene un partneship muy especial con ellos. Fruto
+de ese partnership es el servicio Azure OpenAI, que básicamente lleva a
+la nube de Microsoft, los servicios de AI ofrecidos por OpenAI (de
+momento algunos de ellos, como el ya citado ChatGPT, o el servicio de
+generación de imágenes desde texto DALL-E).
+
+Entonces, ¿qué diferencias hay entre OpenAI y Azure OpenAI? Pues, a
+nivel de funcionalidad y de definición de las APIs, hay poca diferencia
+(al menos en el momento de redacción de este artículo, agosto 2023). La
+principal diferencia radica en la privacidad / seguridad, ya que Azure
+OpenAI, al ser un servicio de Azure, ofrece todas sus ventajas al
+respecto de *data privacy* y *compliance*. En las propias palabras de
+Microsoft
+(https://learn.microsoft.com/en-GB/azure/ai-services/openai/overview#comparing-azure-openai-and-openai):
+
+Azure OpenAI Service gives customers advanced language AI with OpenAI
+GPT-4, GPT-3, Codex, and DALL-E models with the security and
+enterprise promise of Azure. Azure OpenAI co-develops the APIs with
+OpenAI, ensuring compatibility and a smooth transition from one to the
+other.
+
+With Azure OpenAI, customers get the security capabilities of
+Microsoft Azure while running the same models as OpenAI. Azure OpenAI
+offers private networking, regional availability, and responsible AI
+content filtering.
+
+También debemos tener en cuenta que en el momento de este artículo,
+Azure OpenAI es todavía un servicio en *Preview*, y requiere aceptación
+por parte de Microsoft. Es decir, que, si intentáis crear un servicio de
+Azure OpenAI desde el portal de Azure, veréis un mensaje de advertencia,
+con un enlace donde podéis solicitar a Microsoft que os aprueben el uso
+del servicio.
+
+![A black and white sign with white text Description automatically
+generated](../../../images/numero57/usando-azure-openai-api-desde-spfx-en-modo-stream/image1.png)
+
+Aunque este artículo se va a centrar en Azure OpenAI API, casi todo (o
+todo) lo visto es aplicable a la API de OpenAI.
+
+**Configurando Azure OpenAI service**
+
+Como mencionaba, el servicio se crea desde el portal de Azure, y una vez
+creado, vamos a necesitar el endpoint de la API, y su API Key
+
+**Nota**: Azure OpenAI service soporta autenticación basada en Azure AD
+(MS Entra). Para este artículo, por simplificar las cosas, hemos usado
+la API Key. Tratándose de SPFx y código JavaScript corriendo en el
+browser, no se recomienda usar API Key. Lo suyo sería, o bien hacer
+nuestro propio backend que llame a Azure OpenAI y autenticado con Azure
+AD, o bien usar el cliente de Azure AD proporcionado por SPFx y llamar a
+la API de Azure OpenAI con éste.
+
+![A screenshot of a computer Description automatically
+generated](../../../images/numero57/usando-azure-openai-api-desde-spfx-en-modo-stream/image2.png)
+
+![A screenshot of a computer Description automatically
+generated](../../../images/numero57/usando-azure-openai-api-desde-spfx-en-modo-stream/image3.png)
+
+Una vez creado el servicio, debemos hacer al menos un "Model
+Deployment". Esto se hará desde el nuevo Azure OpenAI Studio, que tenéis
+el enlace en el mismo portal de Azure, cuando vais a la sección de
+"Model deployment". En la configuración del "Model deployment"
+seleccionaremos el modelo base:
+
+![A screenshot of a computer Description automatically
+generated](../../../images/numero57/usando-azure-openai-api-desde-spfx-en-modo-stream/image4.png)
+
+Sobre los modelos, tenéis bastante literatura en este enlace:
+https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models
+
+Para nuestro artículo usaremos **gpt-35-turbo**. Una vez creado el
+Modelo, necesitaréis el nombre que le habéis dado, ya que se usa en la
+URL del endpoint de la API.
+
+**Azure OpenAI REST API**
+
+La API REST de Azure OpenAI la tenemos bastante bien documentada en el
+siguiente enlace:
+https://learn.microsoft.com/en-gb/azure/ai-services/openai/reference
+
+En este artículo vamos a utilizar el endpoint de "*Completions*", pero
+el mismo conocimiento lo podemos emplear para el endpoint de "*Chat*".
+
+Aquí tenemos un ejemplo de cómo invocar el endpoint de "Completions":
+
+![A screenshot of a computer Description automatically
+generated](../../../images/numero57/usando-azure-openai-api-desde-spfx-en-modo-stream/image5.png)
+
+**Invocando Azure OpenAI API desde SPFx en modo Stream**
+
+En esta sección vamos a ver cómo podemos invocar la API desde SPFx,
+además, haremos uso de la modalidad Stream, que nos va a permitir ir
+recibiendo la respuesta "a cachitos", mejorando así la UX, ya que nos
+dará un efecto de "typing" (el texto va apareciendo conforme llegan los
+resultados y no hay que esperar hasta que la respuesta llega por
+completo). Además, también vamos a ver como podemos parar la ejecución
+del stream, cosa que va a sernos muy útiles para aquellos casos en los
+que la respuesta no parezca muy apropiada (a veces ChatGPT se equivoca,
+e incluso "alucina", que es el término oficial para cuando a ChatGPT "se
+le va la pinza" ... todavía hay esperanza para la humanidad ).
+
+Para invocar la API desde SPFx, haremos uso del familiar HttpClient que
+ya nos proporciona el mismo SPFx. La Request a la API será muy similar
+al ejemplo anterior de Postman, pero añadiremos el parámetro "stream",
+que pondremos a "true".
+
+```
+const payload = {
+\"prompt\": \"once upon a time\",
+\"max_tokens\": 100,
+\"stream\": true
+};
+```
+
+Lo que no es tan trivial aquí, es cómo manejar la respuesta de la API
+cuando el stream está activado. El caso es que JavaScript tiene una
+clase EventSource, destinada a manejar streams de respuesta. Sin
+embargo, esta clase sólo soporta peticiones GET, y en nuestro caso,
+necesitamos POST. Por suerte existe un paquete creado por Microsoft que
+nos va a solucionar el problema, y que es bastante sencillo de utilizar.
+El paquete se llama "*\@microsoft/fetch-event-source*" y podemos
+instalarlo a través de NPM. Una vez instalado, dicho paquete nos
+proporciona la función "**fetchEventSource**", que como primer parámetro
+le pasamos la URL del endpoint a invocar, y el segundo parámetro nos
+deja personalizar mucho más nuestra request, teniendo:
+
+![A screen shot of a computer screen Description automatically
+generated](../../../images/numero57/usando-azure-openai-api-desde-spfx-en-modo-stream/image6.png)
+
+Como veis, podemos especificar el HTTP Method, en nuestro caso, POST,
+además, podemos definir el Header y Body de nuestra request, pudiendo
+así especificar la API-Key en el Header, y todos los parámetros
+necesarios del Body. Además, podemos definir los handlers para los
+eventos posteriores de Open, Close, Error, o cuando se recibe cada
+mensaje del Stream.
+
+Y para acabar, ¿Cómo podemos detener el strem sin tener que esperar a
+que se complete toda la respuesta? Es decir, cómo podemos hacer el mismo
+mecanismo de "stop generating" que nos da la web de ChatGPT:
+
+![A screenshot of a computer Description automatically
+generated](../../../images/numero57/usando-azure-openai-api-desde-spfx-en-modo-stream/image7.png)
+
+Para hacer esto, haremos uso de otro objecto nativo de JavaScript,
+llamado *AbortController*. Dicho objecto tiene una propiedad *signal*,
+que podemos pasar a la función *fetchEventSource*.
+
+En el constructor del componente React, creamos el AbortController e
+incializamos su propiedad Signal:
+
+```
+private \_signal: AbortSignal;
+private \_controller: AbortController;
+
+constructor(props: IChatGptStreamProps) {
+super(props);
+this.state = {
+userInputPrompt: \'\',
+chatGptResponseMessages: \[\]
+}
+
+this.\_controller = new AbortController();
+this.\_signal = this.\_controller.signal;
+}
+```
+
+Ahora pasamos esa *Signal* a nuestra función *fetchEventSource*:
+
+![A screen shot of a computer program Description automatically
+generated](../../../images/numero57/usando-azure-openai-api-desde-spfx-en-modo-stream/image8.png)
+
+Finalmente, para detener el stream, tendríamos un botón en nuestro
+componente, que haría uso del *AbortController* para llamar a su método
+***abort***:
+
+```
+\<PrimaryButton
+text=\"Stop generating\"
+onClick={() =\> this.\_controller.abort()} /\>
+```
+
+Y aquí tenemos el resultado final del webpart, donde se puede observar
+como la ejecución se ha detenido y no se ha generado una respuesta
+completa:
+
+![A screenshot of a computer Description automatically
+generated](../../../images/numero57/usando-azure-openai-api-desde-spfx-en-modo-stream/image9.png)
+
+Y hasta aquí el artículo. Espero que os sea de utilidad.
+
+¡Hasta el próximo artículo!
+
+**Luis Mañez** <br />
+Cloud Architect en ClearPeople LTD <br />
+\@luismanez <br />
+https://github.com/luismanez
+
+
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber
