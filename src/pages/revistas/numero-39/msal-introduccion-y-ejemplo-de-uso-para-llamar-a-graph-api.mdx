@@ -22,7 +22,7 @@ Cualquier servicio securizado en Azure AD, estará basado en los protocolos est�
 
 El negociado de ese Token dependerá del escenario de consumo, pero siempre se hará siguiendo uno de los *Flows* definidos por *OpenIdConnect* y oAuth2. Dicho "Flow", no es más que un baile entre el cliente y Azure AD, que dará como resultado un Token válido para el servicio / API. Ese "baile", será diferente en función del tipo de cliente (ver imagen arriba): Si el cliente es una aplicación web, y se pretende consumir Graph API con permisos del usuario logado en la web app, seguiremos un Flow llamado "*Authorization Code Flow*". Si por el contrario tenemos una aplicación de consola y queremos consumir Graph con permisos de aplicación (sin intervención de ningún usuario), utilizaremos un Flow distinto: "*Client credentials Flow*".
 
-A día de hoy, Azure AD expone 2 versiones para negociado de Tokens: endpoint v1 / v2. Podéis encontrar las principales diferencias en el siguiente enlace: [https://docs.microsoft.com/en-us/azure/active-directory/develop/azure-ad-endpoint-comparison](https&#58;//docs.microsoft.com/en-us/azure/active-directory/develop/azure-ad-endpoint-comparison). Actualmente se recomienda utilizar el V2 siempre que sea posible, ya que cumple mejor con los estándares de OpenIdConnect y oAuth2 (entre otras ventajas). El endpoint v2, soporta los siguiente flows:
+A día de hoy, Azure AD expone 2 versiones para negociado de Tokens: endpoint v1 / v2. Podéis encontrar las principales diferencias en el siguiente enlace: [https://docs.microsoft.com/en-us/azure/active-directory/develop/azure-ad-endpoint-comparison](https://docs.microsoft.com/en-us/azure/active-directory/develop/azure-ad-endpoint-comparison). Actualmente se recomienda utilizar el V2 siempre que sea posible, ya que cumple mejor con los estándares de OpenIdConnect y oAuth2 (entre otras ventajas). El endpoint v2, soporta los siguiente flows:
 
 - Open ID Connect (Sign in) Flow
 - OAuth 2.0 Auth code grant.
@@ -34,7 +34,7 @@ A día de hoy, Azure AD expone 2 versiones para negociado de Tokens: endpoint v1
 - Device Code Flow (personal accounts NOT supported).
 
 
-Tenéis muy bien documentados todos estos flows en la documentación de Azure AD, que podéis encontrar en el siguiente enlace: [https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols](https&#58;//docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols)
+Tenéis muy bien documentados todos estos flows en la documentación de Azure AD, que podéis encontrar en el siguiente enlace: [https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols)
 
 Por suerte, no es necesario conocer todos estos flows (además de otras cosas complejas como Signatures, Cryptography, etc), para poder negociar un Token con Azure AD. Es aquí donde aparece la librería MSAL (Microsoft Authentication Library). MSAL nos va a facilitar mucho la vida a la hora obtener un token, y nos va a abstraer bastante de la implementación específica de cada Flow.
 
@@ -94,7 +94,7 @@ En el constructor de ConfidentialClientApplication tenemos:
 6. Application Token Cache: MSAL tiene una cache de Tokens interna, para evitar llamadas innecesarias a Azure AD una vez obtenido el Token. En muchos escenarios, la TokenCache interna de MSAL no será suficiente, y habrá que extenderla (por ejemplo, para usar alguna DB o RedisCache). Hoy en día, MS proporciona un ejemplo basado en Http Session, que mejora la interna para escenarios web, pero que sigue sin ser óptimo.
 
 
-Una vez tenemos el objeto *ConfidentialClientApplication*, sólo tenemos que llamar al método "AcquireTokenForClientAsync" pasando los *scopes* para los que solicitamos el Token. Para el caso de Graph, existen numerosos scopes: Groups.Read.All, Email.Send, etc. Sin embargo, cuando usamos permisos de Aplicación, debemos pasar el scope por defecto de Graph: [https://graph.microsoft.com/.default](https&#58;//graph.microsoft.com/.default), y de esta manera, la App tendrá los permisos registrados en Azure AD (que en nuestro caso era Groups.Read.All).
+Una vez tenemos el objeto *ConfidentialClientApplication*, sólo tenemos que llamar al método "AcquireTokenForClientAsync" pasando los *scopes* para los que solicitamos el Token. Para el caso de Graph, existen numerosos scopes: Groups.Read.All, Email.Send, etc. Sin embargo, cuando usamos permisos de Aplicación, debemos pasar el scope por defecto de Graph: [https://graph.microsoft.com/.default](https://graph.microsoft.com/.default), y de esta manera, la App tendrá los permisos registrados en Azure AD (que en nuestro caso era Groups.Read.All).
 
 **Llamando a Graph API para obtener grupos en la tenant**
 
@@ -108,5 +108,9 @@ Como vemos, con unas pocas líneas de código y sin tener que conocer las tripas
 
 Luis Mañez – SharePoint / Cloud Solutions Architect en ClearPeople LTD
  @luismanez
- [https://medium.com/inherits-cloud](https&#58;//medium.com/inherits-cloud)
+ [https://medium.com/inherits-cloud](https://medium.com/inherits-cloud)
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

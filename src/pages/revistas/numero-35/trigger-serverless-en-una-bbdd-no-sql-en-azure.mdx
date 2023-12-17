@@ -42,7 +42,7 @@ En mi caso he elegido un plan por consumo, pero es indiferente para el ejemplo.
 
 ![Imagen 3. Configuración de nuestra función.](../../../images/numero35/trigger-serverless-en-una-bbdd-no-sql-en-azure/image3.png)
 
-Una vez creado el servicio de Azure Function CompartimossFunctions, si ya tenemos creada una collection de Document DB o SQL API (como se puede ver en este [ejemplo](https&#58;//docs.microsoft.com/es-es/azure/cosmos-db/create-sql-api-dotnet) ), debemos acceder a nuestro servicio de SQL API , y en el menú generar seleccionamos “Agregar Función de Azure”.
+Una vez creado el servicio de Azure Function CompartimossFunctions, si ya tenemos creada una collection de Document DB o SQL API (como se puede ver en este [ejemplo](https://docs.microsoft.com/es-es/azure/cosmos-db/create-sql-api-dotnet) ), debemos acceder a nuestro servicio de SQL API , y en el menú generar seleccionamos “Agregar Función de Azure”.
 
 ![Imagen 4.- Agregando la función.](../../../images/numero35/trigger-serverless-en-una-bbdd-no-sql-en-azure/image4.png)
 
@@ -52,6 +52,7 @@ Como se ve en la figura anterior, en mi servicio he creado una collection Compar
 
 En cuanto termine el proceso de creación que es instantáneo, se nos redirige a la functions CompartimossFunction que hemos enlazado. Podemos comprobar que se ha creado una función nueva “compartimossCollectionTrigger”, con el siguiente código de ejemplo:
 
+```
 #r "Microsoft.Azure.Documents.Client"
 
 using Microsoft.Azure.Documents;
@@ -69,8 +70,7 @@ log.Verbose("Document count " + input.Count);
 log.Verbose("First document Id " + input[0].Id);
 
 }
-
-
+```
 
 Además, se ha creado un trigger, que vincula a nuestra colección de CosmosDB con nuestra functions. La ventaja de hacer este ejemplo así es que nos evitamos tener que configurar las conexiones de nuestro trigger de forma manual desde el Azure Functions.
   Para testear que todo funciona correctamente, deberemos acceder al explorador de datos de nuestro Cosmos, y añadir un documento nuevo a nuestra colección. 
@@ -148,3 +148,7 @@ Principal Team Leader en Encamina
 
 @shmancebo​
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

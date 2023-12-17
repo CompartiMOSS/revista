@@ -195,7 +195,7 @@ de barras con el siguiente formato:
 https://DOMAIN.sharepoint.com/sites/SITE/_layouts/15/barcodeimagefromitem.aspx?ID=ITEMID&list=LISTGUID
 
 En mi caso, sería:
-<https://esm2019.sharepoint.com/sites/AlmacnESM/_layouts/15/barcodeimagefromitem.aspx?ID=2&list=718c9235-d5ce-45c5-a301-3054055be6c0>
+https://esm2019.sharepoint.com/sites/AlmacnESM/_layouts/15/barcodeimagefromitem.aspx?ID=2&list=718c9235-d5ce-45c5-a301-3054055be6c0
 
 > Basta con que pulséis sobre la imagen del campo
 > "Barcode" en la lista de SharePoint para que se os abra en una nueva
@@ -205,7 +205,9 @@ Para que el ID del ítem sea dinámico, ya que lo tenemos almacenado en
 una variable global, podemos componer la URL de la siguiente manera
 aprovechando la interpolación de cadenas que nos ofrece Power Apps:
 
+```
 $"https://esm2019.sharepoint.com/sites/AlmacnESM/_layouts/15/barcodeimagefromitem.aspx?ID={_varCurrentID}&list=718c9235-d5ce-45c5-a301-3054055be6c0"
+```
 
 ![](../../../images/numero54/generar-un-codigo-de-barras-en-sharepoint-y-consumirlo-en-power-apps/image16.png)
 
@@ -220,11 +222,12 @@ correctamente en nuestra app:
 móvil muestre la imagen del código de barras con la URL de SharePoint,
 podéis utilizar una URL de las que generan algunas webs de códigos de
 barras pasando el valor del código. Por ejemplo, podéis usar la web
-<https://www.barcodesinc.com/generator/index.php>
+https://www.barcodesinc.com/generator/index.php
 Así, la URL para la imagen quedaría de la siguiente forma:
 
-$"https://www.barcodesinc.com/generator/image.php?code={ThisItem.'Barcode
-Value'}&style=197&type=C128B&width=500&height=100&xres=1&font=3"
+```
+$"https://www.barcodesinc.com/generator/image.php?code={ThisItem.'BarcodeValue'}&style=197&type=C128B&width=500&height=100&xres=1&font=3"
+```
 
 ![](../../../images/numero54/generar-un-codigo-de-barras-en-sharepoint-y-consumirlo-en-power-apps/image18.png)
 
@@ -262,14 +265,16 @@ utilizar en la web, recibiréis un mensaje de error:
 
 Aquí tenéis más información sobre este control y sus limitaciones:
 
-<https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/controls/control-new-barcode-scanner>
+https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/controls/control-new-barcode-scanner
 
 Cuando el usuario realice un escaneo utilizando este botón, el valor del
 código escaneado se guardará en el *Value* del control. Por tanto,
 podríamos guardar el valor en una variable de contexto de la siguiente
 forma:
 
+```
 UpdateContext({_varCodeScanned:Self.Value});
+```
 
 Y ahora, podríamos recuperar el elemento correspondiente de nuestro
 repositorio **Almacén** a través de la columna del "*Barcode Value*" y
@@ -308,3 +313,7 @@ Espero que os haya gustado.
 **Enrique Sánchez Moreno**  <br />
 Cloud Services Manager en ILUNION IT Services. <br />
 [www.esanchezm.com](http://www.esanchezm.com)
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

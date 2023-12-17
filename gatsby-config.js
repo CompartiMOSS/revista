@@ -1,5 +1,9 @@
+
 const path = require('path')
 
+/**
+ * @type {import('gatsby').GatsbyConfig}
+ */
 module.exports = {
   siteMetadata: {
     title: 'CompartiMOSS',
@@ -8,13 +12,15 @@ module.exports = {
     author: '@compartimoss_com',
     siteUrl: `https://www.compartimoss.com`,
   },
-  flags: { FAST_DEV: true, PARALLEL_SOURCING: true },
+  graphqlTypegen: true,
   plugins: [
     {
-      resolve: `gatsby-plugin-google-analytics`,
+      resolve: "gatsby-plugin-google-gtag", 
       options: {
-        trackingId: 'UA-37299502-1',
-      },
+        trackingIds: [
+          "G-TJCZJ7913E"
+        ]
+      }
     },
     `gatsby-plugin-sitemap`,
     `gatsby-plugin-robots-txt`,
@@ -24,22 +30,10 @@ module.exports = {
     `gatsby-remark-images`,
     `gatsby-transformer-remark`,
     `gatsby-plugin-sharp`,
-    {
-      resolve: 'gatsby-plugin-material-ui',
-      // If you want to use styled components you should change the injection order.
-      options: {
-        // stylesProvider: {
-        //   injectFirst: true,
-        // },
-      },
-    },
     `gatsby-plugin-styled-components`,
     {
       resolve: `gatsby-plugin-mdx`,
       options: {
-        defaultLayouts: { 
-          default: path.resolve('./src/components/layout-article.js')
-        },
         gatsbyRemarkPlugins: [
           {
             resolve: `gatsby-remark-images`,
@@ -83,14 +77,6 @@ module.exports = {
     'gatsby-plugin-offline',
     {
       resolve: 'gatsby-plugin-mdx-frontmatter'
-    },
-    {
-      resolve: `gatsby-plugin-google-gtag`,
-      options: {
-        trackingIds: [
-          "UA-37299502-1", 
-        ],
-      },
-    }  
+    }
   ]
-}
+};

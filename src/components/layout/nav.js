@@ -1,6 +1,5 @@
 import * as React from "react"
 import { Link } from 'gatsby'
-import { ListItem, ListItemText } from "@material-ui/core"
 
 const Nav = ({ navLinks, classes }) => {
     return (

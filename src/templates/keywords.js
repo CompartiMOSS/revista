@@ -94,22 +94,20 @@ Keywords.propTypes = {
 
 export default Keywords
 
-export const pageQuery = graphql`
-  query($keyword: String) {
-    allMdx(
-      limit: 2000
-      sort: { fields: [frontmatter___date], order: DESC }
-      filter: { frontmatter: { keywords: { in: [$keyword] } } }
-    ) {
-      totalCount
-      edges {
-        node {
-          frontmatter {
-            title,
-            slug
-          }
+export const pageQuery = graphql`query ($keyword: String) {
+  allMdx(
+    limit: 2000
+    sort: {frontmatter: {date: DESC}}
+    filter: {frontmatter: {keywords: {in: [$keyword]}}}
+  ) {
+    totalCount
+    edges {
+      node {
+        frontmatter {
+          title
+          slug
         }
       }
     }
   }
-`
+}`

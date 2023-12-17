@@ -12,7 +12,7 @@ keywords: ['Azure']
 
 
 
-Todo empieza cuando te llaman porque han publicado [desescalapp.com](https&#58;//www.desescalapp.com/) en Azure y, de repente, aparecen **1000 usuarios concurrentes** usando las funcionalidades que has publicado.
+Todo empieza cuando te llaman porque han publicado [desescalapp.com](https://www.desescalapp.com/) en Azure y, de repente, aparecen **1000 usuarios concurrentes** usando las funcionalidades que has publicado.
 
 *Esto no estaba previsto, no hemos podido dimensionar los servicios correctamente, ¿Qué hacemos? No podemos perder a los usuarios actuales, tenemos que seguir dando servicio y que todo funcione adecuadamente, pero no con los tiempos de respuestas que se estamos teniendo.*
 
@@ -24,7 +24,7 @@ A partir de este punto, tenemos los usuarios atendidos y podemos empezar a anali
 
 Necesitamos ver los datos de uso, ver que CPU se está consumiendo, cuánta memoria RAM, cuántas peticiones por segundo, etc. Estos datos nos van a permitir elegir el dimensionamiento adecuado de la aplicación para los usuarios que están usando la misma.
 
-Un [App Service](https&#58;//azure.microsoft.com/es-es/services/app-service/) es un servicio PaaS de Azure que nos permite publicar aplicaciones web decidiendo cuál es el escalado vertical (CPU y RAM) y el escalado horizontal (número de servidores).
+Un [App Service](https://azure.microsoft.com/es-es/services/app-service/) es un servicio PaaS de Azure que nos permite publicar aplicaciones web decidiendo cuál es el escalado vertical (CPU y RAM) y el escalado horizontal (número de servidores).
 
 ![Imagen 1.- Planes de escalado vertical de un App Service en Azure.](../../../images/numero44/dimensionando-desescalapp-com-en-azure/image1.png)
 
@@ -42,7 +42,7 @@ Las peticiones eran bastantes elevadas, estábamos recibiendo 20.000 peticiones 
 
 **Optimizamos el App Service**
 
-Teniendo en cuenta el modo de uso de la aplicación actual, fue necesario realizar algunos cambios necesarios porque el volumen de usuarios había aumentado considerablemente y no era factible tener 10 instancias (gracias a Espejo Público y a [Antena 3](https&#58;//www.antena3.com/noticias/tecnologia/desescalapp-la-aplicacion-que-te-ayuda-a-desescalar-durante-la-crisis-del-coronavirus_202005145ebd7717ee59440001be5ca9.html)) S1 de la aplicación, por dos motivos básicos, ya habíamos llegado al máximo de nodos y económicamente es un disparate para 3.000 o 4.000 usuarios.
+Teniendo en cuenta el modo de uso de la aplicación actual, fue necesario realizar algunos cambios necesarios porque el volumen de usuarios había aumentado considerablemente y no era factible tener 10 instancias (gracias a Espejo Público y a [Antena 3](https://www.antena3.com/noticias/tecnologia/desescalapp-la-aplicacion-que-te-ayuda-a-desescalar-durante-la-crisis-del-coronavirus_202005145ebd7717ee59440001be5ca9.html)) S1 de la aplicación, por dos motivos básicos, ya habíamos llegado al máximo de nodos y económicamente es un disparate para 3.000 o 4.000 usuarios.
 
 La CPU es importante pero también el acceso a disco que es donde están todos los recursos web de la aplicación, hojas de estilos, imágenes, JavaScript, etc. Esto nos llevó a tener que escalar verticalmente a una instancia Premium que tiene mejor rendimiento de CPU y mejor rendimiento de lectura/escritura de recursos con discos SSD.
 
@@ -79,11 +79,11 @@ A partir de aquí, teníamos un sistema estable atiendo a muchos usuarios concur
 
 ![Imagen 8.- Tiempo de respuesta medios.](../../../images/numero44/dimensionando-desescalapp-com-en-azure/image8.png)
 
-Tocaba analizar la aplicación con el objetivo de optimizar el código y el uso de los recursos. Para eso, usamos el [servicio de diagnóstico](https&#58;//docs.microsoft.com/es-es/azure/app-service/overview-diagnostics) que está disponible en el App Service, analizando la disponibilidad y el rendimiento. Este servicio nos confirmó uno de los posibles problemas que estábamos teniendo con el número de peticiones y el uso de la CPU. Al parecer, teníamos un exceso de conexiones TCP que se podían reutilizar.
+Tocaba analizar la aplicación con el objetivo de optimizar el código y el uso de los recursos. Para eso, usamos el [servicio de diagnóstico](https://docs.microsoft.com/es-es/azure/app-service/overview-diagnostics) que está disponible en el App Service, analizando la disponibilidad y el rendimiento. Este servicio nos confirmó uno de los posibles problemas que estábamos teniendo con el número de peticiones y el uso de la CPU. Al parecer, teníamos un exceso de conexiones TCP que se podían reutilizar.
 
 ![Imagen 9.- Diagnóstica de problemas con las conexiones TCP.](../../../images/numero44/dimensionando-desescalapp-com-en-azure/image9.png)
 
-Los servidores tienen un [límite de conexiones TCP abiertas](https&#58;//azure.github.io/AppService/2018/03/01/Deep-Dive-into-TCP-Connections-in-App-Service-Diagnostics.html) y, aunque habíamos pasado de 1.920 a 3.968 conexiones con el cambio del S1 al P2, seguíamos con peticiones en cola y con la necesidad de tener más nodos (escalado horizontal) de los que deberían hacer falta para el número de usuarios concurrentes que teníamos.
+Los servidores tienen un [límite de conexiones TCP abiertas](https://azure.github.io/AppService/2018/03/01/Deep-Dive-into-TCP-Connections-in-App-Service-Diagnostics.html) y, aunque habíamos pasado de 1.920 a 3.968 conexiones con el cambio del S1 al P2, seguíamos con peticiones en cola y con la necesidad de tener más nodos (escalado horizontal) de los que deberían hacer falta para el número de usuarios concurrentes que teníamos.
 
 ![Imagen 10.- Conexiones TCP.](../../../images/numero44/dimensionando-desescalapp-com-en-azure/image10.png)
 
@@ -97,7 +97,7 @@ Si sólo teníamos conexiones TCP al SQL Server, estaba claro que se podía mejo
 
 Esta actualización nos permitió reducir el número de conexiones abiertas al SQL Server y mejorar entre un 10% y un 15% el consumo de CPU. Recordemos el tema de las peticiones, seguimos teniendo una ratio de 10x peticiones por usuario, un ratio bastante excesiva para la funcionalidad que la aplicación ofrece. ¿Cómo podemos optimizar y reducir estas peticiones? Más del 90% de las peticiones de la aplicación se realizan para obtener recursos web, básicamente para obtener las hojas de estilos, los JavaScript y las imágenes que acompañan al contenido.
 
-Eso tiene fácil solución y [Azure tiene un servicio](https&#58;//azure.microsoft.com/es-es/services/cdn/) para esto que es usado por la mayoría de los sitios webs públicos, Content Delivery Network, CDN para los amigos. Este servicio nos va a permitir descargar de peticiones el servidor y que simplemente se realicen aquellas peticiones que son para cargar datos o nuevas páginas con datos, las imágenes, las hojas de estilos y los JavaScripts serán entregados a través de los servidores que los CDN tienen distribuidos por las redes globales, lo que, además, nos ayuda a mejorar el rendimiento en la carga de estos tipos de ficheros porque están cacheados en múltiples servidores cercanos a los usuarios. ​
+Eso tiene fácil solución y [Azure tiene un servicio](https://azure.microsoft.com/es-es/services/cdn/) para esto que es usado por la mayoría de los sitios webs públicos, Content Delivery Network, CDN para los amigos. Este servicio nos va a permitir descargar de peticiones el servidor y que simplemente se realicen aquellas peticiones que son para cargar datos o nuevas páginas con datos, las imágenes, las hojas de estilos y los JavaScripts serán entregados a través de los servidores que los CDN tienen distribuidos por las redes globales, lo que, además, nos ayuda a mejorar el rendimiento en la carga de estos tipos de ficheros porque están cacheados en múltiples servidores cercanos a los usuarios. ​
 
 ![Imagen 12.- Peticiones con la versión CDN.](../../../images/numero44/dimensionando-desescalapp-com-en-azure/image12.png)
 
@@ -123,5 +123,9 @@ Por último, no nos olvidemos de configurar adecuadamente el servicio donde hemo
  MVP Azure <br />
  adiazcan@hotmail.com <br />
  @adiazcan <br />
-[http://blogs.encamina.com/por-una-nube-sostenible/](http&#58;//blogs.encamina.com/por-una-nube-sostenible/) <br />
+[http://blogs.encamina.com/por-una-nube-sostenible/](http://blogs.encamina.com/por-una-nube-sostenible/) <br />
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

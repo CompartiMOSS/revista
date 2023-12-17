@@ -113,10 +113,10 @@ En la siguiente tabla vemos las llamadas que realiza a la API de Graph y los per
 | **Recurso** | **Permiso/ámbito** |
 | --- | --- |
 | **/me** | User.Read |
-| **$value/me/Photo/** | User.Read |
+| **\$value/me/Photo/** | User.Read |
 | **/me/People/? $search =** | People.Read |
 | **/me/contacts/\*** | Contacts.Read |
-| **$value/users/{ID}/Photo/** | User.ReadBasic.All |
+| **\$value/users/\{ID\}/Photo/** | User.ReadBasic.All |
 
 
 - Contactos: Este componente se utiliza para mostrar datos de un grupo de personas. Este componente por defecto muestra los contactos frecuentes del usuario, es decir, realiza la llamada /me/people a la API de Graph, por ejemplo, si añadimos:
@@ -151,7 +151,7 @@ En la siguiente tabla vemos las llamadas que realiza a la API de Graph y los per
 
 
 
-- Agenda: Este componente representa los eventos en un calendario de usuario o grupo. De forma predeterminada, el calendario muestra los eventos del usuario que ha iniciado sesión para el día actual, pero se puede modificar para mostrar los datos de otro endpoint que devuelva eventos, por ejemplo, /groups/{id}/calendar/calendarView
+- Agenda: Este componente representa los eventos en un calendario de usuario o grupo. De forma predeterminada, el calendario muestra los eventos del usuario que ha iniciado sesión para el día actual, pero se puede modificar para mostrar los datos de otro endpoint que devuelva eventos, por ejemplo, /groups/\{id\}/calendar/calendarView
 
 
 ![Imagen 5.- Componente Agenda](../../../images/numero41/un-vistazo-a-microsoft-graph-toolkit-web-components-con-graph/image5.png)
@@ -212,7 +212,7 @@ En la siguiente tabla vemos las llamadas que realiza a la API de Graph y los per
 | **Recurso** | **Permiso/ámbito** |
 | --- | --- |
 | **/me/planner/plans** | Group.Read.All |
-| **/Planner/Plans/$ {ID}** | Group.Read.All, Group.ReadWrite.All |
+| **/Planner/Plans/\$ \{ID\}** | Group.Read.All, Group.ReadWrite.All |
 | **/planner/tasks** | Group.ReadWrite.All |
 | **/me/outlook/taskGroups** | Tasks.Read |
 | **/me/outlook/taskFolders** | Tasks.Read, Tasks.ReadWrite |
@@ -229,7 +229,7 @@ Para que los componentes usen un proveedor, se debe establecer la propiedad Prov
 
 Actualmente existen los siguientes proveedores:
 
-- MsalProvider: Este proveedor utiliza msal.js para obtener el token de acceso, por ejemplo, podemos utilizar este proveedor si estamos desarrollando una aplicación SPA. Cuando utilizamos este proveedor lo primero que tenemos que hacer es registrar nuestra aplicación dentro de Azure AD. En este enlace explican cómo hacerlo [https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app](https&#58;//docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app)
+- MsalProvider: Este proveedor utiliza msal.js para obtener el token de acceso, por ejemplo, podemos utilizar este proveedor si estamos desarrollando una aplicación SPA. Cuando utilizamos este proveedor lo primero que tenemos que hacer es registrar nuestra aplicación dentro de Azure AD. En este enlace explican cómo hacerlo [https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app)
 
 
 Una vez registrada nuestra aplicación debemos inicializar el proveedor, para esto tenemos 2 opciones:
@@ -261,7 +261,7 @@ interface MsalConfig {  clientId: string;  scopes?: string[];  authority?: st
 import {Providers, SharePointProvider} from '@microsoft/mgt';protected async onInit() {    Providers.globalProvider = new SharePointProvider(this.context);
 ```
 
-Una vez inicializado podemos añadir nuestro componente en el método render. Debemos tener en cuenta que Microsoft Graph Toolkit requiere Typescript 3.x, por lo que necesitamos estar utilizando como mínimo, la versión 1.8 de SPFx donde se añadió soporte a esta versión de Typescript ([https://github.com/SharePoint/sp-dev-docs/wiki/SharePoint-Framework-v1.8-release-notes#support-for-typescript-27-29-and-3x](https&#58;//github.com/SharePoint/sp-dev-docs/wiki/SharePoint-Framework-v1.8-release-notes#support-for-typescript-27-29-and-3x) )
+Una vez inicializado podemos añadir nuestro componente en el método render. Debemos tener en cuenta que Microsoft Graph Toolkit requiere Typescript 3.x, por lo que necesitamos estar utilizando como mínimo, la versión 1.8 de SPFx donde se añadió soporte a esta versión de Typescript ([https://github.com/SharePoint/sp-dev-docs/wiki/SharePoint-Framework-v1.8-release-notes#support-for-typescript-27-29-and-3x](https://github.com/SharePoint/sp-dev-docs/wiki/SharePoint-Framework-v1.8-release-notes#support-for-typescript-27-29-and-3x) )
 
 - TeamsProvider: Utilizaremos este proveedor si estamos desarrollando una pestaña para Teams. Para utilizarlo lo primero que tenemos que hacer es asegurarnos que tenemos referenciado el SDK de Teams y luego inicializamos el proveedor.​
 
@@ -313,7 +313,7 @@ Para todos los componentes podemos utilizar plantillas personalizadas para modif
 
 Cuando creamos plantillas tenemos que tener en cuenta varias cosas:
 
-- Debemos usar llaves dobles ({{expression}}) para expandir una expresión.
+- Debemos usar llaves dobles (\{\{expression\}\}) para expandir una expresión.
 - Podemos usar los atributos data-if y data-else y para la representación condicional.
 - Podemos usar el atributo data-for para repetir un elemento.
 - Podemos usar el atributo data-type para especificar la parte del componente a la que se va a plantilla. Si no se especifica el tipo, la plantilla se aplicará a todo el componente.
@@ -325,12 +325,15 @@ Microsoft Graph Toolkit nos proporciona una serie de elementos web reutilizables
 
 Debemos tener en cuenta que es una versión preview y que no es aconsejable que se utilice en entorno de producción. Recientemente se ha liberado la versión 0.2.0, incluyendo un control PeoplePicker y solucionando algunos errores.
 
-Si quieres más información puedes ver la documentación oficial en [https://docs.microsoft.com/es-es/graph/toolkit/overview](https&#58;//docs.microsoft.com/es-es/graph/toolkit/overview) y en el proyecto de GitHub [https://github.com/microsoftgraph/microsoft-graph-toolkit](https&#58;//github.com/microsoftgraph/microsoft-graph-toolkit)
+Si quieres más información puedes ver la documentación oficial en [https://docs.microsoft.com/es-es/graph/toolkit/overview](https://docs.microsoft.com/es-es/graph/toolkit/overview) y en el proyecto de GitHub [https://github.com/microsoftgraph/microsoft-graph-toolkit](https://github.com/microsoftgraph/microsoft-graph-toolkit)
 
 
 
 **Rubén Ramos Mateo** <br />
 Technical Architect en Ricoh <br />
-[ruben\_rm@outlook.com](mailto&#58;ruben_rm@outlook.com) <br />
+[ruben\_rm@outlook.com](mailto:ruben_rm@outlook.com) <br />
 @rubenr79 <br />
-https://rubenrm.com
+https://rubenrm.com 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

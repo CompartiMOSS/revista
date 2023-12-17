@@ -26,10 +26,10 @@ En el ejemplo que se va a desarrollar enseguida se utiliza el Bing Search API pa
 
 **Configuración del Azure Bing Search API**
 
-Para utilizar el Bing Search API es necesario crear primero el servicio en Azure, aunque también es posible utilizar una cuenta temporal de prueba desde la página de Microsoft [https://azure.microsoft.com/en-us/try/cognitive-services/#search](https&#58;//azure.microsoft.com/en-us/try/cognitive-services/#search). Para crear un servicio (de pago) en Azure:
+Para utilizar el Bing Search API es necesario crear primero el servicio en Azure, aunque también es posible utilizar una cuenta temporal de prueba desde la página de Microsoft [https://azure.microsoft.com/en-us/try/cognitive-services/#search](https://azure.microsoft.com/en-us/try/cognitive-services/#search). Para crear un servicio (de pago) en Azure:
 
 1.      
-Entre al portal de manejo de Azure ([https://portal.azure.com](https&#58;//portal.azure.com/)) utilizando sus credenciales.
+Entre al portal de manejo de Azure ([https://portal.azure.com](https://portal.azure.com/)) utilizando sus credenciales.
 
 2.      
 Vaya a la sección de "Resource Groups" y cree un nuevo Grupo de Recursos (también es posible reutilizar un grupo ya existente).
@@ -66,6 +66,7 @@ Agréguele a la solución el paquete NuGet "AppForSharePointOnlineWebToolkit".
 8.      
 Reemplace toda la rutina "Run" con el siguiente código:
 
+```
 [FunctionName("SearchBingWeb")]
 
 public static asyncTask&lt;HttpResponseMessage&gt; Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]HttpRequestMessage req, TraceWriter log)
@@ -143,12 +144,12 @@ return newHttpResponseMessage(HttpStatusCode.OK);
 
 }
 
-
+```
 
 Esta rutina primero se encarga de hacer el registro del WebHook (si la consulta contiene un parámetro "validationtoken" en el Query String) utilizando la rutina "GetValidationToken":
 
 
-
+```
 public static stringGetValidationToken(HttpRequestMessage req)
 
 {
@@ -170,7 +171,7 @@ strReturn = req.GetQueryNameValuePairs()
 return strReturn;
 
 }
-
+```
 
 
 En el código, después de registrado el WebHook, cada consulta es procesada para extraer las notificaciones que contiene. En cada notificación de la colección de notificaciones se hace un logeo en SharePoint para obtener los cambios detectados en la Lista (por medio de la rutina "GetChanges"). En la variable "whSiteListUrl" del App Settings de la función se encuentra el URL del sitio en donde se encuentra la Lista a examinar ("https://[Dominio].sharepoint.com/sites/[NombreSitio").
@@ -178,6 +179,7 @@ En el código, después de registrado el WebHook, cada consulta es procesada par
 10.      
 La rutina "GetChanges" recibe el contexto de SharePoint y el identificador de la Lista, y tiene la forma:
 
+```
 static voidGetChanges(ClientContext SPClientContext, string ListId, TraceWriter log)
 
 {
@@ -275,11 +277,12 @@ log.Info($"---- Search Bing Web added to SharePoint Item");
 }
 
 }
-
+```
 
 
 Primero se crea un objeto que contienen la Lista a utilizar en SharePoint. Luego se crea una consulta de cambio (variable "myChangeQuery") que especifica que se requieren los cambios ocurridos en el ultimo minuto, que ocurren en elementos de la Lista y que sean del tipo "Add", es decir, elementos nuevos:
 
+```
 public static ChangeQuery GetChangeQueryNew(string ListId)
 
 {
@@ -307,11 +310,12 @@ myChangeQuery.ChangeTokenEnd = newChangeToken;
 returnmyChangeQuery;
 
 }
-
+```
 
 
 Luego de ejecutar la consulta, se examina cada uno de los cambios y se obtiene un objeto con el Elemento agregado. En la misma rutina se llama a "GetBingWebSearch", la que se encarga de hacer la consulta en Azure Bing, utilizando como parámetro de entrada el nombre del personaje (el Titulo del Elemento). Esta rutina entrega de regreso un objeto del tipo "SearchBingWebResult" que contiene los resultados de la consulta y que tiene la forma:
 
+```
 public class SearchBingWebResult
 
 {
@@ -385,7 +389,7 @@ public string name { get; set; }
 public string url { get; set; }
 
 }
-
+```
 
 
 Como Bing retorna un resultado con varios elementos, por medio de un loop se busca el resultado que se refiere a la Wikipedia. Finalmente se utilizan los valores de "snipped" y "displayUrl" para insertarlos en los campos de "Description" y "LinkWikipedia" del Elemento.
@@ -393,13 +397,12 @@ Como Bing retorna un resultado con varios elementos, por medio de un loop se bus
 11.      
 La rutina "GetBingWebSearch " recibe como parámetros de entrada el texto del título con el nombre del personaje y retorna un objeto con los valores encontrados por Bing:
 
+```
 public static asyncTask&lt;SearchBingWebResult&gt; GetBingWebSearch(stringmySearchQuery)
 
 {
 
 SearchBingWebResult resultReturn = newSearchBingWebResult();
-
-
 
 // Construct the URI of the search request. Using the "en-US" market to force responce in english only
 
@@ -468,16 +471,17 @@ public String jsonResult;
 publicDictionary&lt;String, String&gt; relevantHeaders;
 
 }
-
+```
 
 
 Cada consulta al Bing API se realiza por medio de una llamada REST a un URL pre-especificado del servicio de búsqueda (dado en el valor de la App Settings "azSearchBingWebEndpoint" y que es "https://api.cognitive.microsoft.com/bing/v7.0/search"), utilizando como parámetros en el QueryString el "Mercado" ("mkt", si es necesario forzar resultados en un idioma determinado) y la cadena de la consulta ("q"). En la App Settings "azBingSearchApiServiceKey" se mantiene el valor de la llave mencionada en el punto 4.
 
-El Bing Web API es mucho más completo de lo que se muestra en el ejemplo. Por medio de los parámetros de la llamada REST se pueden especificar mucho más finamente los resultados, incluyendo determinar qué tan "fresca" es la información, filtrar el tipo de resultados, etc. Igualmente, el resultado que se usa en el ejemplo es solamente el objeto "Webpage", pero la respuesta puede contener muchos otros tipos incluyendo imágenes, videos, noticias, etc. Toda la definición de los parámetros de entrada y los objetos de salida se puede encontrar en la información de referencia de Microsoft en [https://docs.microsoft.com/en-us/rest/api/cognitiveservices/bing-web-api-v7-reference](https&#58;//docs.microsoft.com/en-us/rest/api/cognitiveservices/bing-web-api-v7-reference). Para utilizar otros parámetros de entrada, modifique la consulta en la variable "uriQuery" de la rutina "GetBingWebSearch". Para entregar otros tipos de objetos de respuesta, modifique la clase "SearchBingWebResult" para que el objeto pueda capturar los valores deseados; la rutina "GetBingWebSearch" se encarga de deserializarlos automáticamente.
+El Bing Web API es mucho más completo de lo que se muestra en el ejemplo. Por medio de los parámetros de la llamada REST se pueden especificar mucho más finamente los resultados, incluyendo determinar qué tan "fresca" es la información, filtrar el tipo de resultados, etc. Igualmente, el resultado que se usa en el ejemplo es solamente el objeto "Webpage", pero la respuesta puede contener muchos otros tipos incluyendo imágenes, videos, noticias, etc. Toda la definición de los parámetros de entrada y los objetos de salida se puede encontrar en la información de referencia de Microsoft en [https://docs.microsoft.com/en-us/rest/api/cognitiveservices/bing-web-api-v7-reference](https://docs.microsoft.com/en-us/rest/api/cognitiveservices/bing-web-api-v7-reference). Para utilizar otros parámetros de entrada, modifique la consulta en la variable "uriQuery" de la rutina "GetBingWebSearch". Para entregar otros tipos de objetos de respuesta, modifique la clase "SearchBingWebResult" para que el objeto pueda capturar los valores deseados; la rutina "GetBingWebSearch" se encarga de deserializarlos automáticamente.
 
 12.      
 Otras tres clases definen objetos utilizados por el WebHook:
 
+```
 public class ResponseModel&lt;T&gt;
 
 {
@@ -572,7 +576,7 @@ public stringNotificationUrl { get; set; }
 public string Resource { get; set; }
 
 }
-
+```
 
 
 13.      
@@ -591,3 +595,7 @@ Gustavo Velez
  gustavo@gavd.net
  http://www.gavd.net
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

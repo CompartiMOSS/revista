@@ -16,9 +16,9 @@ Los programadores SharePoint estamos tan acostumbrados a programar con ASP.NET W
 
 **Lo básico de MVC**
 
-En el mundo de ASP.NET Web Forms la base de todo es la página (instancia de clase Page). La página está mapeada físicamente a un fichero con extensión ASPX y dispara una serie de eventos (Init, Load, PreRender, Render etc) según vamos progresando de la petición HTTP a la respuesta HTML al cliente. Podemos decir que en cierto modo Web Forms implementa el patrón "Page Controller"[\[i\]](https&#58;//d.docs.live.net/77af67c35753916e/CompartiMOSS/web/15/Edin%20Kapic/CompartiMOSS%20-%20MVC%20para%20SharePointeros%20I.docx#_edn1).
+En el mundo de ASP.NET Web Forms la base de todo es la página (instancia de clase Page). La página está mapeada físicamente a un fichero con extensión ASPX y dispara una serie de eventos (Init, Load, PreRender, Render etc) según vamos progresando de la petición HTTP a la respuesta HTML al cliente. Podemos decir que en cierto modo Web Forms implementa el patrón "Page Controller"[\[i\]](https://d.docs.live.net/77af67c35753916e/CompartiMOSS/web/15/Edin%20Kapic/CompartiMOSS%20-%20MVC%20para%20SharePointeros%20I.docx#_edn1).
 
-En el mundo MVC esto ya no es así. La responsabilidad de servir la respuesta a una petición está dividida entre tres componentes que dan nombre al patrón de diseño MVC: modelo, vista y controlador.[\[ii\]](https&#58;//d.docs.live.net/77af67c35753916e/CompartiMOSS/web/15/Edin%20Kapic/CompartiMOSS%20-%20MVC%20para%20SharePointeros%20I.docx#_edn2)
+En el mundo MVC esto ya no es así. La responsabilidad de servir la respuesta a una petición está dividida entre tres componentes que dan nombre al patrón de diseño MVC: modelo, vista y controlador.[\[ii\]](https://d.docs.live.net/77af67c35753916e/CompartiMOSS/web/15/Edin%20Kapic/CompartiMOSS%20-%20MVC%20para%20SharePointeros%20I.docx#_edn2)
 
 El modelo son nuestras clases de negocio junto con su lógica de negocio. La vista es la renderización HTML de la respuesta al cliente mientras que el controlador es la lógica de la aplicación web que procesa el modelo y actualiza la vista. En el mundo Web Forms, la página hacía de vista y de controlador a la vez. Ahora estas dos cosas están bien separadas.
 
@@ -35,6 +35,7 @@ Una acción en el controlador será un método que devuelve un resultado, que ca
 
 Las vistas en ASP.NET MVC se pueden hacer en Web Forms (ficheros ASPX) o con la nueva tecnología llamada Razor. Se recomienda Razor por ser mucho más sencillo y rápido. Razor tiene una sintaxis más minimalista y cuesta un cierto tiempo acostumbrarse a él. En contraprestación, se corresponde más al HTML final.
 
+```
 @model MvcHelloWorld.Models.Product
 
 @{
@@ -46,6 +47,7 @@ ViewBag.Title = "Display";
 &lt;h2&gt;Display&lt;/h2&gt;
 
 &lt;p&gt;@Model.Name &lt;em&gt;(@Model.ProductId)&lt;/em&gt;&lt;/p&gt;
+```
 
 Fijaos que Razor usa el prefijo @ para introducir su marcado de servidor. En este ejemplo le estamos diciendo a la vista que va a usar un tipo de datos como modelo (la clase MvcHelloWorld.Models.Product) y luego en el contenido de la página se usan las propiedades de ese modelo mediante la sintaxis @Model.
 
@@ -53,6 +55,7 @@ Fijaos que Razor usa el prefijo @ para introducir su marcado de servidor. En est
 
 Para acabar de sentar el concepto de una aplicación MVC, vamos a hacer un ejemplo sencillo: una aplicación que permite ver la lista de productos y el detalle del producto. Para simplificar esta primera toma de contacto con MVC, vamos a usar la lista de productos fija implementada en la clase DBHelper. Más adelante usaremos la API de SharePoint para obtener la lista desde un sitio de SharePoint.
 
+```
 public class DBHelper
 
 {
@@ -92,6 +95,7 @@ return result;
 }
 
 }
+```
 
 Abrimos Visual Studio y creamos una aplicación web MVC 3 con la plantilla "*Empty Application*". Dejamos las opciones por defecto y nos encontramos con la siguiente estructura de un proyecto MVC.
 
@@ -108,6 +112,7 @@ Las carpetas más importantes son:
 
 Ahora vamos a agregar el controlador. Clicamos con el botón derecho en la carpeta *Controllers* y elegimos *Add / Add Controller*. En el cuadro de diálogo, escribimos en nombre del controlador (ProductsController) y elegimos la plantilla "Empty Controller". Obtenemos el código siguiente:
 
+```
 public class ProductsController : Controller
 
 {
@@ -121,9 +126,11 @@ return View();
 }
 
 }
+```
 
 La acción por defecto que se va a ejecutar si no<br />especificamos ninguna es la acción Index(). En esta acción vamos a mostrar la<br />lista de los productos, con el enlace a ver el detalle de cada uno de ellos.<br />Para ello hay que cambiar el código ligeramente y también vamos a aprovechar<br />para crear una acción nueva llamada Display:
 
+```
 public ActionResult Index()
 
 {
@@ -145,11 +152,13 @@ var product = DBHelper.GetProduct(id);
 return View(product);
 
 }
+```
 
 Todas las acciones devuelven un ActionResult que indica el resultado de una acción. En la cláusula return devolvemos el resultado de una vista, pasándole un objeto (la lista de productos o un solo producto). Pero, ¿cómo sabe MVC que vista tiene que devolver? Otra vez, lo hace siguiendo la nomenclatura de los nombres de métodos y controladores. Ahora no hay ninguna vista asociada pero lo vamos a corregir añadiendo una vista. Para ello, clicamos por el botón derecho sobre el nombre de la acción y elegimos "Add View". En el diálogo que nos sale elegimos la opción que vincula a una clase del modelo ("Generate strong-typed view").
 
 Vamos a modificar la vista para que genere una lista de productos:
 
+```
 @model IEnumerable&lt;MvcHelloWorld.Models.Product&gt;
 
 
@@ -180,11 +189,13 @@ ViewBag.Title = "Index";
 }
 
 &lt;/ul&gt;
+```
 
 Como podéis ver, ahora la vista está ligada a un IEnumerable de productos (que es lo que le pasamos desde el controller). Además, creamos una lista de elementos que se generan usando una sintaxis de MVC llamada @Html. El método ActionLink nos genera en enlace a una acción, pasándole el nombre a mostrar, el nombre de la acción y un objeto con los parámetros de la acción (en nuestro caso sólo el ID del producto).
 
 Nos falta crear la vista de la acción Display(), que generamos igual que la de Index() y le ponemos el código siguiente:
 
+```
 @model MvcHelloWorld.Models.Product
 
 
@@ -206,9 +217,11 @@ ViewBag.Title = "Display";
 &lt;em&gt;Product Id: @Model.ProductId&lt;/em&gt;
 
 &lt;/p&gt;
+```
 
 Antes<br />de ejecutar el ejemplo, tenemos que decirle a MVC cuál es el controlador por<br />defecto y para ello editamos el método RegisterRoutes() en el fichero<br />Global.asax para apuntar a nuestro ProductsController en vez al controlador<br />Home que tiene la plantilla de MVC.
 
+```
 routes.MapRoute(
 
 "Default", // Route name
@@ -218,6 +231,7 @@ routes.MapRoute(
 new { controller = "Products", action = "Index", id = UrlParameter.Optional<br />}
 
 );
+```
 
 ¡Ya<br />estamos listos! Nuestra primera aplicación MVC está sólo a un F5 de distancia:
 
@@ -232,8 +246,9 @@ Tenemos un sitio de SharePoint que tiene la lista de productos. En mi ejemplo la
 
 ![La lista de productos en SharePoint](../../../images/numero15/mvc-para-sharepointeros/image5.png)
 
-Ahora vamos a cambiar el método GetProducts() del DBHelper para que use SharePoint. Usaremos el modelo de objetos cliente de .NET para SharePoint. Para autenticarnos contra el servidor de SharePoint, tenemos que especificar la propiedad Credentials del ClientContext. Si usamos Office 365 con SharePoint 2013 tenemos unas credenciales específicas encapsuladas en la clase  SharePointOnlineCredentials. Si es un SharePoint on-premise, usamos la clase NetworkCredential como siempre. Si tenemos la mala suerte de usar un SharePoint 2010 Online, podemos aprovechar la aportación de Chris Johnson para autenticarnos[\[iii\]](https&#58;//d.docs.live.net/77af67c35753916e/CompartiMOSS/web/15/Edin%20Kapic/CompartiMOSS%20-%20MVC%20para%20SharePointeros%20I.docx#_edn1).
+Ahora vamos a cambiar el método GetProducts() del DBHelper para que use SharePoint. Usaremos el modelo de objetos cliente de .NET para SharePoint. Para autenticarnos contra el servidor de SharePoint, tenemos que especificar la propiedad Credentials del ClientContext. Si usamos Office 365 con SharePoint 2013 tenemos unas credenciales específicas encapsuladas en la clase  SharePointOnlineCredentials. Si es un SharePoint on-premise, usamos la clase NetworkCredential como siempre. Si tenemos la mala suerte de usar un SharePoint 2010 Online, podemos aprovechar la aportación de Chris Johnson para autenticarnos[\[iii\]](https://d.docs.live.net/77af67c35753916e/CompartiMOSS/web/15/Edin%20Kapic/CompartiMOSS%20-%20MVC%20para%20SharePointeros%20I.docx#_edn1).
 
+```
 public static IEnumerable&lt;Product&gt;<br />GetProducts()
 
 {
@@ -282,11 +297,13 @@ result.Add(product);
 
 return result;
 }
+```
+
 Como podéis ver, la consulta a SharePoint es directa: obtenemos los datos de la lista Products y mapeamos los objetos ListItem a instancias de la clase Product, usando las propiedades Id y Title de SharePoint como las correspondientes a ProductId y Name de nuestro modelo.
 
 Podemos ver que con este pequeño ejemplo ya tenemos nuestra aplicación MVC conectada a SharePoint, pulsando F5 para ejecutarla.
 
-El código fuente de esta aplicación de ejemplo está disponible en la dirección [http://sdrv.ms/XRmW0O](http&#58;//sdrv.ms/XRmW0O).
+El código fuente de esta aplicación de ejemplo está disponible en la dirección [http://sdrv.ms/XRmW0O](http://sdrv.ms/XRmW0O).
 
 ![Nuestra primera aplicación MVC conectada a SharePoint](../../../images/numero15/mvc-para-sharepointeros/image6.png)
 
@@ -298,12 +315,16 @@ Espero que esta pequeña introducción sirva para que los desarrolladores de Sha
 
 **Edin Kapić**
  Arquitecto SharePoint
- [ekapic@pasiona.com](mailto&#58;ekapic@pasiona.com)
+ [ekapic@pasiona.com](mailto:ekapic@pasiona.com)
  @ekapic
- [http://www.pasiona.com](http&#58;//www.pasiona.com/)
+ [http://www.pasiona.com](http://www.pasiona.com/)
 
-[\[i\]](https&#58;//d.docs.live.net/77af67c35753916e/CompartiMOSS/web/15/Edin%20Kapic/CompartiMOSS%20-%20MVC%20para%20SharePointeros%20I.docx#_ednref1) [http://msdn.microsoft.com/en-us/library/ff649595.aspx](http&#58;//msdn.microsoft.com/en-us/library/ff649595.aspx)
+[\[i\]](https://d.docs.live.net/77af67c35753916e/CompartiMOSS/web/15/Edin%20Kapic/CompartiMOSS%20-%20MVC%20para%20SharePointeros%20I.docx#_ednref1) [http://msdn.microsoft.com/en-us/library/ff649595.aspx](http://msdn.microsoft.com/en-us/library/ff649595.aspx)
 
-[\[ii\]](https&#58;//d.docs.live.net/77af67c35753916e/CompartiMOSS/web/15/Edin%20Kapic/CompartiMOSS%20-%20MVC%20para%20SharePointeros%20I.docx#_ednref2) [http://msdn.microsoft.com/en-us/library/ff649643.aspx](http&#58;//msdn.microsoft.com/en-us/library/ff649643.aspx)
-[\[iii\]](https&#58;//d.docs.live.net/77af67c35753916e/CompartiMOSS/web/15/Edin%20Kapic/CompartiMOSS%20-%20MVC%20para%20SharePointeros%20I.docx#_ednref1) [http://blogs.msdn.com/b/cjohnson/archive/2011/05/03/authentication-with-sharepoint-online-and-the-client-side-object-model.aspx](http&#58;//blogs.msdn.com/b/cjohnson/archive/2011/05/03/authentication-with-sharepoint-online-and-the-client-side-object-model.aspx)
+[\[ii\]](https://d.docs.live.net/77af67c35753916e/CompartiMOSS/web/15/Edin%20Kapic/CompartiMOSS%20-%20MVC%20para%20SharePointeros%20I.docx#_ednref2) [http://msdn.microsoft.com/en-us/library/ff649643.aspx](http://msdn.microsoft.com/en-us/library/ff649643.aspx)
+[\[iii\]](https://d.docs.live.net/77af67c35753916e/CompartiMOSS/web/15/Edin%20Kapic/CompartiMOSS%20-%20MVC%20para%20SharePointeros%20I.docx#_ednref1) [http://blogs.msdn.com/b/cjohnson/archive/2011/05/03/authentication-with-sharepoint-online-and-the-client-side-object-model.aspx](http://blogs.msdn.com/b/cjohnson/archive/2011/05/03/authentication-with-sharepoint-online-and-the-client-side-object-model.aspx)
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

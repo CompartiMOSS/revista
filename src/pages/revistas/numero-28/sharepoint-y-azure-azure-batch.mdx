@@ -41,7 +41,7 @@ El siguiente ejemplo realiza una tarea similar a la descrita anteriormente: util
 En el ejemplo toda la infraestructura necesaria de Azure Storage y Azure Batch es creada y removida programáticamente para indicar como se puede realizar el trabajo completamente desde código, aunque es totalmente posible crear los elementos de Azure manualmente utilizando su interface de usuario. El código del ejemplo está basado en el tutorial de Microsoft Azure Batch para .NET que se puede encontrar en el sitio de Azure, aunque ha sido modificado profundamente para poder trabajar con streams y SharePoint en lugar de archivos locales.
 
 1.       Aunque los componentes de Azure Storage y Azure Batch se van a crear dinámicamente, es necesario crear cuentas de Storage y de Batch manualmente utilizando el Dashboard de Azure:
-a.       Desde el Dashboard de Azure ([http://portal.azure.com](http&#58;//portal.azure.com/)), lóguese con sus credenciales. Utilice el botón de "New" – "Data + Storage" – "Storage Account" – Defina un nombre para la cuenta, la suscripción a utilizar y su grupo de recursos.
+a.       Desde el Dashboard de Azure ([http://portal.azure.com](http://portal.azure.com/)), lóguese con sus credenciales. Utilice el botón de "New" – "Data + Storage" – "Storage Account" – Defina un nombre para la cuenta, la suscripción a utilizar y su grupo de recursos.
 b.       Desde el Dashboard de Azure de nuevo, utilice el botón de "New" – "Virtual Machines" – "Batch Service" – Defina un nombre para la cuenta, la suscripción a utilizar y su grupo de recursos. 
 2.       El ejemplo es una aplicación de Línea de Comando de Windows, por lo que inicie Visual Studio y cree una nueva Solución (llamada "SharePointAzureBatch" en el ejemplo).
 3.       Agréguele los paquetes NuGet de "Azure.Batch" y "WindowsAzure.Storage". Estos paquetes descargan todos los dlls necesarios y agregan las referencias al proyecto.
@@ -56,7 +56,9 @@ b.       Desde el Dashboard de Azure de nuevo, utilice el botón de "New" 
 
 La cadena de conexión al Storage "storageConnectionString" es de la forma:
 
+```
 *"DefaultEndpointsProtocol=https;AccountName=[NombreCuenta];AccountKey=[LlaveCuenta]==;BlobEndpoint=https://[NombreCuenta].blob.core.windows.net/;TableEndpoint=https://[NombreCuenta].table.core.windows.net/;QueueEndpoint=https://[NombreCuenta].queue.core.windows.net/;FileEndpoint=https:// [NombreCuenta].file.core.windows.net/"*
+```
 
 En donde "[NombreCuenta]" es el nombre asignado al momento de creación de la cuenta de Storage (Punto 1A) y "[LlaveCuenta]" se puede encontrar en el Dashboard de Azure yendo a la página del Storage creado - "All Settings" – "Access Keys" – "key1". "applicationbatch", "inputbatch" y "outputbatch" son los nombres de los contenedores a crear y tienen que ser en minúsculas.
 
@@ -80,17 +82,6 @@ Este método utiliza un bucle que lee cada uno de los elementos de la Lista, lee
 
 // Si el attachment ya existe, la rutina genera un error
 
-}
-
-}
-
-}
-
-}
-
-}
-
-}
 
 Este método utiliza un bucle que lee cada uno de los elementos de la Lista, lee cada uno de los campos en el elemento y genera un stream con el nombre y valor de cada campo. Luego los valores son guardados en formato XML y serializados como un agregado (attachment) al elemento mismo. Tenga en cuenta que las rutinas de try/catch son muy básicas y el ejemplo no está preparado para un sistema de producción.
 
@@ -122,10 +113,6 @@ La primera parte de la rutina recorre todos los elementos de la Lista convierte 
 
 ```
 private static string GetContainerSasUrl(CloudBlobClient blobClient, string containerName, SharedAccessBlobPermissions permissions){    // Propiedadesdel Shared Access Signature (SAS): no tiempo de inicio, SAS es valido deinmediato    SharedAccessBlobPolicy sasConstraints = new SharedAccessBlobPolicy    {        SharedAccessExpiryTime = DateTime.UtcNow.AddHours(2),        Permissions= permissions    };     // Construir elURL del SAS para el blob    CloudBlobContainer container = blobClient.GetContainerReference(containerName);    string sasContainerToken = container.GetSharedAccessSignature(sasConstraints);     // Retorna el URLdel contenedor, incluyendo el token SAS    return String.Format("{0}{1}", container.Uri,sasContainerToken);}​​
-```
-
-```
-
 ```
 
 12.          De manera similar a la que se utilizó en el punto 9 para crear un pointer al Azure Store, se crea una referencia al Azure Batch a utilizar, usando el nombre y llave de la cuenta del Batch:
@@ -168,10 +155,6 @@ Esta rutina define un tiempo de timeout como parámetro. Si el timeout dispara a
 
 ```
 private static async Task DownloadBlobsFromContainerAsync(CloudBlobClient blobClient, string containerName){    // Subir archivosPDF a SharePoint    Console.WriteLine("Subiendo los archivos delcontenedor " + containerName);     CloudBlobContainer container = blobClient.GetContainerReference(containerName);     foreach (IListBlobItem itemin container.ListBlobs(prefix: null, useFlatBlobListing: true))    {        CloudBlob blob = (CloudBlob)item;         //Guardar contenido del blob a un byte array        blob.FetchAttributes();        long fileByteLength = blob.Properties.Length;        Byte[] outputFile = new Byte[fileByteLength];        await blob.DownloadToByteArrayAsync(outputFile, 0);        UploadAttachmentToSharePoint(outputFile, blob.Name);    }     Console.WriteLine("Todos los archivos PDFsubidos a SharePoint");}private static void UploadAttachmentToSharePoint(byte[]outputFile, string fileName){    // Subir elarchivo PDF al elemento correcto de la Lista de SharePoint    using (SPSite mySite = new SPSite(SiteUrl))    {        using (SPWeb myWeb =mySite.OpenWeb())        {            SPList myList = myWeb.Lists[ListName];            foreach (SPListItemoneItem in myList.Items)            {                if (fileName.Contains(oneItem.Title))                {                   oneItem.Attachments.Add(fileName, outputFile);                    oneItem.Update();                }            }        }    }}​
-```
-
-```
-​​
 ```
 
 La primera rutina crea un stream Byte Array y la segunda rutina busca el elemento en la Lista (el nombre del archivo PDF es igual al título del elemento), y lo agrega como attachment.​
@@ -217,3 +200,7 @@ Azure Batch funciona en conjunto con Azure Storage para recibir los archivos de 
  gustavo@gavd.net
  http://www.gavd.net​​​
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

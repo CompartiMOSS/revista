@@ -12,7 +12,7 @@ keywords: ['SharePoint','Azure','Web Hooks']
 
 
 
-SharePoint Online es una plataforma madura y en continua evolución que ofrece un amplio abanico de soluciones para la colaboración de personas.     Por diversos motivos Microsoft abandonó la posibilidad de disponer de un Sitio Web público ( [https://support.microsoft.com/en-us/kb/3027254](https&#58;//support.microsoft.com/en-us/kb/3027254) ), lo que obliga a emplear otras herramientas para poder dar solución a la publicación de contenidos en internet (usuarios anónimos).
+SharePoint Online es una plataforma madura y en continua evolución que ofrece un amplio abanico de soluciones para la colaboración de personas.     Por diversos motivos Microsoft abandonó la posibilidad de disponer de un Sitio Web público ( [https://support.microsoft.com/en-us/kb/3027254](https://support.microsoft.com/en-us/kb/3027254) ), lo que obliga a emplear otras herramientas para poder dar solución a la publicación de contenidos en internet (usuarios anónimos).
 
 Tradicionalmente para conectar SharePoint Online con otros sistemas se empleaban, dependiendo del año y versión, diferentes aproximaciones que se pueden dividir en dos tipos:
 
@@ -20,20 +20,20 @@ Tradicionalmente para conectar SharePoint Online con otros sistemas se empleaban
 
 2.          Y las que estaban basadas en patrones y técnicas específicas de SharePoint, como los Receptores de Eventos Remotos (RER) o los flujos de trabajo con sus llamadas HTTP entre otras técnicas.
 
-​​En este artículo veremos cómo puede emplearse la característica de webhooks de SharePoint (actualmente en desarrollo) para facilitar un escenario de integración con Worpress, que suele ser un requisito de la gente de Comunicación y Marketing, al ser este el estándar de facto para blogs y webs corporativos y por tanto una opción deseable en empresas con SharePoint Online y presencia online. Para realizar esta implementación vamos a usar el código del repositorio de SharePoint de Microsoft en Github: [https://github.com/SharePoint](https&#58;//github.com/SharePoint)
+​​En este artículo veremos cómo puede emplearse la característica de webhooks de SharePoint (actualmente en desarrollo) para facilitar un escenario de integración con Worpress, que suele ser un requisito de la gente de Comunicación y Marketing, al ser este el estándar de facto para blogs y webs corporativos y por tanto una opción deseable en empresas con SharePoint Online y presencia online. Para realizar esta implementación vamos a usar el código del repositorio de SharePoint de Microsoft en Github: [https://github.com/SharePoint](https://github.com/SharePoint)
 
 **¿Qué son los webhook?​**
 
 Los webhooks son un patrón de arquitectura usado precisamente para facilitar la integración entre sistemas web.
 
-Sendgrid ([https://sendgrid.com/docs/API\_Reference/Webhooks/event.html](https&#58;//sendgrid.com/docs/API_Reference/Webhooks/event.html)) o Github ([https://developer.github.com/webhooks/](https&#58;//developer.github.com/webhooks/)) disponen de ellos, permitiendo que suscribamos nuestras propias aplicaciones a determinados eventos de sus plataformas.
-Para ampliar información sobre Webhooks hay bastante donde elegir debido al tirón que han tenido en los últimos años, pero para empezar sugeriría leer el post que hizo Sendgrid en 2014: [https://sendgrid.com/blog/whats-webhook/](https&#58;//sendgrid.com/blog/whats-webhook/) , el del padre del patrón, Jeff Lindsay: [http://progrium.com/blog/2012/11/19/from-webhooks-to-the-evented-web/](http&#58;//progrium.com/blog/2012/11/19/from-webhooks-to-the-evented-web/) y si eres desarrollador ASP.NET el de Microsoft el año pasado: [https://blogs.msdn.microsoft.com/webdev/2015/09/04/introducing-microsoft-asp-net-webhooks-preview/](https&#58;//blogs.msdn.microsoft.com/webdev/2015/09/04/introducing-microsoft-asp-net-webhooks-preview/)
+Sendgrid ([https://sendgrid.com/docs/API\_Reference/Webhooks/event.html](https://sendgrid.com/docs/API_Reference/Webhooks/event.html)) o Github ([https://developer.github.com/webhooks/](https://developer.github.com/webhooks/)) disponen de ellos, permitiendo que suscribamos nuestras propias aplicaciones a determinados eventos de sus plataformas.
+Para ampliar información sobre Webhooks hay bastante donde elegir debido al tirón que han tenido en los últimos años, pero para empezar sugeriría leer el post que hizo Sendgrid en 2014: [https://sendgrid.com/blog/whats-webhook/](https://sendgrid.com/blog/whats-webhook/) , el del padre del patrón, Jeff Lindsay: [http://progrium.com/blog/2012/11/19/from-webhooks-to-the-evented-web/](http://progrium.com/blog/2012/11/19/from-webhooks-to-the-evented-web/) y si eres desarrollador ASP.NET el de Microsoft el año pasado: [https://blogs.msdn.microsoft.com/webdev/2015/09/04/introducing-microsoft-asp-net-webhooks-preview/](https://blogs.msdn.microsoft.com/webdev/2015/09/04/introducing-microsoft-asp-net-webhooks-preview/)
 La aparición de los webhooks para SharePoint son un paso más en la apertura y estandarización de las tecnologías Microsoft, siendo el reemplazo de soluciones menos optimas o más a medida, lo que debería permitir soluciones más robustas y fáciles de desarrollar tras su adopción.
 
 **¿Qué tenemos en Wordpress?**
 Al margen de si usamos un Wordpress de Azure (de Wordpress, Bitnami o incluso en un contenedor Docker) o una cuenta de pago o gratuita en Wordpress.com, disponemos de 2 APIs diferentes para gestionar contenidos en el sistema: XML-RPC y REST. Y por supuesto dos formas de acceder a nivel de seguridad: oAuth o el típico usuario y password.
 La elección de REST y oAuth nos evitaría tener que mantener las credenciales del sistema, aunque quizá sea más fácil usar XML-RPC con credenciales de usuario si confiamos en la seguridad de nuestros sistemas y usuarios o si no queremos trabajar con oAuth por alguna razón.
-Quien desee probar el API REST dispone de una consola de desarrollo en el propio Wordpress.com [https://developer.wordpress.com/docs/api/console/](https&#58;//developer.wordpress.com/docs/api/console/)
+Quien desee probar el API REST dispone de una consola de desarrollo en el propio Wordpress.com [https://developer.wordpress.com/docs/api/console/](https://developer.wordpress.com/docs/api/console/)
 
 **Requisitos previos**
 Antes de ponernos a desplegar código, recomiendo empezar con el aprovisionamiento de lo que vamos a necesitar, debido a que ciertos elementos pueden requerir un tiempo para completar su configuración y provocar parones en la puesta en marcha del código de ejemplo. Advierto esto tras haberse llegado a juntar durante la implementación de todo el sistema, errores personales, errores en el portal y bugs de producto, provocando un retraso importante sobre el tiempo estimado inicialmente.
@@ -49,16 +49,16 @@ o      Además, deberíamos disponer de un catálogo de aplicaciones configura
 
 ·          Una suscripción de Azure. La de desarrollador nos vale ya que los elementos a emplear son muy, muy baratos. Los elementos a crear dentro de esta se detallan más adelante. 
  ·          Un Wordpress. Sugiero usar uno gratuito en Wordpress.com por facilidad a la hora de implementar la configuración necesaria. 
- o      Recomendaría probar que el API está configurado y funcionando mediante la herramienta que nos ofrece la compañía. Para hacer un post podemos usar esta URL (siempre que estemos autenticados, claro): [https://developer.wordpress.com/docs/api/1.1/post/sites/\[NOMBREDELBLOG\].wordpress.com/posts/new/](https&#58;//developer.wordpress.com/docs/api/1.1/post/sites/%5bNOMBREDELBLOG%5d.wordpress.com/posts/new/)
- ·          El código del repositorio Github clonado, y compilado en un Visual Studio 2015: [https://github.com/SharePoint/sp-dev-samples/tree/master/Samples/WebHooks.List](https&#58;//github.com/SharePoint/sp-dev-samples/tree/master/Samples/WebHooks.List)
- o      Podría ser necesario instalar las  Office Tools Extension de [https://www.visualstudio.com/es/vs/office-tools/](https&#58;//www.visualstudio.com/es/vs/office-tools/)
+ o      Recomendaría probar que el API está configurado y funcionando mediante la herramienta que nos ofrece la compañía. Para hacer un post podemos usar esta URL (siempre que estemos autenticados, claro): [https://developer.wordpress.com/docs/api/1.1/post/sites/\[NOMBREDELBLOG\].wordpress.com/posts/new/](https://developer.wordpress.com/docs/api/1.1/post/sites/%5bNOMBREDELBLOG%5d.wordpress.com/posts/new/)
+ ·          El código del repositorio Github clonado, y compilado en un Visual Studio 2015: [https://github.com/SharePoint/sp-dev-samples/tree/master/Samples/WebHooks.List](https://github.com/SharePoint/sp-dev-samples/tree/master/Samples/WebHooks.List)
+ o      Podría ser necesario instalar las  Office Tools Extension de [https://www.visualstudio.com/es/vs/office-tools/](https://www.visualstudio.com/es/vs/office-tools/)
  o      Y necesitaremos instalar las características necesarias mediante el botón derecho “Install Missing Features” en el proyecto correspondiente para que compile todo. 
  ·          Un SQL Management Studio o cualquier otro cliente que nos permita lanzar algo de SQL contra un Azure SQL Database.
 
 
 
 **Manos a la obra**
-Una vez obtenido todo lo anterior podemos empezar a seguir paso a paso la guía de despliegue que también encontraremos en el repositorio de Github, en el típico archivo Markdown: [https://github.com/SharePoint/sp-dev-samples/blob/master/Samples/WebHooks.List/Deployment%20guide.md](https&#58;//github.com/SharePoint/sp-dev-samples/blob/master/Samples/WebHooks.List/Deployment%20guide.md)
+Una vez obtenido todo lo anterior podemos empezar a seguir paso a paso la guía de despliegue que también encontraremos en el repositorio de Github, en el típico archivo Markdown: [https://github.com/SharePoint/sp-dev-samples/blob/master/Samples/WebHooks.List/Deployment%20guide.md](https://github.com/SharePoint/sp-dev-samples/blob/master/Samples/WebHooks.List/Deployment%20guide.md)
 Dado que la propia guía ya contiene imágenes paso a paso, y dado que podría haber cambios cuando la característica salga en release, me limitaré a hacer un resumen de las acciones necesarias, aunque recomendaría automatizar el despliegue en un script de PowerShell, si no entero, al menos de las partes más básicas.
 1.       Creamos una Web App con el nombre que queramos.
    a.          Descargamos su perfil de publicación. 
@@ -139,3 +139,7 @@ Solutions Architect en NexTRET
 
 @noradrex
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

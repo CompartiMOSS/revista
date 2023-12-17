@@ -6,15 +6,13 @@ exports.createPages = async ({ actions, graphql, reporter }) => {
 
   const keywordTemplate = path.resolve("src/templates/keywords.js")
 
-  const result = await graphql(`
-    {
-      keywordsGroup: allMdx(limit: 2000) {
-        group(field: frontmatter___keywords) {
-          fieldValue
-        }
-      }
+  const result = await graphql(`{
+  keywordsGroup: allMdx(limit: 2000) {
+    group(field: {frontmatter: {keywords: SELECT}}) {
+      fieldValue
     }
-  `)
+  }
+}`)
 
   if (result.errors) {
     reporter.panicOnBuild(`Error while running GraphQL query.`)
@@ -40,4 +38,14 @@ exports.createSchemaCustomization = ({ actions }) => {
       path: String!
     }
   `)
+}
+
+exports.onCreateWebpackConfig = ({ actions, stage, getConfig }) => {
+  if (stage === `develop` || stage === `develop-html`) {
+    actions.setWebpackConfig({
+      cache: {
+        compression: "gzip",
+      },
+    })
+  }
 }

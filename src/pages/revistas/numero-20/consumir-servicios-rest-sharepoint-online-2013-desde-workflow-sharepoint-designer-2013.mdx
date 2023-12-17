@@ -14,11 +14,11 @@ keywords: ['SharePoint 2013','Workflow','REST']
 
 ​**REST en la Plataforma SharePoint**
 
-El API REST que SharePoint 2013 expone es bastante grande, y es muy importante revisar la documentación para entender y tener una idea general de los diferentes servicios y su funcionalidad con los cuales contamos. En el enlace http://msdn.microsoft.com/en-us/library/office/jj860569(v=office.15).aspx nos damos una idea de los distintos *endpoints* agrupados por los diferentes elementos de la plataforma, por ejemplo: listas, archivos y carpetas, usuarios y grupos, entre otros. En SharePoint 2010 para obtener vía REST las listas de un sitio de SharePoint se tenía que ejecutar el siguiente llamado a través del protocolo HTTP: [http://intranet/\_vti\_bin/listdata.svc](http&#58;//intranet/_vti_bin/listdata.svc) En ese caso listdata.svc es la interfaz REST a través del cual se realizan o ejecutan las distintas operaciones. En SharePoint 2013 se abrevió la llamada por intermedio del alias **\_api**, y lo anterior se consigue de la siguiente forma: https://intranet /\_api/lists
+El API REST que SharePoint 2013 expone es bastante grande, y es muy importante revisar la documentación para entender y tener una idea general de los diferentes servicios y su funcionalidad con los cuales contamos. En el enlace http://msdn.microsoft.com/en-us/library/office/jj860569(v=office.15).aspx nos damos una idea de los distintos *endpoints* agrupados por los diferentes elementos de la plataforma, por ejemplo: listas, archivos y carpetas, usuarios y grupos, entre otros. En SharePoint 2010 para obtener vía REST las listas de un sitio de SharePoint se tenía que ejecutar el siguiente llamado a través del protocolo HTTP: [http://intranet/\_vti\_bin/listdata.svc](http://intranet/_vti_bin/listdata.svc) En ese caso listdata.svc es la interfaz REST a través del cual se realizan o ejecutan las distintas operaciones. En SharePoint 2013 se abrevió la llamada por intermedio del alias **\_api**, y lo anterior se consigue de la siguiente forma: https://intranet /\_api/lists
 
 **Fiddler el primer aliado**
 
-Fiddler es una herramienta bastante recomendada para ejecutar y probar las distintas operaciones REST que vayamos a utilizar desde un WorkFlow en SharePoint Designer 2013. Esto se debe a que la depuración y revisión rápida de lo que está sucediendo desde el WorkFlow y los pasos definidos en Designer, es realmente una tarea que consume demasiado tiempo y es difícil para el desarrollador que requiere realizar sus tareas con productividad. Por tal razón necesitamos descargar e instalar Fiddler ([http://www.telerik.com/download/fiddler](http&#58;//www.telerik.com/download/fiddler)). Es recomendable, si estamos trabajando desde Windows 8.1, descargar la versión específica de la herramienta para este sistema operativo, tal como lo aclaran en la página. A continuación veremos los pasos a seguir para ejecutar una operación REST de SharePoint 2013 desde Fiddler:
+Fiddler es una herramienta bastante recomendada para ejecutar y probar las distintas operaciones REST que vayamos a utilizar desde un WorkFlow en SharePoint Designer 2013. Esto se debe a que la depuración y revisión rápida de lo que está sucediendo desde el WorkFlow y los pasos definidos en Designer, es realmente una tarea que consume demasiado tiempo y es difícil para el desarrollador que requiere realizar sus tareas con productividad. Por tal razón necesitamos descargar e instalar Fiddler ([http://www.telerik.com/download/fiddler](http://www.telerik.com/download/fiddler)). Es recomendable, si estamos trabajando desde Windows 8.1, descargar la versión específica de la herramienta para este sistema operativo, tal como lo aclaran en la página. A continuación veremos los pasos a seguir para ejecutar una operación REST de SharePoint 2013 desde Fiddler:
 
 - Habiendo instalado Fiddler, ejecutamos la herramienta.
 - Cuando cargue Fiddler utilizamos F12 para iniciar la captura del tráfico.
@@ -71,7 +71,7 @@ Luego se puede observar la ejecución de la operación **approve**, la cual es l
 ![Imagen 5.- Muestra la configuración de una solitud POST.](../../../images/numero20/consumir-servicios-rest-sharepoint-online-2013-desde-workflow-sharepoint-designer-2013/imagen5.png)
 
 - El error es debido a la ausencia de un valor más en la cabecera de la solicitud. Ese valor es el del parámetro X-RequestDigest. Para conseguir dicho valor, es necesario componer una llamada a un servicio REST con la operación POST que retorna el valor de FormDigestValue, valor que se usará en la cabecera de solicitudes con la variable  X-RequestDigest.
-- La llamada se compone de la siguiente manera en el Composer de Fiddler: [https://intranet.sharepoint.com/\_api/contextinfo](https&#58;//intranet.sharepoint.com/_api/contextinfo)
+- La llamada se compone de la siguiente manera en el Composer de Fiddler: [https://intranet.sharepoint.com/\_api/contextinfo](https://intranet.sharepoint.com/_api/contextinfo)
 
 Los valores de la cabecera de solicitudes deberán ser los mismos que hasta ahora se han usado.
 - La llamada anterior a través de Fiddler permitirá capturar el valor de FormDigestValue. Ese valor se debe copiar y lo utilizamos como cabecera de la solicitud debiendo quedar algo similar a esto:
@@ -111,7 +111,7 @@ Las acciones de los WorkFlows de SharePoint Designer pueden contener valores est
 
 ![Imagen 7.- Configuración de la fase y acciones del WorkFlow.](../../../images/numero20/consumir-servicios-rest-sharepoint-online-2013-desde-workflow-sharepoint-designer-2013/imagen7.png)
 
-- En el campo que nos permite componer la URL agregamos la que habíamos utilizado en Fiddler y el método requerido. Para este caso la URL es similar a lo siguiente: [https://intranet/\_api/contextinfo](https&#58;//intranet/_api/contextinfo) y usamos el método HTTP POST.
+- En el campo que nos permite componer la URL agregamos la que habíamos utilizado en Fiddler y el método requerido. Para este caso la URL es similar a lo siguiente: [https://intranet/\_api/contextinfo](https://intranet/_api/contextinfo) y usamos el método HTTP POST.
 - Ahora la pregunta es en qué momento pasamos los valores a la cabecera de la solicitud, tal como lo hicimos en Fiddler. Lo primero que tenemos que hacer es agregar una acción antes del llamado al servicio que nos permite configurar un Diccionario. Agregamos la acción **Generar Diccionario** y comenzamos a configurar cada uno de los valores de la cabecera, y deberíamos tener algo similar a lo siguiente.
 
 
@@ -152,7 +152,11 @@ Finalmente vemos que la inclusión de la acción que permite hacer llamado a los
 
 **Andrés Ortíz**
  Microsoft Community Specialist SharePoint
- [aortiz@topgroup.com.ar](mailto&#58;aortiz@topgroup.com.ar)  
+ [aortiz@topgroup.com.ar](mailto:aortiz@topgroup.com.ar)  
 @jaortizgonz
- [http://desarrollo.topgroup.com.ar/search/label/Sharepoint](http&#58;//desarrollo.topgroup.com.ar/search/label/Sharepoint)
+ [http://desarrollo.topgroup.com.ar/search/label/Sharepoint](http://desarrollo.topgroup.com.ar/search/label/Sharepoint)
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

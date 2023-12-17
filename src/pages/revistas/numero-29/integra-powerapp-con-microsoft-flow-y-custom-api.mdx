@@ -95,7 +95,7 @@ Una vez instalado el Swagger, y tras<br />haber implementado correctamente el co
 
 Para ello accedemos a &lt;url api&gt;/swagger/docs/v1, y descargamos el fichero .json que contiene toda la definición de la API que acabamos de desplegar. Este fichero no hace falta modificarlo ya que Swagger ha extraído todas las configuraciones y métodos que hemos ido definiendo desde el Visual Studio.
 
-Una vez descargado el fichero vamos a acceder a [https://powerapps.microsoft.com/es-es/](https&#58;//powerapps.microsoft.com/es-es/) con nuestra sesión de usuario y seleccionamos “conexiones” y nueva conexión.
+Una vez descargado el fichero vamos a acceder a [https://powerapps.microsoft.com/es-es/](https://powerapps.microsoft.com/es-es/) con nuestra sesión de usuario y seleccionamos “conexiones” y nueva conexión.
 
 En la siguiente pantalla veremos que tenemos las conexiones estándar, y un apartado para conexiones “Custom”. Seleccionamos New Custom Api para registrar el API que hemos implementado.
 
@@ -267,10 +267,11 @@ En el caso de la vista de detalle, en el evento de carga se crean dos coleccione
 
 Si vemos en la imagen los datos personales y la imagen se corresponden con la colección usuarios, y por otro lado la lista de entradas (Tweets) se corresponde con la colección entrada.
 
-Solo falta por deducir que el parámetro "currentId", se envía desde la lista de usuarios de la forma Navigate (VistaDetalle,ScreenTransition.Fade,{idUsuario:Id}).
+Solo falta por deducir que el parámetro "currentId", se envía desde la lista de usuarios de la forma Navigate (VistaDetalle,ScreenTransition.Fade,\{idUsuario:Id\}).
 
 La función Navigate, además de permitir hacer enlaces entre las distintas vistas de la aplicación, permiten pasar en la petición parámetros, como puede ser el idUsuario.
- Eso sí tenemos que recordar que en la carga de la página destino tenemos que capturar en el context de la página el parámetro enviado, tal y como hacemos en la página de detalle con la instrucción UpdateContext({currentId: idUsuario}).
+Eso sí tenemos que recordar que en la carga de la página destino tenemos que capturar en el context de la página el parámetro enviado, 
+tal y como hacemos en la página de detalle con la instrucción UpdateContext(\{currentId: idUsuario\}).
 
 Si nos centramos en la página de "AddContact", poco interesante podemos deducir a nivel de implementación en PowerApps, es un formulario simple con un control de carga de imágenes, y múltiples TexBox, solo a destacar el evento Guardar, que muestra de forma muy visual lo rápido que es hacer peticiones post desde PowerApp contra una custom Api.
 
@@ -298,3 +299,7 @@ Team Leader en ENCAMINA
 
 shernandez@encamina.com
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

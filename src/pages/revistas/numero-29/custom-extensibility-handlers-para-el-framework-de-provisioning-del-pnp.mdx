@@ -18,7 +18,7 @@ keywords: ['SharePoint','Framework','PnP']
 
 Continuando la serie de artículos hablando del framework de Provisioning del PnP, veremos cómo crear nuestros propios ExtensibilityHandlers, con los que podremos añadir nuestras propias acciones, tanto al exportar un sitio como plantilla, como al provisionar una plantilla a un nuevo sitio.
 
-Antes de empezar, es necesario recordar un par de cosas con respecto al programa PnP. Primero, sabed que recientemente se ha liberado la reléase de agosto, que incluye numerosas mejoras en la parte de Provisioning, y que va acompañada de un nuevo Schema XML. Tenéis todos los detalles en el enlace [https://dev.office.com/blogs/PnP-August-2016-Release](https&#58;//dev.office.com/blogs/PnP-August-2016-Release)
+Antes de empezar, es necesario recordar un par de cosas con respecto al programa PnP. Primero, sabed que recientemente se ha liberado la reléase de agosto, que incluye numerosas mejoras en la parte de Provisioning, y que va acompañada de un nuevo Schema XML. Tenéis todos los detalles en el enlace [https://dev.office.com/blogs/PnP-August-2016-Release](https://dev.office.com/blogs/PnP-August-2016-Release)
 
 Algunas de las novedades más destacadas son:
 
@@ -60,7 +60,8 @@ Para el ejemplo, vamos a crear un Token, que será reemplazado por el valor de u
 
 ![](../../../images/numero29/custom-extensibility-handlers-para-el-framework-de-provisioning-del-pnp/image6.png)
 
-En el constructor de la clase, simplemente llamamos a su clase base, especificando el patrón de definición del Token: "{{webpropertybag:{0}}}". Esto define como se utilizará el token desde el XML de la plantilla. En este caso, si queremos usar el valor de una PopertyBag con Key "PnPTemplateVersion", desde el XML haremos algo como: "{webpropertybag:PnPTemplateVersion}"
+En el constructor de la clase, simplemente llamamos a su clase base, especificando el patrón de definición del Token: "\{\{webpropertybag:\{0\}\}\}". 
+Esto define como se utilizará el token desde el XML de la plantilla. En este caso, si queremos usar el valor de una PopertyBag con Key "PnPTemplateVersion", desde el XML haremos algo como: "\{webpropertybag:PnPTemplateVersion\}"
 
 Finalmente, sobrescribimos el método GetReplaceValue() donde se hace el remplazo del token por el verdadero valor. En dicho código, hacemos uso de una Extension del propio PnP, que nos facilita el trabajo para obtener una PropertyBag.
 
@@ -142,5 +143,9 @@ Nada más, ahora que ya sabemos cómo crear nuestros propios Extensibility Handl
 
 SharePoint / Cloud Solutions Architect en ClearPeople LTD
  @luismanez
- [http://geeks.ms/lmanez/](http&#58;//geeks.ms/lmanez/)
+ [http://geeks.ms/lmanez/](http://geeks.ms/lmanez/)
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

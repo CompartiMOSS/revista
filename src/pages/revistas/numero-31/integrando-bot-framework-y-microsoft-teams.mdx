@@ -44,11 +44,11 @@ Ahora tenemos un bot sencillo. Lo que nos falta es integrarlo con Microsoft Team
 
 Hemos dicho que un bot es una aplicación web. Por lo tanto, para interactuar con Microsoft Teams tenemos que usar la Graph API de Microsoft. Voy a dar por supuesto que ya conocéis Graph API (y si no, [en CompartiMOSS nº 25 Rubén Toribio os lo explica](/revistas/numero-25/desarrollo-de-aplicaciones-con-office-365-api)).
 
-En concreto, usaré la [API de grupos de Graph](https&#58;//graph.microsoft.io/en-us/docs/api-reference/v1.0/resources/group) para poder encontrar los Teams que tiene un usuario. Todos los sitios de Teams son grupos de Office 365, así que si enumero los grupos de un usuario ya tendría acceso a ellos.
+En concreto, usaré la [API de grupos de Graph](https://graph.microsoft.io/en-us/docs/api-reference/v1.0/resources/group) para poder encontrar los Teams que tiene un usuario. Todos los sitios de Teams son grupos de Office 365, así que si enumero los grupos de un usuario ya tendría acceso a ellos.
 
 Para acceder a los grupos de un usuario tenemos dos vías. Una es a partir del endpoint **"/me"** donde cada usuario tiene enumerados los recursos de Office 365 a los que tiene acceso. Sin embargo, nuestro bot no tiene las credenciales del usuario así que dentro de "me" no encontrará nada.
 
-Nuestro bot es una aplicación de servidor con su propia identidad y código secreto de autenticación, que usa la librería [ADAL.NET](https&#58;//github.com/AzureAD/azure-activedirectory-library-for-dotnet) para autenticarse contra Office 365. Notad que para que el bot puede enumerar los usuarios y acceder a los ficheros de grupos, hay que darle permisos a la aplicación de acceder a los recursos. Esto se hace en la pantalla de configuración de la aplicación en Azure Active Directory.
+Nuestro bot es una aplicación de servidor con su propia identidad y código secreto de autenticación, que usa la librería [ADAL.NET](https://github.com/AzureAD/azure-activedirectory-library-for-dotnet) para autenticarse contra Office 365. Notad que para que el bot puede enumerar los usuarios y acceder a los ficheros de grupos, hay que darle permisos a la aplicación de acceder a los recursos. Esto se hace en la pantalla de configuración de la aplicación en Azure Active Directory.
 
 Los permisos exactos que necesita son: leer las colecciones de sitio del tenant, leer todos los grupos, leer los datos del directorio y leer los perfiles completos de usuarios (todos dentro de Microsoft Graph). ​
 
@@ -62,7 +62,7 @@ var userId = activity.From.Id; var userIdSegments = userId.Split(':');var userId
 
 
 
-Cuidado en este punto, porque [según parece](https&#58;//github.com/Microsoft/BotBuilder/issues/2133#issuecomment-275942814), la forma del ID de usuario puede cambiar hasta que Bot Framework salga del preview. El equipo del producto dice que habrá una manera diferente de obtener el usuario dentro de Office 365, probablemente con una propiedad adicional de la Activity que recibe el bot.
+Cuidado en este punto, porque [según parece](https://github.com/Microsoft/BotBuilder/issues/2133#issuecomment-275942814), la forma del ID de usuario puede cambiar hasta que Bot Framework salga del preview. El equipo del producto dice que habrá una manera diferente de obtener el usuario dentro de Office 365, probablemente con una propiedad adicional de la Activity que recibe el bot.
 
 **Graph API**
 
@@ -116,7 +116,7 @@ Los resultados de búsqueda son instancias de la clase *DriveItem*, que contiene
 
 **Embelleciendo el bot con Cards**
 
-Nuestro bot es totalmente funcional pero queremos darle un toque de interfaz de usuario más bonita. Para ello disponemos [de una librería llamada Cards, parte de Bot Framework](https&#58;//docs.botframework.com/en-us/csharp/builder/sdkreference/attachments.html). Con Cards se pueden hacer diálogos y "tarjetas" de contenido para todos los canales de comunicación.
+Nuestro bot es totalmente funcional pero queremos darle un toque de interfaz de usuario más bonita. Para ello disponemos [de una librería llamada Cards, parte de Bot Framework](https://docs.botframework.com/en-us/csharp/builder/sdkreference/attachments.html). Con Cards se pueden hacer diálogos y "tarjetas" de contenido para todos los canales de comunicación.
 
 En este caso usaré una **ThumbnailCard**. Dentro de la misma pondré el nombre del fichero, el autor y el botón para abrirlo.​
 
@@ -268,7 +268,7 @@ private Activity GetFormattedSearchResultsReply(List<DriveItem> searchResults, A
   De esta forma el resultado del bot en el emulador se ve más agradable que un simple texto. 
 ![Imagen 2.- Experiencia de usuario del bot con los cambios aplicados.](../../../images/numero31/integrando-bot-framework-y-microsoft-teams/image3.png)
 
-Para publicar el bot en Microsoft Teams, tenemos que [habilitar la carga de bots no firmados](https&#58;//msdn.microsoft.com/en-us/microsoft-teams/setup). Para ello dentro de la administración de Teams en el portal de Administración de Office 365 hay que habilitar la opción de *"Enable sideloading of external bots".*
+Para publicar el bot en Microsoft Teams, tenemos que [habilitar la carga de bots no firmados](https://msdn.microsoft.com/en-us/microsoft-teams/setup). Para ello dentro de la administración de Teams en el portal de Administración de Office 365 hay que habilitar la opción de *"Enable sideloading of external bots".*
 
 ![](../../../images/numero31/integrando-bot-framework-y-microsoft-teams/image4.png)
 
@@ -293,7 +293,7 @@ Este mínimo bot se puede extender de varias maneras. Se me ocurren dos:
 
 ¿Se os ocurre alguna idea más?
 
-El código de ejemplo del bot os lo podéis [bajar de mi OneDrive](https&#58;//1drv.ms/u/s%21AjFh3Usno9YnsaB0-dix9oqR-ym9DA). Tendréis que sustituir los IDs y secretos de la aplicación por vuestros propios.
+El código de ejemplo del bot os lo podéis [bajar de mi OneDrive](https://1drv.ms/u/s%21AjFh3Usno9YnsaB0-dix9oqR-ym9DA). Tendréis que sustituir los IDs y secretos de la aplicación por vuestros propios.
 
 
 
@@ -301,5 +301,9 @@ El código de ejemplo del bot os lo podéis [bajar de mi OneDrive](https&#58;//1
  Arquitecto senior de SharePoint y Team Lead en Sogeti
  Email: edin.kapic@sogeti.com 
 Twitter: @ekapic
- Blog: [www.edinkapic.com](http&#58;//www.edinkapic.com/) ​
+ Blog: [www.edinkapic.com](http://www.edinkapic.com/) ​
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

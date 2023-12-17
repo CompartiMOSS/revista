@@ -25,12 +25,12 @@ En el anterior artículo vimos cómo era la estructura de un asistente virtual, 
 
 Hasta aquí todo pintaba bien, los ejemplos solo los dan en Node.js y Java, pero bueno, no tiene que ser muy distinto para C#... ¡ERROR! Una vez me puse a desarrollar me di cuenta de que solo proporcionan un SDK real para Node.js y Java, el resto son estructuras de clases para deserializar el *request* que llega de Dialogflow y el *response* que tendremos que enviar, puede parecer interesante, pero no lo es debido a que no contempla ninguna de las reglas que tiene la API, por ejemplo este SDK no controla que nuestro primer mensaje en el response sea del tipo "SimpleResponse" como indica su documentación, tampoco ofrece soporte para poder usar las *built-in intents* del sistema, tenemos un problema.
 
-Como es open source podemos pensar en hacerlo nosotros y hacer un pull request, pero ya lo dicen los archivos que podemos ver en el GitHub[\[1\]](file&#58;///C&#58;/CompartiMOSS/Asistentes%20con%20.net%20-%20Parte%20II%20%28gactions%29%20-%20Diego%20Zapico.docx#_ftn1) estos ficheros son autogenerados desde las especificaciones de la API y en futuros cambios se dañara todo. Esto solo me dejaba una salida (Do It Yourself), así que manos a la obra.
+Como es open source podemos pensar en hacerlo nosotros y hacer un pull request, pero ya lo dicen los archivos que podemos ver en el GitHub[\[1\]](file:///C:/CompartiMOSS/Asistentes%20con%20.net%20-%20Parte%20II%20%28gactions%29%20-%20Diego%20Zapico.docx#_ftn1) estos ficheros son autogenerados desde las especificaciones de la API y en futuros cambios se dañara todo. Esto solo me dejaba una salida (Do It Yourself), así que manos a la obra.
 
 Como comenté más arriba lo interesante es poder acceder a las *built-in* ya que son necesarias para cosas como pedir los datos del usuario, no hay otra forma a no ser que se los pidas directamente al usuario, pero te podría mentir y no creo que sea la forma adecuada. Llegados a este punto empecé a tener problemas, la documentación no parece actualizada en todos los puntos, algunas respuestas desde Dialogflow no tienen ningún mensaje del error, se limitan a un "Malformed Response" y no estaba avanzando correctamente. Tocaba tomar un nuevo rumbo y volví a investigar.
 
-Aquí descubrí "gactions CLI", la interfaz en línea de comandos para proyectos en Actions. Se encuentra disponible para Windows, Mac y Linux y sin duda es el mejor camino si quieres hacer un bot sin emplear Dialogflow como NLP (Natural Language Processing). Y te podrías preguntar "Diego ¿Y por qué no lo hiciste con Java o NodeJS?", yo porque soy raro y quería usar LUIS[\[2\]](file&#58;///C&#58;/CompartiMOSS/Asistentes%20con%20.net%20-%20Parte%20II%20%28gactions%29%20-%20Diego%20Zapico.docx#_ftn2).
- Volviendo a *gactions* el uso en Windows es muy sencillo, descargamos el .exe desde la web de la documentación[\[3\]](file&#58;///C&#58;/CompartiMOSS/Asistentes%20con%20.net%20-%20Parte%20II%20%28gactions%29%20-%20Diego%20Zapico.docx#_ftn3) y lanzamos el comando "gactions init" para crear el fichero action.json que necesitaremos luego para enviar a Google Actions la configuración del proyecto.
+Aquí descubrí "gactions CLI", la interfaz en línea de comandos para proyectos en Actions. Se encuentra disponible para Windows, Mac y Linux y sin duda es el mejor camino si quieres hacer un bot sin emplear Dialogflow como NLP (Natural Language Processing). Y te podrías preguntar "Diego ¿Y por qué no lo hiciste con Java o NodeJS?", yo porque soy raro y quería usar LUIS[\[2\]](file:///C:/CompartiMOSS/Asistentes%20con%20.net%20-%20Parte%20II%20%28gactions%29%20-%20Diego%20Zapico.docx#_ftn2).
+ Volviendo a *gactions* el uso en Windows es muy sencillo, descargamos el .exe desde la web de la documentación[\[3\]](file:///C:/CompartiMOSS/Asistentes%20con%20.net%20-%20Parte%20II%20%28gactions%29%20-%20Diego%20Zapico.docx#_ftn3) y lanzamos el comando "gactions init" para crear el fichero action.json que necesitaremos luego para enviar a Google Actions la configuración del proyecto.
 
 Este action.json tendrá la siguiente estructura mínima:
 
@@ -44,7 +44,7 @@ Como dije en esta serie Dialogflow no nos aporta nada porque mi intención es us
 
 El fichero no tiene por qué llamarse "action", una buena práctica es indicar el idioma del action, en este caso podría ser "action.es.json".
 
-Ya tenemos nuestro fichero actions.json, pero primero debemos de crear un Actions en la "Actions on Google console" en la dirección [https://console.actions.google.com](https&#58;//console.actions.google.com/) (Nota**:** las cuentas empresariales de GSuite pueden tener limitaciones a la hora de probar o desplegar Actions), crear un Actions es tan sencillo como ponerle un nombre e indicar un idioma inicial y tu región.
+Ya tenemos nuestro fichero actions.json, pero primero debemos de crear un Actions en la "Actions on Google console" en la dirección [https://console.actions.google.com](https://console.actions.google.com/) (Nota**:** las cuentas empresariales de GSuite pueden tener limitaciones a la hora de probar o desplegar Actions), crear un Actions es tan sencillo como ponerle un nombre e indicar un idioma inicial y tu región.
 
 ![Imagen 1.- Creación del proyecto de Actions.](../../../images/numero40/asistentes-con-net-parte-ii-gactions/image1.png)
 
@@ -84,8 +84,11 @@ En el próximo artículo vamos a recibir las llamadas desde Assistant y ver la e
 @dzapic0 <br />
 Desarrollador en Encamina <br />
 
-[\[1\]](file&#58;///C&#58;/CompartiMOSS/Asistentes%20con%20.net%20-%20Parte%20II%20%28gactions%29%20-%20Diego%20Zapico.docx#_ftnref1) https://github.com/googleapis/google-cloud-dotnet/tree/master/apis/Google.Cloud.Dialogflow.V2
+[\[1\]](file:///C:/CompartiMOSS/Asistentes%20con%20.net%20-%20Parte%20II%20%28gactions%29%20-%20Diego%20Zapico.docx#_ftnref1) https://github.com/googleapis/google-cloud-dotnet/tree/master/apis/Google.Cloud.Dialogflow.V2
 
-[\[2\]](file&#58;///C&#58;/CompartiMOSS/Asistentes%20con%20.net%20-%20Parte%20II%20%28gactions%29%20-%20Diego%20Zapico.docx#_ftnref2) https://www.luis.ai/home
+[\[2\]](file:///C:/CompartiMOSS/Asistentes%20con%20.net%20-%20Parte%20II%20%28gactions%29%20-%20Diego%20Zapico.docx#_ftnref2) https://www.luis.ai/home
 
-[\[3\]](file&#58;///C&#58;/CompartiMOSS/Asistentes%20con%20.net%20-%20Parte%20II%20%28gactions%29%20-%20Diego%20Zapico.docx#_ftnref3) https://developers.google.com/actions/tools/gactions-cli
+[\[3\]](file:///C:/CompartiMOSS/Asistentes%20con%20.net%20-%20Parte%20II%20%28gactions%29%20-%20Diego%20Zapico.docx#_ftnref3) https://developers.google.com/actions/tools/gactions-cli 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

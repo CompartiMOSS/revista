@@ -44,7 +44,7 @@ WebAPI es una excelente Framework para exponer data y servicios a diferente tipo
 
 Aunque WebAPI se puede utilizar con Visual Studio 2012 instalando el Framework adicionalmente a la instalación básica, Visual Studio 2013 lo instala por defecto. La versión actual de WebAPI, 2.0, forma parte de todas las versiones de Visual Studio 2013, hasta el update 4. Microsoft ha anunciado que la versión 2.2 del WebAPI, que soporta las características de la última versión de OData (4.0), formará parte de Visual Studio en la próxima versión.
 
-Aunque servicios REST se pueden programar también con WCF, WebAPI proporciona todos los elementos básicos por medio de las plantillas de Visual Studio, aligerando y facilitando considerablemente la creación de servicios. Aunque no existen cifras oficiales de Microsoft, se pueden encontrar pruebas de carga en Internet ([http://blogs.msdn.com/b/fkaduk/archive/2014/01/07/rest-wcf-vs-webapi-throughput.aspx](http&#58;//blogs.msdn.com/b/fkaduk/archive/2014/01/07/rest-wcf-vs-webapi-throughput.aspx) por ejemplo) que muestran que la capacidad de respuesta de servicios creados con WebAPI, aunque estadísticamente ligeramente inferior a los creados con WCF, no difieren significativamente, pero las ventajas que ofrece en rapidez de programación la señalan como la herramienta indicada para la creación de servicios REST.
+Aunque servicios REST se pueden programar también con WCF, WebAPI proporciona todos los elementos básicos por medio de las plantillas de Visual Studio, aligerando y facilitando considerablemente la creación de servicios. Aunque no existen cifras oficiales de Microsoft, se pueden encontrar pruebas de carga en Internet ([http://blogs.msdn.com/b/fkaduk/archive/2014/01/07/rest-wcf-vs-webapi-throughput.aspx](http://blogs.msdn.com/b/fkaduk/archive/2014/01/07/rest-wcf-vs-webapi-throughput.aspx) por ejemplo) que muestran que la capacidad de respuesta de servicios creados con WebAPI, aunque estadísticamente ligeramente inferior a los creados con WCF, no difieren significativamente, pero las ventajas que ofrece en rapidez de programación la señalan como la herramienta indicada para la creación de servicios REST.
 
 Básicamente un servicio REST creado con WebAPI consiste de dos componentes principales: Modelos y Controladores. Un servicio Web puede tener uno o más modelos y uno o más controladores. A diferencia de un programa MVC, un servicio creado con WebAPI no necesita Viewers (un servicio Web no tiene interface propia):
 
@@ -271,7 +271,7 @@ public class ElementosController : ApiController
 
 Note que la clase hereda de "ApiController" en lugar de "Controller" como lo hace un programa basado en MVC. Inicialmente, como se indicó anteriormente, se define un array con valores fijos para el ejemplo. Dos métodos definen las acciones que el servicio Web va a realizar: retornar todos los Elementos de la Lista genérica (GetAllElementos) y retornar un Elemento específico indicando su identificador como parámetro de entrada (GetElemento). El primer método devuelve el array completo y el segundo utiliza una función lambda para encontrar el elemento solicitado. Note que se utilizan dos métodos especiales ("NotFound" y "Ok") que el WebAPI se encargara de renderizar apropiadamente como códigos de HTML (404 y 200) en la respuesta al cliente.
 
-Abra el archivo "App\_Start" – "WebApiConfig.cs" y observe en la línea 19 como se ha definido la ruta de acceso a los métodos (endpoints): "api/{controller}/{id}". Esto significa que el framework del WebAPI reemplazara "{controller}" con el nombre del archivo que contiene el Controlador, y "{id}" con el identificador que se encuentre en el URL
+Abra el archivo "App\_Start" – "WebApiConfig.cs" y observe en la línea 19 como se ha definido la ruta de acceso a los métodos (endpoints): "api/\{controller\}/\{id\}". Esto significa que el framework del WebAPI reemplazara "\{controller\}" con el nombre del archivo que contiene el Controlador, y "\{id\}" con el identificador que se encuentre en el URL
 
 **Testeo del Servicio Web**
 
@@ -288,7 +288,7 @@ En el navegador utilice el URL "http://localhost:[NumeroPuerto]/api/elementos". 
 
 Aunque Internet Explorer no es la mejor herramienta para testear Servicios REST, otros navegadores, como Firefox, disponen de mejores posibilidades para ver e interactuar con los resultados. Por ejemplo, Firefox muestra los resultados directamente en la pantalla sin necesidad de descargar y abrir un archivo como en IE.
 
-Probablemente la mejor herramienta actualmente para depurar y trabajar con servicios REST es Fiddler ([http://www.telerik.com/fiddler](http&#58;//www.telerik.com/fiddler)). Esta herramienta permite no solo interceptar las consultas y respuestas y mostrarlas en diferentes formatos, sino que también permite crear y enviar consultas directamente al servicio sin necesidad de crear una aplicación cliente especializada, entre otras muchas cosas.
+Probablemente la mejor herramienta actualmente para depurar y trabajar con servicios REST es Fiddler ([http://www.telerik.com/fiddler](http://www.telerik.com/fiddler)). Esta herramienta permite no solo interceptar las consultas y respuestas y mostrarlas en diferentes formatos, sino que también permite crear y enviar consultas directamente al servicio sin necesidad de crear una aplicación cliente especializada, entre otras muchas cosas.
 
 La siguiente figura muestra Fiddler enviando una consulta (pestaña "Composer") al servicio acabado de crear. Note que se está usando el verbo "GET" y el URL creado por IIS Express y Visual Studio ("http://localhost:33497") junto con el URI que llama al servicio ("/api/elementos"):
 
@@ -420,6 +420,10 @@ SharePoint 2013 y SharePoint Office 365 utilizan extensivamente REST como medio 
 
 **Gustavo Velez**
  MVP de SharePoint Server
- [gustavo@](mailto&#58;gustavo@)gavd.net
- [http://www.gavd.net](http&#58;//www.gavd.net/)
+ [gustavo@](mailto:gustavo@)gavd.net
+ [http://www.gavd.net](http://www.gavd.net/)
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

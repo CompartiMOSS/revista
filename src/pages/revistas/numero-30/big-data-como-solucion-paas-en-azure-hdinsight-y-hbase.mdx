@@ -93,7 +93,7 @@ Para empezar, deberemos diseñar un modelo de datos ajustado a columnas como vim
 
 **HBase Shell con Secure Shell (SSH)**
 
-La primera forma que vamos a ver para comunicarnos con HBASE es hacer uso de HBase Shell y para ello lo primero es conectarnos al cluster vía SSH, para poder aplicar de forma remota las distintas sentencias que necesitemos. Para comunicarnos vía SSH vamos hacer uso de una herramienta gratuita como Putty, que podemos descargar desde su página oficial [http://www.putty.org/](http&#58;//www.putty.org/) .
+La primera forma que vamos a ver para comunicarnos con HBASE es hacer uso de HBase Shell y para ello lo primero es conectarnos al cluster vía SSH, para poder aplicar de forma remota las distintas sentencias que necesitemos. Para comunicarnos vía SSH vamos hacer uso de una herramienta gratuita como Putty, que podemos descargar desde su página oficial [http://www.putty.org/](http://www.putty.org/) .
 
 Una vez descargada la aplicación, necesitaremos configurar la conexión contra nuestro cluster de HDInsight. El nombre de la conexión es fácil de deducir ya que es &lt;Nombre\_Cluster  -ssh.azurehdinsight.net&gt;.
 
@@ -131,7 +131,8 @@ Deberemos ir ejecutando esta instrucción por cada una de las columnas que quera
 
 **Recuperar los datos de una tabla**
 
-Tenemos dos instrucciones para ver el contenido o la estructura de una tabla. La primera es “describe ‘tabla’”, que nos expone el contenido y la estructura completa de una tabla. Y por otro lado podemos ejecutar tanto la instrucción “get ‘tabla’, ‘rowKey’”, que nos devuelve el contenido de una fila por clave de fila o bien ejecutar una instrucción “scan ‘tabla’, ‘{familia=&gt;[columnas]}”.
+Tenemos dos instrucciones para ver el contenido o la estructura de una tabla. La primera es “describe ‘tabla’”, que nos expone el contenido y la estructura completa de una tabla. 
+Y por otro lado podemos ejecutar tanto la instrucción “get ‘tabla’, ‘rowKey’”, que nos devuelve el contenido de una fila por clave de fila o bien ejecutar una instrucción “scan ‘tabla’, ‘\{familia=&gt;[columnas]\}”.
 
 ![Imagen 11.- Resultado instrucción Get.](../../../images/numero30/big-data-como-solucion-paas-en-azure-hdinsight-y-hbase/image11.png)
 
@@ -157,7 +158,8 @@ Lo primer que necesitamos es por un lado instanciar “ClusterCredentials”, pa
 
 ​![Imagen 15.- Código crear tabla.](../../../images/numero30/big-data-como-solucion-paas-en-azure-hdinsight-y-hbase/image15.png)
 
-Si revisamos este código podemos ver como se parece bastante a como lo creamos vía Shell, ya que debemos por un lado especificar el nombre de la tabla que vamos a crear, como un listado de familia de columnas. Con esto conseguimos definir el schema de la tabla e invocar la creación de la misma. Un ejemplo de uso de este método puede ser    CreateTable("Usuario", new List&lt;string&gt;() {"Profesional","Personal"}).
+Si revisamos este código podemos ver como se parece bastante a como lo creamos vía Shell, ya que debemos por un lado especificar el nombre de la tabla que vamos a crear, como un listado de familia de columnas. 
+Con esto conseguimos definir el schema de la tabla e invocar la creación de la misma. Un ejemplo de uso de este método puede ser    CreateTable("Usuario", new List&lt;string&gt;() \{"Profesional","Personal"\}).
 
 
 
@@ -183,7 +185,7 @@ Lo interesante es construir “los datos” que queremos insertar dentro de HBas
 
 ​![Imagen 18.- Código construir columnas.](../../../images/numero30/big-data-como-solucion-paas-en-azure-hdinsight-y-hbase/image18.png)
 
-Si analizamos el código debemos setear CellSet.Row con la clave escogida, y por otro lado ir construyendo el objeto CellSet, añadiendo a la fila cada una de las columnas que hemos ido definiendo. Una forma de generar nuestras columnas sería muy parecida a esta    List&lt;string&gt; columnasUsuario = new List&lt;string&gt;() { "personal:Nombre", "personal:Apellidos", "profesional:Sede", "profesional:Antiguedad"},  y que deberemos pasar a nuestro método GeneratedColumns.
+Si analizamos el código debemos setear CellSet.Row con la clave escogida, y por otro lado ir construyendo el objeto CellSet, añadiendo a la fila cada una de las columnas que hemos ido definiendo. Una forma de generar nuestras columnas sería muy parecida a esta    List&lt;string&gt; columnasUsuario = new List&lt;string&gt;() \{ "personal:Nombre", "personal:Apellidos", "profesional:Sede", "profesional:Antiguedad"\},  y que deberemos pasar a nuestro método GeneratedColumns.
  
 ·         **Scanner**
 
@@ -199,6 +201,7 @@ Encoding.UTF8.GetBytes(keyColum), CompareFilter.CompareOp.Equal, comparer);
 
 Una vez se tiene el filtro definido se puede crear el scanner que ejecutaremos para obtener los datos.
 
+```
 var scanSettings = new Scanner()
 
 {
@@ -206,6 +209,7 @@ var scanSettings = new Scanner()
 filter = filtro.ToEncodedString(),
 
 };
+```
 
 Una vez definido el Scanner, basta con ejecutarlo con la instrucción ScannerGetNextAsync, que devuelve una lista de filas que cumplen los criterios. Si observamos bien los métodos que se han implementado son asíncronos, y deberemos instanciarlos de esta forma u obtendremos error al ejecutarlos.
 
@@ -227,3 +231,7 @@ Team Leader de Soluciones Microsoft en Encamina
 
 @shmancebo
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

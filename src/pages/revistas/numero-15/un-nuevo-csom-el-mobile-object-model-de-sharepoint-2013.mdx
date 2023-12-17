@@ -10,13 +10,6 @@ keywords: ['Windows Phone','CSOM']
 
 
 
-<<<<<<< HEAD
-=======
-
-
-​
-
->>>>>>> master
 Un punto diferenciador de SharePoint, con respecto a otras plataformas de colaboración, es la capacidad de ofrecer una capa de abstracción en cliente, permitiendo el desarrollo de aplicaciones o integraciones externas. Desde el primer día, los servicios Web de SharePoint han permitido interactuar con la plataforma de una forma sencilla y universal, permitiendo, sin tener que desarrollar ninguna API de servidor, acceder a cualquier tipo de contenido en SharePoint.
 
 Con SharePoint 2010, se incluyeron dos opciones nuevas, el Cliend-Side Objet Model (CSOM) y la interfaz REST, que complementaban a los servicios Web de la plataforma, ofreciendo más posibilidades de desarrollo. Mientras que en el último SharePoint, la versión 2013, se han añadido nuevas funcionalidades al CSOM, así como una nueva y más limpia interfaz REST.
@@ -24,18 +17,8 @@ Con SharePoint 2010, se incluyeron dos opciones nuevas, el Cliend-Side Objet Mod
 Dentro de las múltiples versiones del modelo de objetos de cliente de SharePoint 2013, nos encontramos con un nuevo SDK para el desarrollo de aplicaciones móviles, el [Mobile Object  Model](http&#58;//msdn.microsoft.com/en-us/library/jj163797.aspx).
 
 - Versión para Windows Phone 7: [http://www.microsoft.com/en-us/download/details.aspx?id=35475](http&#58;//www.microsoft.com/en-us/download/details.aspx?id=35475)
-<<<<<<< HEAD
 - Versión para Windows Phone 8: [http://www.microsoft.com/en-us/download/details.aspx?id=36818&WT.mc\_id=rss\_office\_allproducts](http&#58;//www.microsoft.com/en-us/download/details.aspx?id=36818&amp;WT.mc_id=rss_office_allproducts)
 - Versión REST:  [http://msdn.microsoft.com/en-us/library/fp142385.aspx](http&#58;//msdn.microsoft.com/en-us/library/fp142385.aspx)
-
-=======
-
-
-- Versión para Windows Phone 8: [http://www.microsoft.com/en-us/download/details.aspx?id=36818&WT.mc\_id=rss\_office\_allproducts](http&#58;//www.microsoft.com/en-us/download/details.aspx?id=36818&amp;WT.mc_id=rss_office_allproducts)
-- Versión REST:  [http://msdn.microsoft.com/en-us/library/fp142385.aspx](http&#58;//msdn.microsoft.com/en-us/library/fp142385.aspx)
-
-
->>>>>>> master
 Desde el Mobile Object Model, podemos trabajar con listas, bibliotecas de documentos, las nuevas [notificaciones push](/revistas/numero-14/notificaciones-a-aplicaciones-windows-phone-desde-sharepoint-parte-i) (artículo de Adrián Díaz en CompartiMOSS) de SharePoint 2013, Perfiles de usuarios, Social, y casi todos los elementos que SharePoint expone en cliente.
 
 Una nueva oportunidad para mejorar la movilidad de las empresas que usan SharePoint, ya que pueden extender sus procesos empresariales de forma universal a todos los usuarios, estén donde estén y tanto con un ordenador como con un móvil. Pensemos en aplicaciones que permitan aprobar flujos de trabajo en SharePoint, consultar datos de clientes en listas o almacenar fotos geo-localizadas en una biblioteca de documentos en SharePoint.
@@ -66,7 +49,6 @@ No tenemos cambios significativos cuando realizamos consultas a listas, básicam
 
 ```
      var lista = new ObservableCollection<Announcement>(); 
-<<<<<<< HEAD
      var query = GetAnnouncementQuery(); 
      var items = Context.Web.Lists.GetByTitle("Announcements").GetItems(query); 
      Context.Load(items); 
@@ -88,111 +70,106 @@ No tenemos cambios significativos cuando realizamos consultas a listas, básicam
          delegate(object sender, ClientRequestFailedEventArgs args) 
          { 
              //Manejamos el error de la consulta 
-=======
-```
 
-```
- 
-```
 
-```
+
+
      var query = GetAnnouncementQuery(); 
-```
 
-```
+
+
      var items = Context.Web.Lists.GetByTitle("Announcements").GetItems(query); 
-```
 
-```
+
+
      Context.Load(items); 
-```
 
-```
+
+
      Context.Load(items, listItems => listItems.Include(item => item.FieldValuesAsText)); 
-```
 
-```
+
+
  
-```
 
-```
+
+
      Context.ExecuteQueryAsync(                 
-```
 
-```
+
+
          delegate(object sender, ClientRequestSucceededEventArgs args) 
-```
 
-```
+
+
          { 
-```
 
-```
+
+
              foreach (var item in items) 
-```
 
-```
+
+
              { 
-```
 
-```
+
+
                  var anuncio = new Announcement(); 
-```
 
-```
+
+
                  anuncio.ID = item.Id.ToString(); 
-```
 
-```
+
+
                  anuncio.Title = item.FieldValuesAsText["Title"]; 
-```
 
-```
+
+
                  anuncio.Body = item.FieldValuesAsText["Body"]; 
-```
 
-```
+
+
                  anuncio.Expires = item.FieldValuesAsText["Expires"]; 
-```
 
-```
+
+
                  anuncio.Created = item.FieldValuesAsText["Created"]; 
-```
 
-```
+
+
  
-```
 
-```
+
+
                  lista.Add(anuncio); 
-```
 
-```
+
+
              } 
-```
 
-```
+
+
  
-```
 
-```
+
+
          }, 
-```
 
-```
+
+
          delegate(object sender, ClientRequestFailedEventArgs args) 
-```
 
-```
+
+
          { 
-```
 
-```
+
+
              //Manejamos el error de la consulta 
-```
 
-```
->>>>>>> master
+
+
          }); 
 ```
 
@@ -202,7 +179,6 @@ Como siempre, nos creamos un objeto del tipo ListItemCreationInformation y lo en
 
 ```
      var subscriptionList = Context.Web.Lists.GetByTitle("HubSubscribers"); 
-<<<<<<< HEAD
      Context.Load(subscriptionList); 
      deviceItem = subscriptionList.AddItem(new ListItemCreationInformation()); 
      deviceItem["Title"] = displayName; 
@@ -211,43 +187,41 @@ Como siempre, nos creamos un objeto del tipo ListItemCreationInformation y lo en
      deviceItem["ChannelUriDate"] = System.DateTime.Now; 
      deviceItem["DeviceId"] = deviceId; 
      deviceItem.Update(); 
-=======
-```
 
-```
+
+
      Context.Load(subscriptionList); 
-```
 
-```
+
+
      deviceItem = subscriptionList.AddItem(new ListItemCreationInformation()); 
-```
 
-```
+
+
      deviceItem["Title"] = displayName; 
-```
 
-```
+
+
      deviceItem["UserAccount"] = acccountName; 
-```
 
-```
+
+
      deviceItem["ChannelUri"] = pushChannel; 
-```
 
-```
+
+
      deviceItem["ChannelUriDate"] = System.DateTime.Now; 
-```
 
-```
+
+
      deviceItem["DeviceId"] = deviceId; 
-```
 
-```
+
+
      deviceItem.Update(); 
-```
 
-```
->>>>>>> master
+
+
      Context.ExecuteQuery(); 
 ```
 
@@ -257,7 +231,6 @@ En el CSOM de SharePoint 2013 tenemos acceso a los perfiles de usuario, y en Win
 
 ```
      var peopleManager = new PeopleManager(Context); 
-<<<<<<< HEAD
      var personProperties = peopleManager.GetPropertiesFor(userAccount); 
      context.Load(personProperties, p => p.AccountName, p => p.DisplayName, p => p.Email, p => p.UserProfileProperties,  
                   p => p.DirectReports, p => p.Peers, p => p.PictureUrl); 
@@ -280,107 +253,105 @@ En el CSOM de SharePoint 2013 tenemos acceso a los perfiles de usuario, y en Win
          delegate(object sender1, ClientRequestFailedEventArgs args) 
          { 
              //Manejamos el error de la consulta 
-=======
-```
 
-```
+
+
      var personProperties = peopleManager.GetPropertiesFor(userAccount); 
-```
 
-```
+
+
  
-```
 
-```
+
+
      context.Load(personProperties, p => p.AccountName, p => p.DisplayName, p => p.Email, p => p.UserProfileProperties,  
-```
 
-```
+
+
                   p => p.DirectReports, p => p.Peers, p => p.PictureUrl); 
-```
 
-```
+
+
      context.ExecuteQueryAsync( 
-```
 
-```
+
+
          delegate(object sender1, ClientRequestSucceededEventArgs args) 
-```
 
-```
+
+
          { 
-```
 
-```
+
+
              var profile = new Profile(); 
-```
 
-```
+
+
              profile.AccountName = personProperties.AccountName; 
-```
 
-```
+
+
              profile.DirectReports = personProperties.DirectReports.ToList(); 
-```
 
-```
+
+
              profile.Peers = personProperties.Peers.ToList(); 
-```
 
-```
+
+
              profile.DisplayName = personProperties.DisplayName; 
-```
 
-```
+
+
              profile.PictureUrl = personProperties.PictureUrl; 
-```
 
-```
+
+
              profile.Email = personProperties.Email; 
-```
 
-```
+
+
              profile.Manager = personProperties.UserProfileProperties["Manager"]; 
-```
 
-```
+
+
              profile.Status = personProperties.UserProfileProperties["SPS-StatusNotes"]; 
-```
 
-```
+
+
              profile.WorkPhone = personProperties.UserProfileProperties["WorkPhone"]; 
-```
 
-```
+
+
              profile.Department = personProperties.UserProfileProperties["Department"]; 
-```
 
-```
+
+
  
-```
 
-```
+
+
              loadProfileCompletedCallback(new LoadProfileCompleteEventArgs { Profile = profile }); 
-```
 
-```
+
+
          }, 
-```
 
-```
+
+
          delegate(object sender1, ClientRequestFailedEventArgs args) 
-```
 
-```
+
+
          { 
-```
 
-```
+
+
              //Manejamos el error de la consulta 
-```
 
-```
->>>>>>> master
+
+
          }); 
 ```
 
@@ -390,17 +361,12 @@ En el CSOM de SharePoint 2013 tenemos acceso a los perfiles de usuario, y en Win
 
 
 
-<<<<<<< HEAD
 **Alberto Diaz Martin** <br />
  MVP SharePoint <br />
  [adiazcan@hotmail.com](mailto&#58;adiazcan@hotmail.com) <br />
  @adiazcan <br />
  [http://geeks.ms/blogs/adiazmartin](http&#58;//geeks.ms/blogs/adiazmartin)
-=======
-**Alberto Diaz Martin**
- MVP SharePoint
- [adiazcan@hotmail.com](mailto&#58;adiazcan@hotmail.com) 
- @adiazcan
- [http://geeks.ms/blogs/adiazmartin](http&#58;//geeks.ms/blogs/adiazmartin)
-
->>>>>>> master
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

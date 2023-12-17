@@ -14,9 +14,9 @@ keywords: ['SharePoint 2010','XSL']
 
 ​ En SharePoint 2010 es fácil encontrarse con situaciones en las que necesitamos personalizar el diseño de nuestras vistas de datos. La customización de estas vistas pasa por la edición y creación de plantillas en XSLT. En este artículo introduciremos los conceptos básicos sobre este lenguaje y veremos cómo comenzar a trabajar con él para mejorar la presentación de nuestras vistas de datos en SharePoint 2010.
 
-Como bien define la [W3C](http&#58;//www.w3.org/Style/XSL/), XSL (Extensible Stylesheet Language) es una familia de recomendaciones desarrolladas en el seno del consorcio; en concreto en sus grupos de trabajo sobre XSLT, [XQuery](http&#58;//www.w3.org/XML/Query/) y [XML Print and Page Layout](http&#58;//www.w3.org/XML/XPPL/).
+Como bien define la [W3C](http://www.w3.org/Style/XSL/), XSL (Extensible Stylesheet Language) es una familia de recomendaciones desarrolladas en el seno del consorcio; en concreto en sus grupos de trabajo sobre XSLT, [XQuery](http://www.w3.org/XML/Query/) y [XML Print and Page Layout](http://www.w3.org/XML/XPPL/).
 
-Son tres los miembros de esta familia: [XSLT](http&#58;//www.w3.org/TR/xslt), XPath y XSL-FO
+Son tres los miembros de esta familia: [XSLT](http://www.w3.org/TR/xslt), XPath y XSL-FO
 
 - XSLT (Transformaciones XSL), es un lenguaje para transformar XML.
 - XPath, es el lenguaje de expresión utilizado por las XSLT para acceder y referenciar partes de un documento XML.
@@ -27,7 +27,7 @@ Una hoja de estilo XSLT se encarga de describir cómo debe transformarse un docu
 
 Algunos de los conceptos que debemos tener claros tienen que ver con los templates o plantillas, que pueden ser llamadas desde cualquier punto de la hoja XSLT y que tienen la finalidad de devolver un resultado (una cadena de texto, un valor, HTML...) que se usará de un modo u otro.
 
-Lo mejor para continuar comentando los aspectos más destacables de XSL es seguir un ejemplo. Para ello utilizaremos el famoso fichero [books.xml](http&#58;//msdn.microsoft.com/en-us/library/windows/desktop/ms762271%28v=vs.85%29.aspx) de Microsoft; en este XML se define un catálogo que contiene información relativa a 12 libros de diversas temáticas. La información de cada libro se compone de los siguientes datos:
+Lo mejor para continuar comentando los aspectos más destacables de XSL es seguir un ejemplo. Para ello utilizaremos el famoso fichero [books.xml](http://msdn.microsoft.com/en-us/library/windows/desktop/ms762271%28v=vs.85%29.aspx) de Microsoft; en este XML se define un catálogo que contiene información relativa a 12 libros de diversas temáticas. La información de cada libro se compone de los siguientes datos:
 
 - Un identificador.
 - Su autor.
@@ -75,7 +75,7 @@ De este modo ya podremos utilizarla, por ejemplo, dentro de un HTML que devolver
 
 Las plantillas se encargan de recoger reglas (repetición, ordenación, condicionales, de conversión, etc…) que aplicaremos a nuestros documentos XML y a sus elementos, generando así, como el resultado de haber transformado los datos, un nuevo documento. En nuestras templates podemos definir parámetros y variables así como, mediante XPath, leer y trabajar con objetos globales de nuestro documento.
 
-En el [apartado de referencias sobre XSLT](http&#58;//www.w3.org/TR/xslt)podemos la sintaxis para crear una plantilla. De forma básica podemos decir que es de la siguiente forma:
+En el [apartado de referencias sobre XSLT](http://www.w3.org/TR/xslt)podemos la sintaxis para crear una plantilla. De forma básica podemos decir que es de la siguiente forma:
 
 ```
 <xsl:template match = "pattern" name = "name" priority = "number" mode = "mode"> <!-- Content: (xsl:param*, template) --> </xsl:template> 
@@ -91,7 +91,7 @@ Unos ejemplos de valores asignados al atributo match que podríamos tener para n
 
 Como aparece señalado en la sintaxis anterior, si lo deseamos también podemos pasarle a un template parámetros, a los que obligatoriamente les estableceremos el atributo "name".
 
-Finalmente, debemos tener en cuenta que la versión de XSLT que usa SharePoint 2010 es la 1.0 y no es hasta la 2.0 cuando se permite crear funciones personalizadas. La forma de conseguir crear funciones o métodos en XSLT 1.0 se traduce en crear plantillas o templates y, posteriormente, llamar a dichas plantillas pasándole los parámetros establecidos, si se requieren. La forma de llamar a un plantilla, como encontramos en [su referencia](http&#58;//www.w3.org/TR/xslt), es:
+Finalmente, debemos tener en cuenta que la versión de XSLT que usa SharePoint 2010 es la 1.0 y no es hasta la 2.0 cuando se permite crear funciones personalizadas. La forma de conseguir crear funciones o métodos en XSLT 1.0 se traduce en crear plantillas o templates y, posteriormente, llamar a dichas plantillas pasándole los parámetros establecidos, si se requieren. La forma de llamar a un plantilla, como encontramos en [su referencia](http://www.w3.org/TR/xslt), es:
 
 ```
 <xsl:call-template name = "name"> <!-- Content: xsl:with-param* --> </xsl:call-template> 
@@ -137,6 +137,10 @@ Pensar en XSL no es extremadamente costoso pero dependiendo del escenario al que
 
 **Elisa Gutiérrez Calderón**
  MCTS SharePoint 2010 
-[elisa.gutierrez@unican.es](mailto&#58;elisa.gutierrez@unican.es) 
- [http://www.unican.es](http&#58;//www.unican.es/)
+[elisa.gutierrez@unican.es](mailto:elisa.gutierrez@unican.es) 
+ [http://www.unican.es](http://www.unican.es/)
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

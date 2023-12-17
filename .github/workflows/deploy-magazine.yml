@@ -12,12 +12,10 @@ jobs:
     
     steps:
     - name: Setup Node.js environment
-      uses: actions/setup-node@v2.4.0
-      with:
-        node-version: 16.x
+      uses: actions/setup-node@v3.8.1
     - uses: actions/checkout@v2      
     - name: Run NPM INSTALL
-      run: npm install
+      run: npm install --force
     - name: Node memory
       run: export NODE_OPTIONS=--max_old_space_size=4096
     - name: Run Gatsby 

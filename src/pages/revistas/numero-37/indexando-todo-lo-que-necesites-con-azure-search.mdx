@@ -34,7 +34,7 @@ En resumen, es un servicio PaaS de Azure, que podemos integrar en nuestras aplic
 
 **Empezando a trabajar con el servicio: Indexando los premios OSCARS**
 
-Con los siguientes ejemplos vamos a intentar ver las diferentes opciones de indexación que nos aporta el servicio, para preparar nuestros datos de cara a montar un buscador en nuestras aplicaciones. Para ello he dejado una sencilla solución de Visual Studio en [**GitHub**](https&#58;//github.com/tbsng15/CompartimossSearch), que podéis descargar y trabajar con ella.
+Con los siguientes ejemplos vamos a intentar ver las diferentes opciones de indexación que nos aporta el servicio, para preparar nuestros datos de cara a montar un buscador en nuestras aplicaciones. Para ello he dejado una sencilla solución de Visual Studio en [**GitHub**](https://github.com/tbsng15/CompartimossSearch), que podéis descargar y trabajar con ella.
 
 La solución va a trabajar con dos ficheros que contienen la información histórica de los premios Oscars:
 
@@ -69,6 +69,7 @@ public async Task&lt;KeyValuePair&lt;bool, IndexBatch&lt;T&gt;&gt;&gt; UploadDoc
 
 **AzureSearchModel**
 
+```
 public class AzureSearchModel
 
 {
@@ -118,13 +119,14 @@ this.Id = NextId++.ToString();
 
 
 }
-
+```
 ​​​ Como se ve en la clase, le podemos especificar al servicio de búsqueda que campos de nuestro modelo son filtrables, o buscables. Para implementar este proyecto de forma correcta necesitaremos hacer uso del paquete nuget:
 
 ![Imagen 1.- Paquete Microsft.Azure.Search-](../../../images/numero37/indexando-todo-lo-que-necesites-con-azure-search/image1.png)
 
 Para poder de forma correcta el proceso y subir nuestro juego de datos al servicio de búsqueda, debemos configurar de forma correcta nuestro proyecto de consola, y para ello debemos editar los datos de conexión al servicio de búsqueda, en el Program.cs del proyecto Compartimoss.Indexation.Console
 
+```
 static void Main(string[] args)
 
 {
@@ -136,6 +138,7 @@ string adminApiKey = "\*\*\*\*\*";
 
 
 }​
+```
 
 ​ Los datos necesarios los podremos obtener desde el portal de Azure, accediendo a nuestro servicio de Búsqueda en el apartado de Keys.
 
@@ -177,7 +180,7 @@ Vamos a ver en este ejemplo como subir nuestros datos sobre los Premios Oscars a
 Antes de empezar necesitamos tener creado:
 
 ·       Un servicio de Cosmos DB del tipo SQL API (la única que tiene soporte en producción ahora mismo).
-·       Subir la información de nuestro Cosmos DB desde el CSV de prueba o bien vía SDK de .Net subir el JSON vía la [herramienta de migración de datos](https&#58;//github.com/azure/azure-documentdb-datamigrationtool). 
+·       Subir la información de nuestro Cosmos DB desde el CSV de prueba o bien vía SDK de .Net subir el JSON vía la [herramienta de migración de datos](https://github.com/azure/azure-documentdb-datamigrationtool). 
 ·       Crear un nuevo índice sobre el servicio de Search que utilizamos en el primer ejemplo.
 
 **Importar el CSV a CosmosDB**
@@ -274,3 +277,7 @@ Microsoft Azure MVP
 
 @shmancebo​
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

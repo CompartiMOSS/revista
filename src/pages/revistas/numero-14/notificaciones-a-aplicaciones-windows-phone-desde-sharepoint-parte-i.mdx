@@ -88,7 +88,7 @@ Nuestra intención es que cada vez que se agregue un elemento a						 lista					
 Para crearnos						 las listas						 bien la podemos hacer de dos formas con la interfaz						 de usuario						 de SharePoint o mediante programación						 como por ejemplo el siguiente código para crear la lista						 Articulo:
 
 
-
+```
 internalvoidCreateListArticulo(SPWebspWeb)
 
 {
@@ -132,7 +132,7 @@ list.Update();
 view.Update();
 
 }
-
+```
 
 
 Una vez ya tenemos						 las listas creadas, abrimos un						 proyecto SharePoint 2013 en blanco.						 Agregamos una clase						 Notificacion						 en la que nos vamos a crear los métodos que se encargaran de enviar las notificaciones						 a los						 dispositivos						 Windows Phone						 subscritos a nuestra lista.
@@ -142,7 +142,7 @@ Una vez ya tenemos						 las listas creadas, abrimos un						 proyecto SharePoin
 Creamos un procedimiento						 que se va a encargar de enviar las notificaciones. La principal novedad es que vamos a utilizar una variable de tipo						 SPPushNotificationSubscriber						 este tipo de variable es una de las novedades						 del modelo de objetos de						 SP2013. Lo importante de este tipo de variables es que						 tienen						 almacenado la dirección Uri donde tenemos que enviar la notificación.						 Este procedimiento es valido para los tres tipos de notificaciones en base a que tipo de notificación						 pondemos						 un valor distinto en la variable “notificationType”. Dependiendo de que tipo de notificación sea,						 la variable						 message						 tendrá						 una estructura de XML diferente
 
 
-
+```
 ///&lt;summary&gt;
 
 ///Procedimiento para enviar la notificación WP
@@ -243,12 +243,12 @@ HttpWebResponseresponse = (HttpWebResponse)sendNotificationRequest.GetResponse()
 
 }
 
-
+```
 
 A continuación						 en						 esta clase						 vamos a añadirle el procedimiento						 PushToast, que será el que invoquemos para enviar la notificación al móvil. Este procedimiento va a generar la estructura del XML que tenemos que enviar, tiene tres valores que hay que rellenar Text1, donde en nuestro caso estará el titulo del articulo, Text2 que en nuestro caso pondremos el nombre de la persona que ha escrito el articulo, y en la parte del						 Param						 la vamos a dejar en blanco (generalmente en el						 param						 se pone una pagina que se quiera						 mostrar cuando en el dispositivo móvil)..
 
 
-
+```
 publicvoidPushToast(SPPushNotificationSubscribersubscriber,stringtoastTitle,stringtoastMessage,
 
 stringtoastParam,ToastIntervalValuesEnumintervalValue)
@@ -276,13 +276,13 @@ stringtoastNotification="&lt;?xml version=\"1.0\" encoding=\"utf-8\"?&gt;"+
 SendPushNotification(NotificationTypeEnum.Toast, subscriber,toastNotification, (int)intervalValue);
 
 }
-
+```
 
 
 También añadiremos un procedimiento						 PushTile						 que como parámetros tiene						 los siguientes: Imagen de Fondo, Contador, Titulo, Imagen de Fondo Trasera y Titulo de fondo.
 
 
-
+```
 publicvoidPushTile(SPPushNotificationSubscribersubscriber,stringtileFrontal,stringtileImagenF,stringtileContador,stringtileTrasero,
 
 stringtileImagenT,stringtileContenido, ToastIntervalValuesEnumintervalValue)
@@ -318,13 +318,13 @@ stringtileNotification="&lt;?xml version=\"1.0\" encoding=\"utf-8\"?&gt;"+
 returnSendPushNotification(NotificationTypeEnum.Toast, subscriber,tileNotification, (int)intervalValue);
 
 }
-
+```
 
 
 Finalmente añadiremos un procedimiento						 PushRaw						 donde no se establece ningún tipo de						 parametrización, le enviaremos un mensaje con la estructura que nosotros queramos. Va a ser una notificación interna que se utiliza para labores internas en la aplicación móvil.
 
 
-
+```
 publicvoidPushRaw(SPPushNotificationSubscribersubscriber,stringrawMessage,RawIntervalValuesEnumintervalValue)
 
 {
@@ -332,7 +332,7 @@ publicvoidPushRaw(SPPushNotificationSubscribersubscriber,stringrawMessage,RawInt
 returnSendPushNotification(NotificationTypeEnum.Raw, subscriber,rawMessage, (int)intervalValue);
 
 }
-
+```
 
 
 A continuación						 a nuestro proyecto le						 añadimos un						 EventReceiver						 (Receptor de Eventos), seleccionamos una Lista Personalizada y seleccionamos el evento de añadir un elemento en una lista.
@@ -341,6 +341,7 @@ A continuación						 a nuestro proyecto le						 añadimos un						 EventReceiv
 
 Implementamos el siguiente código consulta todos los dispositivos móviles que están subscritos en este sitio y a cada dispositivo le envía una notificación con los datos que acabamos de añadir						 en la lista.
 
+```
 ///&lt;summary&gt;
 ///Cuando añadimos un elemento a la lista.
 
@@ -393,8 +394,8 @@ pushNotification.PushRaw(ps,titleRevista,"NuevoNumero",ToastIntervalValuesEnum.I
 base.ItemAdded(properties);
 
 }
+```
 
-.
 
 ¿Comoenviar las notificacionesenSharePoint2010?
 
@@ -403,7 +404,7 @@ Tal y como habéis visto con anterioridad,en la nueva versión deSharePoint el g
 El siguiente paso al igual que en SharePoint 2013 es crearnos una clase					 PushNotificacion, la única diferencia es que no vamos a utilizar las variables de tipo						 SPPushNotificationSubscriber						 y las vamos a sustituir por cadenas de tipo						 string(lo único que necesitamos para enviar la notificación es la dirección URI). El código resultante quedaría de la siguiente forma:
 
 
-
+```
 privatevoidSendPushNotification(NotificationTypeEnumnotificationType,stringsubscriber,stringmessage,intintervalValue)
 
 {
@@ -495,7 +496,7 @@ resultado.Add(item["ChannelUri"].ToString());
 return resultado;
 
 }
-
+```
 
 
 Resumen
@@ -510,11 +511,11 @@ Referencias
 
 Novedades de los dispositivos móviles (SharePoint 2013 Preview)
 
-[http://technet.microsoft.com/es-es/library/fp161352(v=office.15).aspx](http&#58;//technet.microsoft.com/es-es/library/fp161352%28v=office.15%29.aspx)
+[http://technet.microsoft.com/es-es/library/fp161352(v=office.15).aspx](http://technet.microsoft.com/es-es/library/fp161352%28v=office.15%29.aspx)
 
 How to: Configure and use push notifications in SharePoint 2013 apps for WindowsPhone
 
-[http://msdn.microsoft.com/es-es/library/jj163784(office.15).aspx](http&#58;//msdn.microsoft.com/es-es/library/jj163784%28office.15%29.aspx)
+[http://msdn.microsoft.com/es-es/library/jj163784(office.15).aspx](http://msdn.microsoft.com/es-es/library/jj163784%28office.15%29.aspx)
 
 **Adrián						 Díaz						 Cervera**
 
@@ -522,7 +523,11 @@ MCPD SharePoint 2010
 
 Microsoft Active Professional 2012
 
-[addiacer@gmail.com](mailto&#58;addiacer@gmail.com)
+[addiacer@gmail.com](mailto:addiacer@gmail.com)
 
-[@AdrianDiaz81](http&#58;//twitter.com/AdrianDiaz81)
+[@AdrianDiaz81](http://twitter.com/AdrianDiaz81)
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

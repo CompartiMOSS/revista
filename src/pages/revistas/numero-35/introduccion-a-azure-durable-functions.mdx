@@ -26,7 +26,7 @@ Las **Durable Functions** son una extensión de **Azure Functions** y por tanto 
 
 **Event Sourcing**
 
-**Azure Durabel Functions** implementa el patrón *event sourcing* ( [https://docs.microsoft.com/es-es/azure/architecture/patterns/event-sourcing](https&#58;//docs.microsoft.com/es-es/azure/architecture/patterns/event-sourcing) ), lo que permite saber y controlar el estado de la función en cada momento y poder interactuar con ella.
+**Azure Durabel Functions** implementa el patrón *event sourcing* ( [https://docs.microsoft.com/es-es/azure/architecture/patterns/event-sourcing](https://docs.microsoft.com/es-es/azure/architecture/patterns/event-sourcing) ), lo que permite saber y controlar el estado de la función en cada momento y poder interactuar con ella.
 
 En este punto ya podemos inferir algunas de las ventajas que nos proporcionan las **Azure Durable Functions**:
 
@@ -68,6 +68,7 @@ De esta forma siempre tenemos dos instancias ejecutando el *workflow* y aprovech
 
 Empezamos explicando el lanzador:
 
+```
 [FunctionName("CounterStart")]
 
 public static async Task Run(
@@ -107,6 +108,7 @@ await client.StartNewAsync("Counter", count);
 }
 
 }
+```
 
 Como podemos observar esta función está esperando una entrada en una cola llamada Operation2, y según el valor que nos llegue se lanzarán tantas funciones orquestadoras como indique el valor. En este caso el primer elemento deberá ser un 2 para lanzar dos orquestaciones y después 1 para ir lanzando nuevas orquestaciones.
 
@@ -122,6 +124,7 @@ En el código anterior podemos ver el *trigger***OrchestrationClient** y la clas
 
 El código de la orquestación es el siguiente:
 
+```
 [FunctionName("Counter")]
 
 public static async Task Run(
@@ -205,6 +208,7 @@ counterContext.ContinueAsNew(numberOfExecutions);
 }
 
 }
+```
 
 Esta es la función orquestadora, donde tenemos **OrchestrationTrigger** y la clase para este *trigger* **DurableOrchestrationContext**. En este método podemos ver como se ejecutan varias functions de forma encadenada. Esta clase contiene todos los métodos necesarios para poder orquestar llamadas a funciones como:
 
@@ -220,6 +224,7 @@ En el ejemplo podemos ver que lo único que hacemos, como hemos dicho, encadenar
 
 Por ejemplo, una de las que estamos ejecutando es la de añadir un elemento en la cola cuando se ha acabado correctamente todas las demás ejecuciones:
 
+```
 [FunctionName("AddQueueTrigger")]
 
 [return: Queue("operation2", Connection = "AzureWebJobsStorage")]
@@ -257,8 +262,10 @@ return "0";
 }
 
 }
+```
+
   Aquí observamos el *trigger* **AcitivityTrigger** y en este caso como parámetro pásanos un *string*. Esta función se ejecuta y una vez ejecutada la orquestación recoge el resultado y continua su proceso. Todo proceso se guarda en una **Azure Table**, que es donde se van guardando los diferentes estados para poder saber el estado. 
-![Imagen 2&#58; Estados de una Durable Function.](../../../images/numero35/introduccion-a-azure-durable-functions/image2.png)
+![Imagen 2: Estados de una Durable Function.](../../../images/numero35/introduccion-a-azure-durable-functions/image2.png)
 
 En la imagen anterior, podemos ver el flujo de una ejecución de una orquestación y de los registros que se van dejando en esta tabla.
 
@@ -323,3 +330,7 @@ bermejoblasco@live.com
  @robertbemejo
  www.robertbermejo.com
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

@@ -30,19 +30,20 @@ Para este caso no hace falta seleccionar ningún Framework en particular dentro 
 
 Una vez ya tenemos la aplicación funcionando, lo que debemos hacer para poder utilizar el Framework es importar la referencia donde está el LOG, para ello hay que añadir el siguiente fragmento de código en la clase:
 
-
+```
 | import {  Log } from '@microsoft/sp-core-library'; |
 | --- |
+```
 
 
 **Nota:**  Dado que el Framework lo estamos adoptando desde una fase muy temprana, en anteriores versiones la referencia del log (y de otras utilidades) estaba ubicada en la librería @microsoft/sp-cliente-base
 
 Esta clase Log tiene los siguientes métodos:
 
-·       error(source: *string*, error: *Error*, scope?: [*ServiceScope*](https&#58;//sharepoint.github.io/classes/_sp_client_base_.servicescope.html)): *void* 
-·       info(source: *string*, message: *string*, scope?: [*ServiceScope*](https&#58;//sharepoint.github.io/classes/_sp_client_base_.servicescope.html)): *void*
-·       verbose(source: *string*, message: *string*, scope?: [*ServiceScope*](https&#58;//sharepoint.github.io/classes/_sp_client_base_.servicescope.html)): *void*
-·       warn(source: *string*, message: *string*, scope?: [*ServiceScope*](https&#58;//sharepoint.github.io/classes/_sp_client_base_.servicescope.html)): *void*
+·       error(source: *string*, error: *Error*, scope?: [*ServiceScope*](https://sharepoint.github.io/classes/_sp_client_base_.servicescope.html)): *void* 
+·       info(source: *string*, message: *string*, scope?: [*ServiceScope*](https://sharepoint.github.io/classes/_sp_client_base_.servicescope.html)): *void*
+·       verbose(source: *string*, message: *string*, scope?: [*ServiceScope*](https://sharepoint.github.io/classes/_sp_client_base_.servicescope.html)): *void*
+·       warn(source: *string*, message: *string*, scope?: [*ServiceScope*](https://sharepoint.github.io/classes/_sp_client_base_.servicescope.html)): *void*
 
 Dependiendo del nivel de criticidad elegiremos un método u otro, estos métodos no tienen mucho misterio salvo el parámetro opcional "scope", esta variable es interesante añadírsela ya que nos puede proporcionar más información del error que se ha producido, ya que proporciona información del contesto de ejecución del propio "WebPart".
 
@@ -102,7 +103,7 @@ Para el primer caso bastaría con añadir en el siguiente código:
 En el segundo caso, tendríamos que añadir el siguiente código:
 
 
-| import appInsights = require("applicationinsights");<br /><br />var client = appInsights.getClient();<br /><br />client.trackEvent("custom event", {customProperty: "custom property value"});<br /><br />client.trackException(new Error("handled exceptions can be logged with this method"));<br /><br />client.trackMetric("custom metric", 3);<br /><br />client.trackTrace("trace message"); |
+| import appInsights = require("applicationinsights");<br /><br />var client = appInsights.getClient();<br /><br />client.trackEvent("custom event", \{customProperty: "custom property value"\});<br /><br />client.trackException(new Error("handled exceptions can be logged with this method"));<br /><br />client.trackMetric("custom metric", 3);<br /><br />client.trackTrace("trace message"); |
 | --- |
 
 
@@ -121,7 +122,7 @@ Por lo que en caso de que en el entorno en el que lo estemos utilizando tenemos 
 Desde mi punto de visto se deben utilizar ambos, la solución que implementamos nosotros es crearnos una Interfaz LOG en la que tiene los métodos más comunes de un LOG por ejemplo:
 
 
-| interface ILog {<br /><br />Error(Source:string, Exception:any);<br /><br />Info(Source:string);<br /><br />Warm(Source:string);<br /><br />Verbose(Source:string);<br /><br />} |
+| interface ILog \{<br /><br />Error(Source:string, Exception:any);<br /><br />Info(Source:string);<br /><br />Warm(Source:string);<br /><br />Verbose(Source:string);<br /><br />\} |
 | --- |
 
 
@@ -129,15 +130,15 @@ Con esta interfaz, implementaremos una definición del LOG que consuma el Log de
 
 Para hacer esta distinción utilizaremos la clase EnvironmentType que viene de serie, para saber cuándo estamos en el Workbench local o bien cuando estamos en un Tenant de Office 365. Para utilizar esta clase tendremos que añadir el siguiente código:
 
-
+```
 | import {<br /><br />Environment,<br /><br />EnvironmentType<br /><br />} from '@microsoft/sp-core-library'; |
 | --- |
-
+```
 
 Para saber en qué entorno esta tendremos que poner el siguiente código:
 
 
-| if (Environment.type === EnvironmentType.Local) {<br /><br /> |
+| if (Environment.type === EnvironmentType.Local) \{<br /><br /> |
 | --- |
 
 
@@ -159,9 +160,13 @@ Uno de los puntos débiles a lo largo del tiempo, es el control de errores en la
 
 MVP Office Development
 
-[http://blogs.encamina.com/desarrollandosobresharepoint](http&#58;//blogs.encamina.com/desarrollandosobresharepoint)
+[http://blogs.encamina.com/desarrollandosobresharepoint](https://blogs.encamina.com/desarrollandosobresharepoint)
 
-[http://geeks.ms/blogs/adiazcervera](http&#58;//geeks.ms/blogs/adiazcervera)
+[http://geeks.ms/blogs/adiazcervera](http://geeks.ms/blogs/adiazcervera)
 
 adiaz@encamina.com @AdrianDiaz81
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

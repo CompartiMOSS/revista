@@ -42,7 +42,7 @@ Los principales componentes de una arquitectura MIM 2016 son el Portal, el Servi
 
 Todos los componentes pueden desplegarse en el mismo servidor, aunque lógicamente este escenario no contempla escalados ni balanceos, y sería más idóneo para pilotos o pruebas de concepto. Lo más común es separar los diferentes servicios por máquinas, y así obtener más flexibilidad, ya que esta arquitectura permite escalar los diferentes componentes. Por ejemplo, podemos agregar un nuevo servidor SharePoint con un balanceador para escalar el portal y servicio MIM, y además aportar alta disponibilidad. Lo mismo ocurre con las bases de datos. Podemos escalar el servidor SQL, e incluso desplegar grupos de disponibilidad Always On, dependiendo de la versión instalada.
 
-[https://blogs.technet.microsoft.com/iamsupport/2017/03/28/support-info-microsoft-identity-manager-2016-sp1-hotfix-4-4-1459-0-released/](https&#58;//blogs.technet.microsoft.com/iamsupport/2017/03/28/support-info-microsoft-identity-manager-2016-sp1-hotfix-4-4-1459-0-released/)
+[https://blogs.technet.microsoft.com/iamsupport/2017/03/28/support-info-microsoft-identity-manager-2016-sp1-hotfix-4-4-1459-0-released/](https://blogs.technet.microsoft.com/iamsupport/2017/03/28/support-info-microsoft-identity-manager-2016-sp1-hotfix-4-4-1459-0-released/)
 
 También podemos separar las instancias de Servicio MIM de usuario y administrador, y de esta forma no penalizar la experiencia de usuario por culpa de los flujos de sincronización a nivel administrador.
 
@@ -72,7 +72,7 @@ Para la sincronización de identidades necesitamos instalar MIM Sync Service y u
 
 Para cualquier otra funcionalidad necesitaremos por lo menos el Servicio MIM y el Portal MIM, cada uno de ellos con su correspondiente instancia de SQL Server. El Portal MIM va montado sobre SharePoint, así que los requerimientos mínimos de Hardware serán los de la versión de SharePoint Server que vayamos a instalar.
 
-[https://docs.microsoft.com/en-us/microsoft-identity-manager/capacity-planning-guide](https&#58;//docs.microsoft.com/en-us/microsoft-identity-manager/capacity-planning-guide)
+[https://docs.microsoft.com/en-us/microsoft-identity-manager/capacity-planning-guide](https://docs.microsoft.com/en-us/microsoft-identity-manager/capacity-planning-guide)
 
 La documentación oficial de Microsoft describe el proceso de instalación sobre un único servidor, aunque aplicarlo a otra topología no será un problema.
 
@@ -80,7 +80,7 @@ MIM 2016 requiere SP1 para soportar SharePoint 2016, y además habrá que adapta
 
 La principal modificación para desplegar MIM sobre SharePoint Server 2016 será cambiar el parámetro CompatibilityLevel de 14 a 15 al momento de crear la Colección de Sitios.
 
-[https://docs.microsoft.com/en-us/microsoft-identity-manager/microsoft-identity-manager-deploy](https&#58;//docs.microsoft.com/en-us/microsoft-identity-manager/microsoft-identity-manager-deploy)
+[https://docs.microsoft.com/en-us/microsoft-identity-manager/microsoft-identity-manager-deploy](https://docs.microsoft.com/en-us/microsoft-identity-manager/microsoft-identity-manager-deploy)
 
 **Conectando directorios**
 
@@ -94,21 +94,21 @@ El servicio MIM Sync ejecuta los trabajos de sincronización y Export para mover
 
 Hay una gran cantidad de conectores incluidos en MIM 2016:
 
-[https://docs.microsoft.com/en-us/microsoft-identity-manager/supported-management-agents](https&#58;//docs.microsoft.com/en-us/microsoft-identity-manager/supported-management-agents)
+[https://docs.microsoft.com/en-us/microsoft-identity-manager/supported-management-agents](https://docs.microsoft.com/en-us/microsoft-identity-manager/supported-management-agents)
 
 Además, el conector Extensible Connectivity 2.0 permite crear más conexiones, como los creados por algunos Partners:
 
-[http://social.technet.microsoft.com/wiki/contents/articles/1589.fim-2010-management-agents-from-partners.aspx](http&#58;//social.technet.microsoft.com/wiki/contents/articles/1589.fim-2010-management-agents-from-partners.aspx)
+[http://social.technet.microsoft.com/wiki/contents/articles/1589.fim-2010-management-agents-from-partners.aspx](http://social.technet.microsoft.com/wiki/contents/articles/1589.fim-2010-management-agents-from-partners.aspx)
 
 **Use case: Azure AD**
 
 Pregunta: ¿Es posible sincronizar identidades con Azure AD sin utilizar Azure AD Connect? ¿Y sin AD local? Pues, aunque suene raro la respuesta es sí.
 
-[https://docs.microsoft.com/en-us/previous-versions/mim/dn511001(v=ws.10)](https&#58;//docs.microsoft.com/en-us/previous-versions/mim/dn511001%28v=ws.10%29)
+[https://docs.microsoft.com/en-us/previous-versions/mim/dn511001(v=ws.10)](https://docs.microsoft.com/en-us/previous-versions/mim/dn511001%28v=ws.10%29)
 
 Utilizando el conector de Azure AD para MIM 2016 podemos sincronizar identidades de cualquier fuente conectada, hacia Azure AD. En el siguiente enlace podemos ver una comparativa de las herramientas de sincronización con Azure AD:
 
-[https://docs.microsoft.com/en-us/azure/active-directory/active-directory-hybrid-identity-design-considerations-tools-comparison](https&#58;//docs.microsoft.com/en-us/azure/active-directory/active-directory-hybrid-identity-design-considerations-tools-comparison)
+[https://docs.microsoft.com/en-us/azure/active-directory/active-directory-hybrid-identity-design-considerations-tools-comparison](https://docs.microsoft.com/en-us/azure/active-directory/active-directory-hybrid-identity-design-considerations-tools-comparison)
 
 **Reglas y Workflows**
 
@@ -120,7 +120,7 @@ Management Policy Rules (MPR) son reglas que actúan como reglas de negocio y ti
 
 Por otro lado, las MPR actúan como disparadores de Workflows que realizan determinadas acciones en MIM 2016. Podemos, por ejemplo, crear una MPR que dispare un Workflow para actualizar los grupos a los que pertenece un usuario según el valor del atributo "Departamento".
 
-[https://docs.microsoft.com/en-us/previous-versions/mim/ff356871(v=ws.10)](https&#58;//docs.microsoft.com/en-us/previous-versions/mim/ff356871%28v=ws.10%29)
+[https://docs.microsoft.com/en-us/previous-versions/mim/ff356871(v=ws.10)](https://docs.microsoft.com/en-us/previous-versions/mim/ff356871%28v=ws.10%29)
 
 
 
@@ -137,3 +137,7 @@ Si tienes las mismas identidades repartidas en diferentes sistemas, estarás usa
 
 https://www.linkedin.com/in/portiz
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

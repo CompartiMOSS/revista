@@ -65,7 +65,7 @@ El equipo de producto ha intentado atender a todas las sugerencias que les ha re
 
 Ahora bien, esto tiene un “pequeño” problema. Estamos hablando de que toda la lógica de nuestros desarrollos está en un sitio “publico” y esto puede provocar ataques y fugas de conocimiento en productos/proyectos realizados sobre esta nueva plataforma. Para solucionarlo Microsoft lo que ha optado es por incluir un CDN dentro de tu Tenant de Office 365 de tal forma que este solo pueda ser accedido desde el propio tenant y no responda a petición que no sean de tu tenant. Este proceso también está en Preview y aún no sabemos cómo será este proceso.
 
-En la versión del SPFX que hay ahora, está preparada para poder alojar el desarrollo dentro de un CDN de Azure.     No es objeto de este articulo ver cómo crear un CDN en Azure, pero por si alguien necesita ayuda basta con seguir los pasos del siguiente artículo:    [https://dev.office.com/sharepoint/docs/spfx/web-parts/get-started/deploy-web-part-to-cdn](https&#58;//dev.office.com/sharepoint/docs/spfx/web-parts/get-started/deploy-web-part-to-cdn)
+En la versión del SPFX que hay ahora, está preparada para poder alojar el desarrollo dentro de un CDN de Azure.     No es objeto de este articulo ver cómo crear un CDN en Azure, pero por si alguien necesita ayuda basta con seguir los pasos del siguiente artículo:    [https://dev.office.com/sharepoint/docs/spfx/web-parts/get-started/deploy-web-part-to-cdn](https://dev.office.com/sharepoint/docs/spfx/web-parts/get-started/deploy-web-part-to-cdn)
 
 Lo que sí que es objeto de este artículo es ver cómo debemos de configurar nuestra solución para cuando generemos el paquete tenga todas las rutas bien puestas y configuradas. Para ello el equipo de producto lo que ha creado dentro del template de Yeoman es una carpeta “config” el sentido de la misma es que dentro de la misma agrupemos todos los ficheros de configuración de las tareas de Gulp. Por defecto, SPFX ya tiene una tarea Gulp que se encarga de subir nuestro WebParts a los CDN de Azure. Para ello vamos al fichero deploy-azure-storage.json ubicado en dicha carpeta y configuramos los datos del mismo. Si todos los datos los hemos introducido correctamente ejecutamos la siguiente instrucción y en unos segundos el bundle en el CDN de Azure:
  
@@ -96,7 +96,7 @@ Por poner un poco de contexto, la solución de Yeoman está basada en WebPack.  
 
 **¿Aún queda algo que tengamos que tener en cuenta?**
 
-Hemos cargado los ficheros JS y CSS dentro de nuestro bundle pero todavía nos queda ver cómo resolvemos la carga de los templates HTML que muchos Frameworks JavaScript utilizan. La técnica puede ser algo similar a la carga de los CDN de los Frameworks JS, podemos incluirlos dentro del bundle junto con el resto de JS y CSS utilizando requiere o bien ubicarlos en un CDN de forma manual. Para más detalles de las formas de carga de los templates dentro del SPFX este artículo de Waldek     es de obligatoria lectura    [https://blog.mastykarz.nl/load-angular-templates-sharepoint-framework-client-side-web-parts/](https&#58;//blog.mastykarz.nl/load-angular-templates-sharepoint-framework-client-side-web-parts/)
+Hemos cargado los ficheros JS y CSS dentro de nuestro bundle pero todavía nos queda ver cómo resolvemos la carga de los templates HTML que muchos Frameworks JavaScript utilizan. La técnica puede ser algo similar a la carga de los CDN de los Frameworks JS, podemos incluirlos dentro del bundle junto con el resto de JS y CSS utilizando requiere o bien ubicarlos en un CDN de forma manual. Para más detalles de las formas de carga de los templates dentro del SPFX este artículo de Waldek     es de obligatoria lectura    [https://blog.mastykarz.nl/load-angular-templates-sharepoint-framework-client-side-web-parts/](https://blog.mastykarz.nl/load-angular-templates-sharepoint-framework-client-side-web-parts/)
 
 **Conclusión**
 
@@ -110,9 +110,13 @@ Architect Software Lead at Encamina
 
 MVP Office Server and Services
 
-[http://blogs.encamina.com/desarrollandosobresharepoint](http&#58;//blogs.encamina.com/desarrollandosobresharepoint)
+[http://blogs.encamina.com/desarrollandosobresharepoint](http://blogs.encamina.com/desarrollandosobresharepoint)
 
-[http://geeks.ms/blogs/adiazcervera](http&#58;//geeks.ms/blogs/adiazcervera)
+[http://geeks.ms/blogs/adiazcervera](http://geeks.ms/blogs/adiazcervera)
 
 adiaz@encamina.com @AdrianDiaz81
 
+ 
+ 
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

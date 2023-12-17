@@ -1,24 +1,24 @@
 import React, { useEffect, useRef } from 'react';
+import { styled } from '@mui/styles';
 import PropTypes from 'prop-types'
 import Layout from './layout';
 import SEO from './seo'
-import { makeStyles } from "@material-ui/core"
 import ArticleHeader from './article-header'
 
-const useStyles = makeStyles({
-  sectionArticle: {
-    margin: 'auto auto 40px',
-    padding: '0 20px',
-    maxWidth: 700,
-    fontSize: 21,
-    fontFamily: 'Calibri',
-    wordWrap: 'break-word'
-  }
-})
+const PREFIX = 'LayoutNumber';
+
+const Section = styled('div')(({ theme }) => ({
+  margin: 'auto auto 40px',
+  padding: '0 20px',
+  maxWidth: 700,
+  fontSize: 21,
+  fontFamily: 'Calibri',
+  wordWrap: 'break-word'
+}));
 
 
 const LayoutNumber = ({ children, pageContext }) => {
-  const classes = useStyles();
+
   const div = useRef(null);
 
   useEffect(() => {
@@ -38,10 +38,10 @@ const LayoutNumber = ({ children, pageContext }) => {
     <Layout pageContext={pageContext}>
       <SEO title={pageContext.frontmatter.title} keywords={pageContext.frontmatter.keywords} />
       <ArticleHeader frontmatter={pageContext.frontmatter} />
-      <section className={classes.sectionArticle}>
+      <Section>
         {children}
         <div ref={div}></div>
-      </section>
+      </Section>
     </Layout>
   );
 };
