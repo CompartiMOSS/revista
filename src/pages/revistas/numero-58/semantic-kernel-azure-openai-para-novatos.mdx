@@ -128,69 +128,7 @@ carpetas, y una combinación de 2 archivos:
 
 Aquí podemos ver un ejemplo del contenido de ambos ficheros:
 
-| **skprompt.txt**                  | **config.json**                   |
-|-----------------------------------|-----------------------------------|
-| Give me a plan for visiting:      | \{                               |
-| \{\{$City}}". I will be there for: |                                   |
-| \{\{$NumberOfDays}}" days.         | "schema": 1,                      |
-|                                   |                                   |
-| I am more interested in food and  | "description": "Given a city      |
-| less in places or monuments. I    | and the number of days to spend   |
-| just need 2-3 activities per day. | in there, it gives you a detailed |
-|                                   | plan of what to do in that city   |
-| Format output as markdown format, | on each day",                     |
-| with headings for DAY 1, DAY 2,   |                                   |
-| etc, and then the list of         | "models": [                       |
-| activities as bullet point list.  |                                   |
-|                                   | \{                               |
-|                                   |                                   |
-|                                   | "max_tokens": 2000,               |
-|                                   |                                   |
-|                                   | "temperature": 0.5,               |
-|                                   |                                   |
-|                                   | "top_p": 1.0,                     |
-|                                   |                                   |
-|                                   | "presence_penalty": 0.0,          |
-|                                   |                                   |
-|                                   | "frequency_penalty": 0.0          |
-|                                   |                                   |
-|                                   | }                                 |
-|                                   |                                   |
-|                                   | ],                                |
-|                                   |                                   |
-|                                   | "input": \{                      |
-|                                   |                                   |
-|                                   | "parameters": [                   |
-|                                   |                                   |
-|                                   | \{                               |
-|                                   |                                   |
-|                                   | "name": "City",                   |
-|                                   |                                   |
-|                                   | "description": "The city you      |
-|                                   | want to travel to and want to     |
-|                                   | plan what to do in there",        |
-|                                   |                                   |
-|                                   | "defaultValue": "Valencia"        |
-|                                   |                                   |
-|                                   | },                                |
-|                                   |                                   |
-|                                   | \{                               |
-|                                   |                                   |
-|                                   | "name": "NumberOfDays",           |
-|                                   |                                   |
-|                                   | "description": "The number of    |
-|                                   | days you are going to be in the   |
-|                                   | city.",                           |
-|                                   |                                   |
-|                                   | "defaultValue": "3"               |
-|                                   |                                   |
-|                                   | }                                 |
-|                                   |                                   |
-|                                   | ]                                 |
-|                                   |                                   |
-|                                   | }                                 |
-|                                   |                                   |
-|                                   | }                                 |
+![Table 1][../images/numero58/semantic-kernel-azure-openai-para-novatos/table1.png]
 
 Como veis, en el fichero de config, también está definiendo los
 diferentes parámetros que formarán parte del prompt. Esto ayudará al
@@ -283,36 +221,7 @@ generated](../../../images/numero58/semantic-kernel-azure-openai-para-novatos/im
 A continuación, vamos a crear otra función semántica, que va a hacer uso
 de nuestra nueva función nativa.
 
-| **skprompt.txt**                  | **config.json**                   |
-|-----------------------------------|-----------------------------------|
-| Given the following list of       | \{                               |
-| Professional skills:              |                                   |
-|                                   | "schema": 1,                      |
-| [Skills]                          |                                   |
-|                                   | "description": "Creates a List    |
-| \{\{GraphSkillsPlugin.GetMySkills}}` | of Skills returned by my Graph    |
-|                                   | profile, with a brief definition  |
-| [Skills]                          | for each skill",                  |
-|                                   |                                   |
-| Now give me the same list, but    | "models": [                       |
-| add a brief                       |                                   |
-| description/definition of each    | \{                               |
-| skill.                            |                                   |
-|                                   | "max_tokens": 2000,               |
-|                                   |                                   |
-|                                   | "temperature": 0.5,               |
-|                                   |                                   |
-|                                   | "top_p": 1.0,                     |
-|                                   |                                   |
-|                                   | "presence_penalty": 0.0,          |
-|                                   |                                   |
-|                                   | "frequency_penalty": 0.0          |
-|                                   |                                   |
-|                                   | }                                 |
-|                                   |                                   |
-|                                   | ]                                 |
-|                                   |                                   |
-|                                   | }                                 |
+![Table 2][../images/numero58/semantic-kernel-azure-openai-para-novatos/table2.png]
 
 Fijaros como en el prompt, usando cierto lenguaje de plantilla, estamos
 llamando a nuestra función nativa:
