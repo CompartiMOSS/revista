@@ -1,0 +1,249 @@
+---
+title: .NET 8 - What Else?
+slug: /revistas/numero-59/dotnet8
+date: 01/03/2024
+magazine: 59
+author: Adrian Diaz Cervera
+authorId: adrian-diaz-cervera
+keywords: ['dotnet', 'dotnet 8', '.NET']
+featuredImage: ../../../images/numero59/dotnet8/image1.png
+---
+
+
+El pasado mes de noviembre salió la versión definitiva de .NET 8. Cada
+versión que sale del nuevo framework tiene muchísimas novedades técnicas
+que crea el hype entre todos los apasionados del mejor framework de
+desarrollo, pero al final la tecnología no sirve de nada sino se aplica
+a ningún producto y le aporta valor al mismo.
+
+A la hora de la creación de un producto digital hay que tener claro
+porque queremos migrar, que beneficios vamos a obtener y el tiempo que
+nos va a costar. Seguro que más de un lector que nos está leyendo ya se
+ha planteado esta cuestión, y le han venido las dudas de como poder
+justificar esa migración de versión entre tantas nuevas features del
+producto. En mi caso particular, en el momento que hemos querido abordar
+esta migración, han surgido muchas preguntas:
+
+-   ¿Por qué no nos esperamos hasta la versión 9?
+
+-   Hace 6 meses migramos a NET7 y, si es algo que vamos a tener que
+    hacer todos los años. ¿En qué mejora lo que tenemos?
+
+En este artículo vamos a ir desgranando un poco esta argumentación para
+que tengamos hechos y pueda serviros para migrar o no a esta versión.
+
+**Versiones y fechas de lanzamiento**
+
+Lo primero de todo conviene recordar que con el cambio de .NET Core a
+.NET Framework el tiempo y la validez del soporte que da cada versión es
+limitado, por lo tanto, es algo que hay que tener siempre en el radar.
+Siempre se ha de estar en la versión que tiene soporte, para poder tener
+esta información basta con mirar [con esta
+web](https://dotnet.microsoft.com/es-es/platform/support/policy/dotnet-corehttps:/dotnet.microsoft.com/es-es/platform/support/policy/dotnet-core)
+para poder tener apuntadas las fechas. Lo que siempre tenéis que tener
+en cuenta es estar en una versión LTS (Soporte técnico de larga
+duración), el estar en esta versión indica que tiene soporte durante 3
+años desde su lanzamiento. Esto quiere decir que si la versión 8 tendrá
+una duración mínima hasta 2027 (en cuyo momento ya estará en marcha otra
+versión LTS que será .NET 10) y que el resto de las versiones anteriores
+está a punto de caducar. Durante el tiempo que esta la nueva versión, no
+quiere decir que la versión previa no vaya a realizar actualizaciones,
+lo que no va a recibir son novedades. Si se encuentra algún problema de
+seguridad obviamente se subsanará en las versiones que tienen soporte,
+pero si salen mejoras de alguna funcionalidad estas no estarán en la
+versión anterior, como por ejemplo Minimal API las funcionalidades entre
+6 y 7 son muy diferentes.
+
+![A close-up of a progress bar Description automatically
+generated](../../../images/numero59/dotnet8/image1.png)
+
+Una vez ya tenemos claro las fechas en las que tenemos que estar en una
+versión con Soporte, sabemos que la migración a .NET8 es algo que
+debemos de abordar como tarde antes de noviembre de este año en caso de
+que nuestro desarrollo este en NET 6, si estamos en NET 7 tenemos menos
+tiempo y seria en mayo, pero como hemos comentado anteriormente su
+tiempo de vigencia son solamente 18 meses al ser una versión STS. Porque
+es importante estar en soporte, por un tema de seguridad, como sabéis
+DotNet es una versión Open Source en el que todo el mundo puede acceder
+al código fuente. Esto puede provocar que en el caso de que se encuentre
+un error de seguridad tu aplicación correrá un riesgo muy grande de
+sufrir un ataque, al no ser que hayas tomado medidas para ello. Lo cual
+es un motivo de mucho peso para poder estar en una versión LTS. Esto no
+quiere que decir que no puedas estar en una versión STS, si tiene
+suficientes mejoras que te aporten valor para el cambio. Yo
+particularmente hemos estado en NET 7 debido a que íbamos a realizar un
+refactor para mejorar el performance de determinados endpoints y quería
+utilizar Minimal API, y la mejora de rendimiento junto con la nueva
+arquitectura es algo que no vas a tener que reescribirlo en distintas
+versiones. Con esto es obvio que el estar migrando cada cierto tiempo es
+algo que tienes que tener la estrategia que quieres llevar a cabo y el
+porqué de la misma.
+
+**Novedades importantes que trae**
+
+La primera de las novedades que trae son mejoras de performance, el
+estar rescribiendo algunas librerías, modificando algunos interfaces
+como por ejemplo de tipos primitivos hace que las aplicaciones puedan
+mejorar hasta un 20% su rendimiento casi solo con la migración de
+versión. Pero en esta ocasión estos números tienen un poco de truco y me
+explico. Cuando se hizo la migración de 3.1 a 5 todas las API's daba
+igual como fueran desarrolladas tuvieron una mejora de mínimo un 30%,
+ahora este 20 % que nos indica es haciendo uso de Minimal API. ¿Qué
+quiero decir con esto? Qué si no usas minimal API probablemente la
+mejora que obtengas puede ser un 5%, que para no hacer nada no está mal,
+pero igual conviene plantearse hacer esa migración. Porque es importante
+en términos de producto esto, si permitimos más peticiones por segundo
+con la misma infraestructura quiere decir que somos mucho más baratos y
+que podemos bajar el coste de la misma, con lo cual si estas en ese caso
+es algo que va a dar mucho valor al producto.
+
+Otra de las novedades significativas, mejoras de seguridad a la hora de
+la creación de los contenedore, creando un usuario no root que ejecute
+estas imágenes y también disminuyendo el tamaño de la misma lo que hace
+que las imágenes sean mucho ligeras y el tiempo de carga menor. ¿Ahora
+bien, esta novedad tu aplicación esta hospedada en contenedores? Si no
+es así todas estas mejoras no te dan ninguna ventaja. SI ya lo tienes y
+en versiones anteriores estas arrancando tus contenedores con permisos
+root, te recomiendo que lo revises porque se puede hacer también sin
+muchos problemas.
+
+A nivel de código, NET 8 usa la versión de C#12, el tener cambios de
+forma tan constante hace que no haya muchos cambios importantes como en
+otras versiones. En este enlace podéis ver todas las novedades que trae
+https://learn.microsoft.com/es-es/dotnet/csharp/whats-new/csharp-12 De
+todas ella la que más me llama la atención es la de los constructores
+primarios, el tener estos constructores hace que evites muchas líneas de
+código repetitivas una y otra vez en tus constructores. Para que os
+hagáis una idea un constructor que hacíamos anteriormente de esta forma.
+
+```csharp
+public readonly struct Distance
+{
+public readonly double Magnitude { get; }
+public readonly double Direction { get; }
+public Distance(double dx, double dy)
+{
+Magnitude = Math.Sqrt(dx \* dx + dy \* dy);
+Direction = Math.Atan2(dy, dx);
+}
+}
+```
+
+Ahora quedaría de la siguiente
+
+```csharp
+public readonly struct Distance(double dx, double dy)
+{
+public readonly double Magnitude { get; } = Math.Sqrt(dx \* dx + dy \*
+dy);
+public readonly double Direction { get; } = Math.Atan2(dy, dx);
+}
+```
+
+Es un poco de sintaxis sugar que no nos va a cambiar mucho nuestro
+desarrollo, pero sigue con la filosofía de menos es más y me parece
+interesante ponerla en práctica en los nuevos desarrollos.
+
+**Native AoT**
+
+Esta es la funcionalidad de la que más se habla, la que más hype ha
+creado. ¿Por qué? Nos permite compilar nuestro código C# en código
+nativo en la propia máquina donde estamos compilando, no necesitamos el
+paso intermedio de compilar a IL.
+
+El punto principal de Native AOT es el rendimiento, al compilar
+directamente a máquina no tenemos que perder tiempo en compilar de IL a
+máquina durante el tiempo de ejecución, así que es más rápido,
+especialmente en primeras ejecuciones. Pensar que mucho tiempo de tu
+aplicación se pierde en el Startup, Native AOT reduce este tiempo de
+inicialización drásticamente.
+
+![Chart showing comparison of application size, memory use, and startup
+time metrics of an AOT published app, a runtime app that is trimmed, and
+an untrimmed runtime
+app.](../../../images/numero59/dotnet8//image2.png)
+
+Pero no es oro todo lo que reduce, si estás haciendo un nuevo desarrollo
+sí que lo puedes utilizar sabiendo que hay algunas librerías como Entity
+Framework que no puedes utilizar. Para que tu aplicación sea compatible
+Native AOT todas las dependencias deben ser compatibles con Native AOT,
+eso hace que, si tienes una aplicación en desarrolla, no puedas hacerla
+porque estas dependencias propias de .NET o de los Nugets que consumas
+no sean native AOT. Seguramente sea algo temporal, pero si te estabas
+planteando migrar tu desarrollo a AOT lo más seguro que deberás de
+esperar.
+
+**Otras Novedades**
+
+Junto con todas estas novedades, también se han incorporados mejoras en
+SDKs tan de moda como los de Inteligencia Artificial, así como otras
+herramientas menos utilizadas como, mejoras en NET MUI y Blazor. Estas
+mejoras a parte del tooling de las mismas, van vinculadas con el
+performance y así hacer esas librerías mucho mejor desde el punto de
+vista de rendimiento.
+
+**Proceso de Migración de otras versiones a la actual**
+
+Dentro de la consola de dotnet existe un comando dotnet migrate que se
+encarga de migrar entre los diferentes frameworks, podéis ver el comando
+y como poder utilizarlo en la documentación oficial
+https://learn.microsoft.com/es-es/dotnet/core/tools/dotnet-migrate
+
+Sin embargo, la opción que yo he realizado en la migración de los
+proyectos en los que estoy, es de forma manual para tener claro que
+aspectos hay que modificar. Es un proceso sencillo pero la herramienta
+de migración solamente se encarga de migrar los aspectos del framework y
+no las dependencias externas que tengas, y si esto no lo haces, aunque
+tu aplicación este en NET8 su performance es de la librería cuya versión
+mínima de NET tengas de dependencia, con lo cual no habrás mejorado
+relativamente nada.
+
+Como es este proceso manual, primer aspecto es modificar el fichero
+csproj e indicarle que el framework es NET 8. Una vez modificado hay que
+modificar las propias librerías de Microsoft a la versión 8.0.0 y
+posteriormente actualizar las Nuget que estemos usando a la última
+versión. Es importante que miremos las dependencias, por si usamos
+alguna librería que no está en NET8 saberlo y ver como poder llevar a
+cabo esta actualización. Si es una librería medianamente popular y que
+siga con mantenimiento activo a día de hoy ya lo tendrá, sino esta yo me
+plantearía por qué estoy usando esta librería (pero esto es para otra
+librería).
+
+**Entonces, ¿migro o no migro?**
+
+El proceso de estar a la última en el framework es algo que debemos de
+tener contemplado y saber cuándo abordarlo, este proceso de migración
+puede ser más o menos costoso dependiendo en que versión de Frameworks
+estas y el impacto que quieres que tenga en tu producto.
+
+El migrarlo es algo que debes de hacer sí o sí, más que nada por
+elementos de seguridad y por tener el soporte del fabricante. Pero para
+mí la migración no es algo que solamente sea cambia un número en el
+csproj, sino que debemos de ir adoptando dentro de los equipos de
+desarrollo las novedades que van trayendo para que nuestro código no se
+quede obsoleto y el conocimiento de dotnet de los equipos vaya
+aumentando. Sin embargo, también es importante que se conozca que es lo
+que tiene esta versión y que es lo que voy a utilizar en el producto.
+Por ejemplo, en mi caso estábamos en NET 7 e hicimos la migración debido
+al uso de funcionalidades que teníamos y de las cuales íbamos a sacar un
+valor muy ventajoso de esta característica.
+
+A pesar de todo el hype que ha traído esta versión de Dotnet, si no
+fuera porque es LTS, no tiene ninguna característica super que puedas
+empezar a utilizar desde ya. Pero también es cierto que depende del
+estado de tu producto, si lo tienes en NET 7 con las features últimas en
+uso, una migración es algo que te cuesta muy poco tiempo. Si por el
+contrario estás en una versión 6 y quieres hacer un refactor para
+empezar a utilizar Minimal API, obtener mejoras en el performance es
+algo que debes de tener en cuenta y saber cuándo abordar estos cambios.
+
+Happy Coding!
+
+**Adrián Diaz Cervera** <br />
+Technical Lead at SCRM Lidl Hub International <br />
+Azure and M365 Development MVP <br />
+http://theavenger.dev <br />
+@AdrianDiaz81
+
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber
