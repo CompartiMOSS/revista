@@ -1,0 +1,177 @@
+---
+title: De Inteligencia Artificial, IoT y Drones - II
+slug: /revistas/numero-58/de-ia-iot-y-drones-parte-2
+date: 01/12/2023
+magazine: 58
+author: Javier Menendez Pallo
+authorId: javier-menendez-pallo
+keywords: ['AI', 'IoT']
+featuredImage: ../../../images/numero58/de-ia-iot-y-drones-parte-2/image1.png
+---
+
+
+Os presento la segunda y última parte de este artículo donde veíamos una
+combinación sencilla entre la inteligencia artificial y drones.
+
+Esta parte será mucho más corta que la anterior, en realidad sólo vamos
+a agregar un par de funciones, las más dedicadas a la parte de la
+Inteligencia Artificial, por lo que vayamos a por ello.
+
+**Recapitulando**
+
+El código que ya os había compartido sigue siendo válido, y solo tenemos
+pendiente modificar una función y agregar otra para dar este articulo
+por terminado.
+
+Antes de entrar a fondo en el código faltante creo que sería bueno
+resumir lo que tenemos hasta ahora:
+
+-   Ya tenemos la inicialización completa y hemos considerado todas las
+    librerías que necesitamos.
+
+-   Tenemos el control manual del dron, lo podemos hacer despegar,
+    moverse en cualquier sentido y aterrizar.
+
+-   Recibimos el vídeo que proviene de la cámara del Dron y lo mostramos
+    en pantalla.
+
+Y nos faltaría:
+
+-   Debemos "procesar" el video que viene del Dron, para identificar los
+    objetos que está captando la cámara y discernir entre esos objetos.
+    En esta parte es donde podemos hacer uso de toda nuestra imaginación
+    y codificar lo necesario para que esa identificación sea de un
+    objeto en particular, de varios objetos, de una persona, personas,
+    etc. En nuestro caso, por tratarse de una introducción básica
+    haremos un reconocimiento de personas, específicamente caras y debes
+    tener en cuenta que vamos a reconocer todas las caras
+    que esté captando la cámara en ese momento, quedándonos con la de
+    mayor tamaño y suponiendo que esa cara de mayor tamaño pertenece a
+    la persona que está más cerca.
+
+-   Acto seguido deberemos mover el dron en relación con la cara que
+    hemos identificado, con el objetivo de que siempre esté "mirando" la
+    cara y se mueva según la persona se mueve. En este punto debes tener
+    en cuenta que, aunque podemos mover el dron como queramos
+    (arriba/abajo, delante/atrás, izquierda/derecha y rotación
+    horaria/antihoraria) no haremos todos los movimientos para no
+    complicar el código. Ya verás que si quieres realizar todos los
+    posibles movimientos debes modificar el código mínimamente, pero
+    para nuestro ejemplo valdrá con solamente manejar 2 movimientos:
+    rotación y avance.
+
+Dicho esto, vamos a por ello!
+
+**La detección de las caras**
+
+Modifica el código que teníamos escrito para la función findFaces y
+déjalo tal como aparece en la siguiente imagen, y recuerda que al final
+del artículo te compartiré todo el código para que simplemente tengas
+que ejecutarlo, no siendo necesario que escribas cada línea.
+
+![A screenshot of a computer code Description automatically
+generated](../../../images/numero58/de-ia-iot-y-drones-parte-2/image1.png)
+
+Como puedes ver hemos agregado cosas a nuestra función que detecta las
+caras.
+
+En primer lugar, recuerda que para que la línea 60 funcione, debes haber
+cargado el fichero 'haarcascade_frontalface_default.xml', tal como te
+comentaba en la parte 1 de este artículo.
+
+La modificación principal se encuentra en la instrucción *for* de la
+línea 67 y como puedes ver lo que básicamente hace es almacenar en 2
+arrays todas las posiciones donde se ha encontrado una cara. Es decir,
+antes solo las detectábamos y pintábamos las caras y ahora seguimos
+haciéndolo, pero nos guardamos su posición. Ya verás para que.
+
+Finalmente, las instrucciones la línea 77 en adelante retornan la imagen
+que retornaba nuestra función original MÁS una matriz formada por los
+dos arrays, uno con las coordenadas de las caras encontradas y el otro
+con las áreas de la imagen.
+
+**El seguimiento**
+
+En esta parte vamos a escribir la parte que nos falta: la función que
+realmente ordena al dron realizar el movimiento respectivo para que haga
+el seguimiento de la persona.
+
+Antes que nada, agreguemos unas variables que utilizaremos de forma
+global, en mi caso las he agregado al principio:
+
+![A screenshot of a computer Description automatically
+generated](../../../images/numero58/de-ia-iot-y-drones-parte-2/image2.png)
+
+Acto seguido debemos agregar nuestra función de seguimiento, y aquí la
+tienes:
+
+Tampoco esta función es muy compleja como puedes ver, pero vamos a
+analizarla de todas formas.
+
+![A screenshot of a computer program Description automatically
+generated](../../../images/numero58/de-ia-iot-y-drones-parte-2/image3.png)
+Recibe como parámetros los arrays de
+posición, el ancho de imagen con el que está trabajando, un corrector de
+error que hemos definido como variable (el valor de estas variables
+refleja los valores que resultaban mejor para mi caso, puedes variarlas
+en tu caso) y la posición anterior, por aquello de que el movimiento que
+se realice se haga partiendo del movimiento que hicimos en la llamada
+anterior a esta misma función.
+
+En las líneas 114 y 115 estamos calculando la rotación que debemos tener
+en base al movimiento que ha tenido el usuario, o lo que es lo mismo: si
+la persona se ha movido a su derecha, el dron debe rotar hacia la
+izquierda, para seguir manteniendo la cara de la persona en el foco de
+la cámara (actúa como un espejo) y viceversa si se ha movido en la
+dirección contraria. El valor de pid actúa como un multiplicador de
+movimiento y aquí tendrás que hacer tus propias pruebas. Verás que, si
+aumentas los valores en los que hemos inicializado pid, el dron hace
+movimientos rotacionales mas bruscos, es decir, hace más rotación para
+enfocar al usuario y lo inverso si reduces el valor. Te recomiendo que
+pongas un valor cuyo resultado haga que el dron rote de forma suave,
+recuerda que esta función se ejecuta múltiples veces, una por cada frame
+que recibe, por lo que tienes tiempo para reposicionar el dron en cada
+pasada.
+
+Los if y elif siguientes hacen lo mismo que para el caso de la rotación
+para esta vez actuando sobre el avance y retroceso y todo ello viene
+comandado por el tamaño de la cara que se ha detectado. Si la cara es
+más grande que el tamaño de la cara que tenemos en nuestra variable
+fbRange haremos que el dron retroceda (estamos muy cerca). Si la cara es
+más pequeña nos acercaremos.... Aquí tienes que jugar otra vez con los
+valores en los que se inicializa fbRange, ya que cuanto más pequeños
+sean más estarás arriesgando con el dron haciendo que se acerque más a
+la cara de la persona antes de quedarse flotando.
+
+**Para terminar**
+
+Ya tenemos todo el código que necesitamos, nos queda simplemente
+actualizar nuestro programa principal para llamar a las nuevas funciones
+y probar todo. Aquí la modificación:
+
+![A screenshot of a computer program Description automatically
+generated](../../../images/numero58/de-ia-iot-y-drones-parte-2/image4.png)
+
+Tal como te prometí, no era necesario que fueses copiando y pegando cada
+trozo de código, porque aquí lo tienes completo y tal como lo hemos
+explicado antes:
+
+[Código de ejemplo](https://1drv.ms/f/s!ApIsxewvm-JyjB2ufjdPxmdSAJ4B)
+
+Espero que este artículo te haya resultado interesante, y si te decides
+por probar el código espero que vaya todo bien y tengas un buen rato de
+diversión. Ante cualquier problema puedes contactar conmigo (datos de
+contacto en mi perfil de la revista).
+
+Dejo a tu criterio todas las mejoras que este código podría recibir y
+cuento contigo para que mes feedback y me cuentes que tal vuela tu dron
+de forma automática. ¡¡te espero en la próxima!!!
+
+¡Abrazo!
+
+**Javier Menendez Pallo** <br />
+IA MVP
+
+
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber
