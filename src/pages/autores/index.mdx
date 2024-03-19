@@ -15,7 +15,7 @@ import ViewAuthors from "../../components/view-authors"
 export const pageQuery = graphql`
     query {
         allMdx(
-            sort: {fields: frontmatter___title, order: ASC},     
+            sort: {frontmatter: {title: ASC}},     
             filter: {
                 frontmatter: {type: {eq: "author"}}
             }) 
