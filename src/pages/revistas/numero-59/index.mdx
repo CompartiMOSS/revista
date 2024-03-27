@@ -1,0 +1,55 @@
+---
+title: Número 59 - Marzo 2024
+slug: /revistas/numero-59/
+date: 2024-03-01
+magazine: 59
+type: number
+content: >-
+    Comenzamos el 2024 como acabamos 2023: Todo lo que rodea la Inteligencia Artificial a todos los niveles es tendencia y está experimentando un momentum y evolución espectacular. Nos ha tocado vivir la época de los Copilot y como se suele decir, lo mejor está por venir. 
+    <br /><br />
+
+    Por supuesto, toda tecnología y plataforma de Microsoft se va a beneficiar de este momentum permitiendo que los desarrolladores puedan ser más creativos y productivos cuando construyen código, que los usuarios puedan centrarse en lo realmente importante porque la IA está ahí para complementar y ayudar. En definitiva, tenemos el privilegio de vivir un momento de la historia que lo está cambiando todo. 
+    <br /><br />
+
+    Todos los que conformamos CompartiMOSS (Editores, Autores y Lectores) vivimos y disfrutamos de este momento como vivimos y disfrutamos de la tecnología, compartimos nuestro conocimiento y mostramos en el día a día como la tecnología está al servicio de la humanidad y no al revés. Esperamos que los artículos de esta nueva Edición sean de su agrado y que disfruten de su lectura como hemos disfrutado los Editores.
+    <br /><br />
+
+    <b>El Equipo Editorial de CompartiMOSS</b>    
+    <br /><br />
+---
+
+
+import LayoutNumber from '../../../components/layout-number'
+import { graphql } from "gatsby";
+import ViewArticles from "../../../components/view-articles"
+import ViewPartners from '../../../components/view-partners'
+import NumberHeader from '../../../components/number-header'
+
+<NumberHeader frontmatter={props.pageContext.frontmatter} />
+
+<ViewArticles articles={props.data.allMdx} title="Índice" />
+
+<ViewPartners />
+
+export const pageQuery = graphql`
+    query {
+        allMdx(    
+            sort: {
+                frontmatter: {title: ASC}
+            }
+            filter: {
+                frontmatter: {magazine: {eq: 59}, type: {ne: "number"}}
+            }) 
+            {
+                edges {
+                    node {
+                        frontmatter {
+                            title, author, slug, authorId
+                        }      
+                    }
+                }
+            }
+    }
+`
+
+export default LayoutNumber

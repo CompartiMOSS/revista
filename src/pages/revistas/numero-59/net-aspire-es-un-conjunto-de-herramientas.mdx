@@ -1,0 +1,193 @@
+---
+title: Introducción a .NET Aspire
+slug: /revistas/numero-59/net-aspire-es-un-conjunto-de-herramientas
+date: 01/03/2024
+magazine: 59
+author: Santiago Porras Rodríguez
+authorId: santiago-porras-rodriguez
+keywords: ['.NET', 'Aspire', 'Microservicios']
+featuredImage: ../../../images/numero59/net-aspire-es-un-conjunto-de-herramientas/image1.png
+---
+
+.NET Aspire es un conjunto de herramientas, componentes y patrones que
+han sido diseñados para ayudarnos a desarrollar aplicaciones
+distribuidas preparadas para desplegar en la nube. Resumiéndolo mucho,
+.NET Aspire está pensado para mejorar la experiencia de desarrollar
+aplicaciones .NET nativas de la nube pensando que éstas harán uso de
+diferentes servicios, componentes, APIs, etc.
+
+Para lograr su objetivo, .NET Aspire, más allá de un core que nos
+permite orquestar la ejecución de nuestras aplicaciones en entornos de
+desarrollo y depuración, nos ofrece componentes y herramientas con las
+que podemos no sólo simular comportamientos y servicios que tendría
+cuando esté desplegado en la nube, sino que también nos facilita
+cuestiones tan básicas como la relación entre componentes de nuestra
+solución y la observabilidad y resiliencia tanto a nivel global de la
+solución como individual de cada componente.
+
+## Orquestación
+
+.NET Aspire simplifica la configuración y conexión de diferentes partes
+de las soluciones, definiendo en un nuevo tipo de proyecto, que de base
+se llama AppHost, en el que podemos establecer qué elementos componen la
+aplicación y cómo se relacionan entre ellos. De esta forma ofrece
+abstracciones para gestionar el descubrimiento de servicios, variables
+de entorno y configuraciones de contenedores sin necesidad de lidiar con
+detalles de implementación que pueden ser complejos en muchos casos.
+
+El código a continuación corresponde al fichero Program.cs del proyecto
+AppHost, que no es más que un "Proyecto de Consola" que viene marcado en
+sus propiedades como "Host de Aspire". Como podemos observar, funciona
+de forma muy simple, registrando en el builder cada una de las piezas
+que van a ser orquestadas por el host y estableciendo la relación que
+mantendrán entre sí mediante el método "*AddReference*". De esta forma,
+Aspire inyecta la ruta en la que se encuentran disponibles los elementos
+referenciados haciendo transparente para el desarrollador dónde han sido
+publicados (Service Discovery). Para ello, .NET Aspire genera un Proxy
+muy simple que enruta a cada uno de los elementos orquestados
+gestionando los accesos con "named endpoints".
+
+![A screenshot of a computer program Description automatically
+generated](../../../images/numero59/net-aspire-es-un-conjunto-de-herramientas/image1.png)
+
+## Componentes
+
+Los componentes de .NET Aspire son paquetes NuGet para servicios
+comúnmente utilizados, como Redis o Postgres. Estos componentes tienen
+interfaces estandarizadas para conectarse de manera consistente y fluida
+con tu aplicación. Eso no significa que no puedan ser usados en
+soluciones que no estén gestionadas por .NET Aspire, sino todo lo
+contrario, al ser paquetes Nuget, se pueden incluir en proyectos
+"normales", siempre que estén desarrollados con .NET 8.
+
+En el momento de escribir este artículo, están disponibles más de 20
+componentes entre los que que podemos encontrar, OpenAI, Redis,
+RabbitMQ, etc, así como el correspondiente a cada uno de los motores de
+Bases de Datos más comunes. Puedes encontrar [la lista completa y más
+información en este
+enlace](https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/components-overview?tabs=dotnet-cli).
+
+Para instalar un componente, por ejemplo para PostgreSQL, si estamos en
+Visual Studio, se puede hacer desde la propia interfaz, o también se
+puede hacer por línea de comandos como con cualquier paquete Nuget.
+
+![A black background with white text Description automatically
+generated](../../../images/numero59/net-aspire-es-un-conjunto-de-herramientas/image2.png)
+
+Una vez instalado, podremos hacer uso de este componente, como en el
+código que vimos anteriormente
+
+![A screenshot of a computer screen Description automatically
+generated](../../../images/numero59/net-aspire-es-un-conjunto-de-herramientas/image3.png)
+
+## Herramientas
+
+.NET Aspire incluye plantillas de proyectos y experiencias de
+herramientas para Visual Studio y la interfaz de línea de comandos de
+dotnet. Esto facilita la creación e interacción con aplicaciones .NET
+Aspire.
+
+Las plantillas disponibles hasta el momento son
+
+-   .NET Aspire Application: Que es una solución "en blanco" que sólo
+    contiene lo necesario para que comencemos nuestros proyectos
+    orquestados con .NET Aspire, es decir, contiene el proyecto AppHost
+    y el proyecto ServiceDefaults donde se definen los elementos comunes
+    de los servicios orquestados.
+
+-   .NET Aspire Starter Applicaction: Añade una Api de ejemplo y un
+    frontal con Blazor a la plantilla anterior y los configura en el
+    orquestador del AppHost.
+
+Las herramientas que aporta .NET Aspire por defecto son:
+
+-   Telemetría: Haciendo uso de OpenTelemetry, .NET Aspire se encarga de
+    gestionar la telemetría de nuestras soluciones. Además, se pueden
+    exportar a, por ejemplo Prometheus o Azure Monitor.
+
+-   Check Health por defecto
+
+-   Service Discovery
+
+## Instalación
+
+.NET Aspire requiere de una pequeña configuración de nuestro entorno de
+desarrollo antes de comenzar. Estos son los requisitos necesarios:
+
+-   [.NET 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+
+-   .NET Aspire Workload
+
+-   Docker Desktop
+
+-   Visual Studio Preview 2022 17.9+ (Opcional)
+
+-   Visual Studio Code (Opcional)
+
+Una vez instalados los elementos necesarios para desarrollar usando .NET
+Aspire, ya podremos comenzar a crear proyectos desde Visual Studio o
+desde línea de comandos como podemos ver en las imágenes a continuación.
+
+![A screenshot of the .NET Aspire Starter Application
+template.](../../../images/numero59/net-aspire-es-un-conjunto-de-herramientas/image4.png)
+
+![Imagen que contiene Texto Descripción generada
+automáticamente](../../../images/numero59/net-aspire-es-un-conjunto-de-herramientas/image5.png)
+
+## Ejecutar la orquestación
+
+Desde Visual Studio, podemos ejecutar la orquestación tomando como
+proyecto de inicio el AppHost. Si estamos en línea de comandos,
+ejecutando "*dotnet run*" desde el directorio del proyecto AppHost:
+
+![A black background with white text Description automatically
+generated](../../../images/numero59/net-aspire-es-un-conjunto-de-herramientas/image6.png)
+
+También podemos hacerlo desde el proyecto de la solución:
+
+![Texto Descripción generada automáticamente con confianza
+baja](../../../images/numero59/net-aspire-es-un-conjunto-de-herramientas/image7.png)
+
+Si hemos ejecutado desde línea de comandos, podremos observar el log de
+la consola que nos indica en qué ruta local está levantado el Dashboard.
+En este caso "*http://localhost:15174*"
+
+![Texto Descripción generada
+automáticamente](../../../images/numero59/net-aspire-es-un-conjunto-de-herramientas/image8.png)
+
+Si hemos ejecutado el proyecto desde Visual Studio 2022 o si accedemos a
+la ruta que nos indica el log de la consola, podremos ver el dashboard
+de Aspire, en el que se muestran los proyectos que están siendo
+orquestados, su estado, logs, etc.
+
+![A screenshot of a computer Description automatically
+generated](../../../images/numero59/net-aspire-es-un-conjunto-de-herramientas/image9.png)
+
+Algo muy importante del dashboard es la capacidad de poder ver logs y
+métricas, que nos darán información sobre la ejecución y el rendimiento
+de los elementos que componen nuestras soluciones.
+
+![Captura de pantalla de un celular Descripción generada
+automáticamente](../../../images/numero59/net-aspire-es-un-conjunto-de-herramientas/image10.png)
+
+![Interfaz de usuario gráfica Descripción generada
+automáticamente](../../../images/numero59/net-aspire-es-un-conjunto-de-herramientas/image11.png)
+
+## Resumen
+
+Como hemos podido ver, .NET Aspire es una stack de herramientas muy útil
+para desarrollar proyectos compuestos por varios elementos, además de
+incluir componentes prediseñados que harán que nuestros desarrollos se
+aceleren de forma sustancial.
+
+Por otro lado, teniendo disponibles las métricas y la telemetría en
+local, podremos observar el comportamiento de nuestras soluciones
+distribuidas desde la etapa de desarrollo, anticipándonos a posibles
+problemas al desplegar.
+
+**Santiago Porras Rodríguez** <br />
+MVP Developer Technologies <br />
+Solutions Architect & Frontend Lead at ENCAMINA <br />
+
+import LayoutNumber from '../../../components/layout-article'
+export default LayoutNumber

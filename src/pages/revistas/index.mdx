@@ -14,19 +14,18 @@ import SEO from '../../components/seo'
 
 export const pageQuery = graphql`
     query {
-        allMdx(    
-            sort: {
-                fields: frontmatter___magazine, order: DESC
-            }
-            filter: {
-                frontmatter: {type: {eq:"number"}}
-            }) 
-            {
+        allMdx(
+            sort: {frontmatter: {magazine: DESC}}
+            filter: {frontmatter: {type: {eq: "number"}}}
+        ) {
             edges {
                 node {
                     frontmatter {
-                        title, slug, magazine, content
-                    }      
+                        title
+                        slug
+                        magazine
+                        content
+                    }
                 }
             }
         }
