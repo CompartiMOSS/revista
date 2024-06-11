@@ -1,0 +1,212 @@
+---
+title: Cómo Crear Tenants de pruebas para Microsoft 365, Intune, PowerPlatform y Azure
+slug: /revistas/numero-60/como-crear-tenants-de-pruebas-para-microsoft-365-intune-powerplatform-y-azure
+date: 01/06/2024
+magazine: 60
+author: Alberto Andrés Rodríguez
+authorId: alberto-andres-rodriguez
+keywords: ['Microsoft 365', 'Intune', 'PowerPlatform', 'Azure']
+featuredImage: ../../../images/numero60/como-crear-tenants-de-pruebas-para-microsoft-365-intune-powerplatform-y-azure/image1.png
+---
+
+En el desarrollo de software y la administración de sistemas IT, contar
+con un entorno seguro y aislado para realizar pruebas es fundamental.
+Los tenants de pruebas son una solución práctica para realizar pruebas
+de concepto y desarrollo sin afectar los datos y configuraciones de
+producción. En mi día a día, muchas de las pruebas que hago, acaban
+siendo en este tipo de laboratorios, y una vez que tengo claro que es lo
+que tengo que hacer y cómo, hago el paso de acción en cliente.
+
+**¿Qué es un Tenant de Desarrollo de Microsoft 365?**
+
+Un tenant de desarrollo de Microsoft 365 es una instancia completamente
+funcional de Microsoft 365, diseñada específicamente para
+desarrolladores, pero que también el resto de integrantes del gremio
+podemos hacer uso. Esto permite probar soluciones en un entorno que
+simula el de producción sin comprometer la seguridad o la integridad de
+los datos reales.
+
+**Cómo crear un Tenant de Desarrollo de M365**
+
+Para crear un tenant de desarrollo, necesitas ser miembro del Programa
+para Desarrolladores de Microsoft 365. Aquí te explico cómo puedes
+obtener acceso:
+
+1.  **Regístrate en el Programa para Desarrolladores de Microsoft 365:**
+    Visita la página oficial del [[Programa para Desarrolladores de
+    Microsoft
+    365]](https://developer.microsoft.com/en-us/microsoft-365/dev-program).
+    Utiliza una cuenta personal de Outlook o Hotmail para evitar
+    problemas de acceso relacionados con permisos corporativos.
+
+2.  **Configura tu tenant de desarrollo:** Una vez registrado, podrás
+    configurar tu tenant. Microsoft proporciona una guía detallada
+    durante este proceso para ayudarte a configurar todas las
+    funcionalidades necesarias.
+
+**Renovación Automática del Tenant de Desarrollo**
+
+Por defecto, los tenants de desarrollo tienen una caducidad inicial de
+90 días, pero pueden renovarse automáticamente mediante actividades
+específicas. (por ejemplo el que tengo yo ya lleva en activo unos
+años...)
+
+![A screenshot of a computer Description automatically
+generated](../../../images/numero60/como-crear-tenants-de-pruebas-para-microsoft-365-intune-powerplatform-y-azure/image1.png)
+
+Algunas de las acciones que puedes realizar para promover la renovación
+automática incluyen:
+
+-   Implementar al menos una plantilla de SharePoint utilizando
+    Microsoft Lookbook.
+
+-   Crear un equipo en Microsoft Teams.
+
+-   Publicar 3 aplicaciones de Power Apps utilizando plantillas
+    disponibles.
+
+-   Publicar 3 flujos de Power Automate utilizando plantillas
+    disponibles.
+
+**Otras cosas chulas que tienen los tenants de desarrollo...**
+
+Puedes importar paquetes de usuarios y contenido para que no se vean tan
+desangelados, proporcionándote una base para empezar a trabajar:
+
+![A close up of text Description automatically
+generated](../../../images/numero60/como-crear-tenants-de-pruebas-para-microsoft-365-intune-powerplatform-y-azure/image2.png)
+
+**Yo soy de workplace y necesito montar un Laboratorio para Intune o
+Pruebas con Equipos de Usuarios**
+
+Si tus pruebas requieren la configuración de equipos, un controlador de
+dominio (DC), y otros componentes de red, puedes montar un laboratorio
+utilizando Hyper-V. En el siguiente blog: [Windows 365: Perfect Test
+Environment -- SIMSEN
+blog](https://www.simsenblog.dk/2023/06/12/windows-365-cloud-pc-unleashing-the-power/),
+se explica como establecer un entorno de HyperV en tu máquina virtual
+local o en una de Azure (aunque para esto último, tendrás que hacer
+algún que otro paso extra que luego te explico)
+
+Si lo quieres montar en un equipo físico, basta con ir al vínculo:
+[[Centro de Evaluación de
+Microsoft]](https://www.microsoft.com/en-us/evalcenter/download-lab-kit),
+descargar el ejecutable (22GB) y montar tu propio entorno de HyperV, el
+que luego lo quieras enganchar con Intune, ya es cosa tuya
+
+![A white background with black text Description automatically
+generated](../../../images/numero60/como-crear-tenants-de-pruebas-para-microsoft-365-intune-powerplatform-y-azure/image3.png)
+
+**Si vas a montar el lab en una VM de Azure, ten en cuenta lo
+siguiente:**
+
+Tendrás que implementación una máquina virtual de Windows Server de las
+series Dv3 y Ev3 en Azure que admita "nested virtualization", para ello
+consulta el artículo sobre los tamaños de máquina virtual [Presentación
+de los nuevos tamaños de máquina virtual Dv3 y Ev3 | Blog de Microsoft
+Azure](https://azure.microsoft.com/en-us/blog/introducing-the-new-dv3-and-ev3-vm-sizes/)
+
+Una vez montada la VM, tendrás que prepararla de la siguiente forma:
+
+```powershell	
+#Ejecutar lo siguiente en la VM de Azure:
+Install-WindowsFeature -Name DHCP,Hyper-V --IncludeManagementTools
+
+#una vez instalado sin error reiniciar la VM
+
+Shutdown -R
+
+#configurar HyperV
+
+$switchName = "InternalNAT"
+
+New-VMSwitch -Name $switchName -SwitchType Internal
+
+New-NetNat --Name $switchName --InternalIPInterfaceAddressPrefix
+"192.168.0.0/24"
+
+$ifIndex = (Get-NetAdapter | ? {$_.name -like
+"*$switchName)"}).ifIndex
+
+New-NetIPAddress -IPAddress 192.168.0.1 -InterfaceIndex $ifIndex
+-PrefixLength 24
+
+#configurar servicio DHCP
+
+Add-DhcpServerV4Scope -Name "DHCP-$switchName" -StartRange
+192.168.0.50 -EndRange 192.168.0.100 -SubnetMask 255.255.255.0
+
+Set-DhcpServerV4OptionValue -Router 192.168.0.1 -DnsServer 168.63.129.16
+
+Restart-service dhcpserver
+```
+
+Si te falla algun tema del driver del BUS, vuelve a hacer la
+implementación, no será la primera vez que me pasa a mí eso. A partir de
+aquí, instalar el ejecutable que ofrece Microsoft y a jugar
+
+**Desarrollo con Dataverse**
+
+Si estás interesado en comenzar con Dataverse y no cuentas con una
+licencia, puedes optar por el **Plan de Desarrollador de Power Apps**.
+Este plan te proporciona Power Apps, Power Automate y Dataverse para uso
+no productivo. Puedes obtener más información y registrarte en [[Power
+Apps Developer
+Plan]](https://powerapps.microsoft.com/en-us/developerplan/).
+
+Tienes dos opciones para registrarte:
+
+-   **Comenzar gratis:** Utiliza esta opción si no estás usando Power
+    Apps, Power Automate o Dataverse.
+
+-   **¿Usuario existente? Añade un entorno de desarrollo:** Utiliza esta
+    opción si ya estás utilizando Power Apps, Power Automate o
+    Dataverse.
+
+El entorno de desarrollo que se abrirá en la experiencia de creación de
+Power Apps llevará tu nombre completo en plural, por ejemplo,
+"Alberto's Environment". Es importante mencionar que no puedes cambiar
+este nombre. A excepción de los dataflows, tendrás acceso a todas las
+características estándar y premium.
+
+![Power Apps maker
+experience](../../../images/numero60/como-crear-tenants-de-pruebas-para-microsoft-365-intune-powerplatform-y-azure/image4.png)
+
+No todas las organizaciones tendrán acceso a Dataverse. El uso del plan
+para desarrolladores de Power Apps te dará la oportunidad de descubrir
+el conjunto de características y demostrar el valor antes de comprar más
+licencias
+
+**Azure y Visual Studio Enterprise**
+
+Por último, hasta donde yo sé, no hay forma de crear tenants de pruebas
+sin poner tarjetas de crédito, pero si tu empresa es partner de
+Microsoft, tenéis Solutions Areas y/o especializaciones completadas,
+probablemente tengáis algunos beneficios como licencias para activar
+suscripciones de Visual Studio Enterprise, dentro de ellas, hay un
+beneficio que es el disponer de una cuenta de Azure con 150$ de crédito
+mensual, muy útil para pruebas. [Explore your Visual Studio and GitHub
+benefits in Partner Center - Partner Center | Microsoft
+Learn](https://learn.microsoft.com/en-us/partner-center/mpn-benefits-visual-studio)
+entre otras cosas:
+
+![A screenshot of a computer Description automatically
+generated](../../../images/numero60/como-crear-tenants-de-pruebas-para-microsoft-365-intune-powerplatform-y-azure/image5.png)
+
+Aquí ya es cuestión de hablar con quien maneja el partner center y
+pedirle el favor que te asigne una licencia. Esto mismo es aplicable a
+los que sois MCTs o MVPs (aunque vosotros lo sabéis de sobras).
+
+**Conclusión**
+
+Ya vemos que disponer de tenants de desarrollo/pruebas dentro del
+ecosistema de Microsoft es un valor incalculable para innovar y probar
+soluciones sin riesgos. Aprovechar estos recursos no solo mejora las
+capacidades de desarrollo y prueba, sino que también asegura que las
+soluciones sean robustas y bien integradas antes de implementarlas en
+producción
+
+Alberto Andrés Rodríguez <br />
+Cloud Solutions Architect & Innovation Lead @ Seidor <br />
+[- Alberto Andrés Rodríguez - | LinkedIn](https://www.linkedin.com/in/albertoar/) <br />
+[Albandrod's Memory -- My second memory and thoughts about IT in general (wordpress.com)](https://albandrodsmemory.wordpress.com/)
