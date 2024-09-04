@@ -1,0 +1,72 @@
+---
+title: Número 61 - Septiembre 2024
+slug: /revistas/numero-61/
+date: 2024-09-01
+magazine: 61
+type: number
+content: >-
+    Después de un verano que esperamos haya servido para cargar pilas y
+    volver con fuerza a nuestro día a día en el mundo de las tecnologías
+    Microsoft, desde CompartiMOSS nos complace presentaros un nuevo número
+    en el que de nuevo autores y editores hemos estado trabajando con el
+    ánimo e ilusión que nos ha caracterizado desde hace más de 15 años.
+    <br /><br />
+
+    En la era de los Copilots, la tecnología evoluciona cada vez más rápido
+    liberando de forma continua innovaciones y nuevas funcionalidades para
+    el presente y futuro de la humanidad de la mano no solo de la
+    Inteligencia Artificial, sino también de todo lo que gira en torno al
+    Low Code (nuestra querida Power Platform), plataformas EXP (Microsoft
+    Viva con todos sus sabores) o las nubes de Microsoft (Microsoft 365,
+    Microsoft Azure y de nuevo la Power Platform). Sin duda estamos viviendo
+    un momento excepcional que supondrá un punto y aparte en como nos
+    relacionamos con la información y la tecnología, como nos reinventamos y
+    adaptamos a utilizar las nuevas herramientas y posibilidades que la IA
+    pone a nuestro alcance y sobre todo como seguir en la cresta de la ola
+    de la innovación continua.
+    <br /><br />
+
+    Esperamos que los artículos de este nuevo número de nuevo sean del
+    interés de nuestros lectores y que disfruten de su lectura como hemos
+    disfrutado al revisarlos.
+    <br /><br />
+
+    <b>El Equipo Editorial de CompartiMOSS</b>    
+    <br /><br />
+---
+
+
+import LayoutNumber from '../../../components/layout-number'
+import { graphql } from "gatsby";
+import ViewArticles from "../../../components/view-articles"
+import ViewPartners from '../../../components/view-partners'
+import NumberHeader from '../../../components/number-header'
+
+<NumberHeader frontmatter={props.pageContext.frontmatter} />
+
+<ViewArticles articles={props.data.allMdx} title="Índice" />
+
+<ViewPartners />
+
+export const pageQuery = graphql`
+    query {
+        allMdx(    
+            sort: {
+                frontmatter: {title: ASC}
+            }
+            filter: {
+                frontmatter: {magazine: {eq: 61}, type: {ne: "number"}}
+            }) 
+            {
+                edges {
+                    node {
+                        frontmatter {
+                            title, author, slug, authorId
+                        }      
+                    }
+                }
+            }
+    }
+`
+
+export default LayoutNumber
