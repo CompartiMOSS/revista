@@ -29,7 +29,7 @@ const DivImage = styled(Grid)({
 const HomePage = ({}) => {
   const data = useStaticQuery(graphql`{
   current: allMdx(
-    filter: {frontmatter: {magazine: {eq: 60}, type: {eq: "number"}}}
+    filter: {frontmatter: {magazine: {eq: 61}, type: {eq: "number"}}}
   ) {
     edges {
       node {
@@ -42,7 +42,7 @@ const HomePage = ({}) => {
     }
   }
   articles: allMdx(
-    filter: {frontmatter: {magazine: {eq: 60}, type: {ne: "number"}}}
+    filter: {frontmatter: {magazine: {eq: 61}, type: {ne: "number"}}}
   ) {
     edges {
       node {
