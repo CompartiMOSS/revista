@@ -21,7 +21,7 @@ jobs:
     - name: Run Gatsby 
       run: export NODE_OPTIONS='--max-old-space-size=8192' && npm run build  
     - name: Publish artifacts
-      uses: actions/upload-artifact@v2.2.2
+      uses: actions/upload-artifact@v4.4.3
       with: 
         name: site
         path: ${{ env.SITE_PUBLIC_PATH }}
@@ -34,7 +34,7 @@ jobs:
       
     steps:
     - name: Download build artifact
-      uses: actions/download-artifact@v2.0.8
+      uses: actions/download-artifact@v4.1.8
       with:
         name: site
         path: ${{ env.SITE_PUBLIC_PATH }}
@@ -52,10 +52,9 @@ jobs:
     needs: deploypre
     environment:
       name: pro
-      
     steps:
     - name: Download build artifact
-      uses: actions/download-artifact@v2.0.8
+      uses: actions/download-artifact@v4.1.8
       with:
         name: site
         path: ${{ env.SITE_PUBLIC_PATH }}        
