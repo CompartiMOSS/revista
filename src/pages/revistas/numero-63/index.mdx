@@ -1,0 +1,48 @@
+---
+title: Número 63 - Marzo 2024
+slug: /revistas/numero-63/
+date: 2025-03-01
+magazine: 63
+type: number
+content: >-
+    <br /><br />
+
+    <b>El Equipo Editorial de CompartiMOSS</b>    
+    <br /><br />
+---
+
+
+import LayoutNumber from '../../../components/layout-number'
+import { graphql } from "gatsby";
+import ViewArticles from "../../../components/view-articles"
+import ViewPartners from '../../../components/view-partners'
+import NumberHeader from '../../../components/number-header'
+
+<NumberHeader frontmatter={props.pageContext.frontmatter} />
+
+<ViewArticles articles={props.data.allMdx} title="Índice" />
+
+<ViewPartners />
+
+export const pageQuery = graphql`
+    query {
+        allMdx(    
+            sort: {
+                frontmatter: {title: ASC}
+            }
+            filter: {
+                frontmatter: {magazine: {eq: 63}, type: {ne: "number"}}
+            }) 
+            {
+                edges {
+                    node {
+                        frontmatter {
+                            title, author, slug, authorId
+                        }      
+                    }
+                }
+            }
+    }
+`
+
+export default LayoutNumber
